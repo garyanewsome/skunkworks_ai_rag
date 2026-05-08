@@ -26,7 +26,13 @@ load_dotenv()
 import anthropic
 
 from embeddings import encode_texts
-from rag_store import get_connection, search_similar, search_similar_global
+from rag_store import (
+    get_connection,
+    search_similar,
+    search_similar_global,
+    search_similar_multi,
+    widen_retrieval_query_for_multi_video,
+)
 
 
 def _ms_to_clock(ms: int | None) -> str:
@@ -70,6 +76,7 @@ def run_rag_agent(
     prompt: str,
     *,
     video_id: str | None,
+    video_ids: list[str] | None = None,
     top_k: int,
     model: str,
     max_tokens: int,
@@ -78,9 +85,13 @@ def run_rag_agent(
     if not q:
         raise ValueError("Prompt is empty.")
 
-    qvec = encode_texts([q])[0]
+    ids = [x.strip() for x in (video_ids or []) if x and str(x).strip()]
+    rq = widen_retrieval_query_for_multi_video(q, len(ids)) if ids else q
+    qvec = encode_texts([rq])[0]
     with get_connection() as conn:
-        if video_id:
+        if ids:
+            hits = search_similar_multi(conn, ids, qvec, top_k=top_k)
+        elif video_id:
             hits = search_similar(conn, video_id, qvec, top_k=top_k)
         else:
             hits = search_similar_global(conn, qvec, top_k=top_k)
@@ -88,24 +99,64 @@ def run_rag_agent(
     if not hits:
         raise RuntimeError(
             "No transcript chunks found. Run ingest_transcript.py first."
-            if not video_id
-            else f"No transcript chunks found for video_id={video_id!r}. "
-            "Run ingest_transcript.py first."
+            if not ids and not video_id
+            else (
+                f"No transcript chunks for video_ids={ids!r}. Run ingest_transcript.py first."
+                if ids
+                else f"No transcript chunks found for video_id={video_id!r}. "
+                "Run ingest_transcript.py first."
+            )
         )
 
     context = _format_context(hits)
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-    system = dedent(
-        """
-        You are an expert tutor for Stanford physics lectures (classical mechanics and related topics).
-        The user message includes transcript excerpts that may come from one lecture or from several
-        different videos in a course playlist. Each block is labeled with its YouTube video id,
-        timestamps, and a playback URL. Use ONLY this material to answer.
-        If the excerpts do not contain enough information, say so clearly. Be technical and faithful
-        to the lecture wording where it matters; name which video(s) you are drawing from when helpful.
-        """
-    ).strip()
+    # Check if the query is about creating study materials
+    study_keywords = ["study", "guide", "test", "exam", "quiz", "practice", "questions", "review", "learn", "teach", "tutor"]
+    is_study_query = any(keyword in q.lower() for keyword in study_keywords)
+
+    # Increase max_tokens for study queries to accommodate longer responses
+    effective_max_tokens = max_tokens * 30 if is_study_query else max_tokens
+
+    if is_study_query:
+        system = dedent(
+            """
+            You are an expert tutor for Stanford physics lectures (classical mechanics and related topics).
+            The user is asking for help in studying, creating tests, or study guides. Based on the provided transcript excerpts,
+            create a comprehensive study guide that includes:
+
+            1. **Overview/Summary**: A brief summary of the key concepts from the material.
+
+            2. **50 Top Questions**: Generate exactly 50 high-quality questions that cover the material.
+               - Separate them into **Theory Questions** (conceptual understanding) and **Practical Questions** (problem-solving, calculations).
+               - For each question, provide the answer and a detailed explanation.
+               - Where appropriate, include descriptions of drawings, diagrams, or charts that would help visualize the concept.
+                 Use ASCII art or detailed textual descriptions for diagrams when they would aid understanding.
+
+            3. **Key Formulas and Concepts**: List important equations, principles, and definitions.
+
+            4. **Study Tips**: Provide advice on how to approach this material.
+
+            Use ONLY the provided transcript material. If the excerpts don't cover enough for 50 questions, note that and provide as many as possible.
+            Reference specific videos and timestamps when relevant.
+            Make it like a personalized tutoring session.
+
+            When excerpts come from several videos in one course group, they are intentionally spread
+            across lectures (not only one video). Synthesize across all provided blocks; do not assume
+            the material is from a single short clip unless only one video id appears in the excerpts.
+            """
+        ).strip()
+    else:
+        system = dedent(
+            """
+            You are an expert tutor for Stanford physics lectures (classical mechanics and related topics).
+            The user message includes transcript excerpts that may come from one lecture or from several
+            different videos in a course playlist. Each block is labeled with its YouTube video id,
+            timestamps, and a playback URL. Use ONLY this material to answer.
+            If the excerpts do not contain enough information, say so clearly. Be technical and faithful
+            to the lecture wording where it matters; name which video(s) you are drawing from when helpful.
+            """
+        ).strip()
 
     user_content = (
         f"Question:\n{q}\n\n"
@@ -113,17 +164,16 @@ def run_rag_agent(
         f"{context}"
     )
 
-    msg = client.messages.create(
+    with client.messages.stream(
         model=model,
-        max_tokens=max_tokens,
+        max_tokens=effective_max_tokens,
         system=system,
         messages=[{"role": "user", "content": user_content}],
-    )
-    text_parts: list[str] = []
-    for block in msg.content:
-        if block.type == "text":
-            text_parts.append(block.text)
-    answer = "\n".join(text_parts).strip()
+    ) as stream:
+        text_parts: list[str] = []
+        for text in stream.text_stream:
+            text_parts.append(text)
+        answer = "".join(text_parts).strip()
     return answer, hits
 
 

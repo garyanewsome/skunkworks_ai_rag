@@ -48,6 +48,12 @@ def main() -> int:
         help="Maximum characters per chunk (default: 1500)",
     )
     p.add_argument(
+        "--overlap-ratio",
+        type=float,
+        default=0.1,
+        help="Chunk boundary overlap as fraction of chunk size (default: 0.1). Use 0 to disable.",
+    )
+    p.add_argument(
         "--replace",
         action="store_true",
         help="Replace existing rows for each video_id before insert",
@@ -76,6 +82,7 @@ def main() -> int:
                 path,
                 video_id=vid,
                 chunk_chars=args.chunk_chars,
+                overlap_ratio=args.overlap_ratio,
                 replace=args.replace,
                 verbose=False,
             )

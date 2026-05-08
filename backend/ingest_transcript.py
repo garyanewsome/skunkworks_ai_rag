@@ -30,6 +30,7 @@ def ingest_one_srt(
     *,
     video_id: str,
     chunk_chars: int = 1500,
+    overlap_ratio: float = 0.1,
     replace: bool = False,
     verbose: bool = True,
 ) -> int:
@@ -39,13 +40,16 @@ def ingest_one_srt(
 
     text = path.read_text(encoding="utf-8", errors="replace")
     cues = parse_srt(text)
-    chunks = chunk_cues(cues, max_chars=chunk_chars)
+    chunks = chunk_cues(cues, max_chars=chunk_chars, overlap_ratio=overlap_ratio)
     if not chunks:
         raise ValueError("No cues or chunks parsed from SRT.")
 
     if verbose:
         print(f"Database: {database_url()}")
-        print(f"{path.name}: cues={len(cues)}, chunks={len(chunks)} (max {chunk_chars} chars)")
+        print(
+            f"{path.name}: cues={len(cues)}, chunks={len(chunks)} "
+            f"(max {chunk_chars} chars, overlap_ratio={overlap_ratio})"
+        )
 
     dim = embedding_dim()
     vectors = encode_texts([c["content"] for c in chunks])
@@ -78,6 +82,12 @@ def main() -> int:
         help="Maximum characters per chunk (default: 1500)",
     )
     p.add_argument(
+        "--overlap-ratio",
+        type=float,
+        default=0.1,
+        help="Fraction of max chunk size to repeat at each chunk boundary (default: 0.1). Use 0 to disable.",
+    )
+    p.add_argument(
         "--replace",
         action="store_true",
         help="Delete existing rows for this video_id before insert",
@@ -90,6 +100,7 @@ def main() -> int:
             path,
             video_id=args.video_id,
             chunk_chars=args.chunk_chars,
+            overlap_ratio=args.overlap_ratio,
             replace=args.replace,
             verbose=True,
         )

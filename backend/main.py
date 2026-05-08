@@ -14,9 +14,13 @@ from rag_store import (
     list_videos,
     search_similar,
     search_similar_global,
+    search_similar_multi,
+    widen_retrieval_query_for_multi_video,
 )
+from video_catalog import load_video_titles
 
 _BACKEND_ROOT = Path(__file__).resolve().parent
+_REPO_ROOT = _BACKEND_ROOT.parent
 load_dotenv(_BACKEND_ROOT / ".env")
 
 
@@ -47,6 +51,10 @@ async def health_check():
 class VideoItem(BaseModel):
     video_id: str
     chunk_count: int
+    title: str | None = Field(
+        default=None,
+        description="YouTube title from video_meta table, else lectures_physics/video_titles.json.",
+    )
 
 
 class VideosListResponse(BaseModel):
@@ -56,14 +64,25 @@ class VideosListResponse(BaseModel):
 @app.get("/api/videos", response_model=VideosListResponse)
 def get_videos():
     """List lecture videos that have ingested transcript chunks (distinct video_id from DB)."""
+    file_titles = load_video_titles(_REPO_ROOT)
     with get_connection() as conn:
         rows = list_videos(conn)
-    return VideosListResponse(
-        videos=[
-            VideoItem(video_id=str(r["video_id"]), chunk_count=int(r["chunk_count"]))
-            for r in rows
-        ]
-    )
+    out: list[VideoItem] = []
+    for r in rows:
+        vid = str(r["video_id"])
+        db_title = r.get("title")
+        if db_title is not None and str(db_title).strip():
+            t = str(db_title).strip()
+        else:
+            t = file_titles.get(vid)
+        out.append(
+            VideoItem(
+                video_id=vid,
+                chunk_count=int(r["chunk_count"]),
+                title=t,
+            )
+        )
+    return VideosListResponse(videos=out)
 
 
 class RagQuery(BaseModel):
@@ -71,6 +90,10 @@ class RagQuery(BaseModel):
     video_id: str | None = Field(
         default=None,
         description="Restrict search to this YouTube id; omit to search all ingested videos.",
+    )
+    video_ids: list[str] | None = Field(
+        default=None,
+        description="Restrict search to these YouTube ids (e.g. multi-part same topic). Overrides video_id when set.",
     )
     top_k: int = Field(5, ge=1, le=50)
 
@@ -88,7 +111,11 @@ class RagHit(BaseModel):
 class RagQueryResponse(BaseModel):
     filter_video_id: str | None = Field(
         default=None,
-        description="Echo of request filter; None means global search.",
+        description="Echo of request filter; None when multi-id or global.",
+    )
+    filter_video_ids: list[str] | None = Field(
+        default=None,
+        description="Echo when search was restricted to multiple ids.",
     )
     hits: list[RagHit]
 
@@ -140,6 +167,10 @@ class RagAnswerBody(BaseModel):
         default=None,
         description="Restrict search to this YouTube id; omit or null to search all videos.",
     )
+    video_ids: list[str] | None = Field(
+        default=None,
+        description="Restrict search to these ids (multi-part same topic). Overrides video_id when non-empty.",
+    )
     top_k: int = Field(12, ge=1, le=50)
 
 
@@ -147,10 +178,30 @@ class RagAnswerResponse(BaseModel):
     summary: str
     filter_video_id: str | None = Field(
         default=None,
-        description="Echo of request filter; None means results span all videos.",
+        description="Echo of single-video filter; None when multi-id or global.",
+    )
+    filter_video_ids: list[str] | None = Field(
+        default=None,
+        description="Echo when search used multiple video ids.",
     )
     hits: list[RagHit]
     used_llm: bool
+
+
+def _normalize_video_ids(raw: list[str] | None) -> list[str] | None:
+    if not raw:
+        return None
+    seen: dict[str, None] = {}
+    for x in raw:
+        if not isinstance(x, str):
+            continue
+        s = x.strip()
+        if s:
+            seen[s] = None
+    out = list(seen.keys())
+    if len(out) > 120:
+        raise HTTPException(status_code=400, detail="video_ids: at most 120 entries")
+    return out or None
 
 
 @app.post("/api/rag/answer", response_model=RagAnswerResponse)
@@ -160,11 +211,17 @@ def rag_answer(body: RagAnswerBody):
     if not q:
         raise HTTPException(status_code=400, detail="query is empty")
 
+    ids = _normalize_video_ids(body.video_ids)
     filter_vid = (body.video_id or "").strip() or None
+    if ids:
+        filter_vid = None
 
-    qvec = encode_texts([q])[0]
+    rq = widen_retrieval_query_for_multi_video(q, len(ids)) if ids else q
+    qvec = encode_texts([rq])[0]
     with get_connection() as conn:
-        if filter_vid:
+        if ids:
+            raw = search_similar_multi(conn, ids, qvec, top_k=body.top_k)
+        elif filter_vid:
             raw = search_similar(conn, filter_vid, qvec, top_k=body.top_k)
         else:
             raw = search_similar_global(conn, qvec, top_k=body.top_k)
@@ -173,9 +230,13 @@ def rag_answer(body: RagAnswerBody):
         raise HTTPException(
             status_code=404,
             detail=(
-                f"No transcript chunks for video_id={filter_vid!r}. Run ingest_transcript.py first."
-                if filter_vid
-                else "No transcript chunks in the database. Run ingest_transcript.py first."
+                f"No transcript chunks for video_ids={ids!r}. Run ingest_transcript.py first."
+                if ids
+                else (
+                    f"No transcript chunks for video_id={filter_vid!r}. Run ingest_transcript.py first."
+                    if filter_vid
+                    else "No transcript chunks in the database. Run ingest_transcript.py first."
+                )
             ),
         )
 
@@ -188,6 +249,7 @@ def rag_answer(body: RagAnswerBody):
             summary, hits_raw = run_rag_agent(
                 q,
                 video_id=filter_vid,
+                video_ids=ids,
                 top_k=body.top_k,
                 model=model,
                 max_tokens=2048,
@@ -204,6 +266,7 @@ def rag_answer(body: RagAnswerBody):
     return RagAnswerResponse(
         summary=summary,
         filter_video_id=filter_vid,
+        filter_video_ids=ids,
         hits=_rows_to_hits(hits_raw),
         used_llm=used_llm,
     )
@@ -214,11 +277,21 @@ async def rag_query(body: RagQuery):
     q = body.query.strip()
     if not q:
         raise HTTPException(status_code=400, detail="query is empty")
+    ids = _normalize_video_ids(body.video_ids)
     filter_vid = (body.video_id or "").strip() or None
-    qvec = encode_texts([q])[0]
+    if ids:
+        filter_vid = None
+    rq = widen_retrieval_query_for_multi_video(q, len(ids)) if ids else q
+    qvec = encode_texts([rq])[0]
     with get_connection() as conn:
-        if filter_vid:
+        if ids:
+            raw = search_similar_multi(conn, ids, qvec, top_k=body.top_k)
+        elif filter_vid:
             raw = search_similar(conn, filter_vid, qvec, top_k=body.top_k)
         else:
             raw = search_similar_global(conn, qvec, top_k=body.top_k)
-    return RagQueryResponse(filter_video_id=filter_vid, hits=_rows_to_hits(raw))
+    return RagQueryResponse(
+        filter_video_id=filter_vid,
+        filter_video_ids=ids,
+        hits=_rows_to_hits(raw),
+    )
