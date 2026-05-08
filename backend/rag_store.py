@@ -107,6 +107,7 @@ def search_similar(
         cur.execute(
             """
             SELECT
+                video_id,
                 chunk_index,
                 content,
                 start_ms,
@@ -118,5 +119,45 @@ def search_similar(
             LIMIT %s
             """,
             (q, video_id, q, top_k),
+        )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def search_similar_global(
+    conn: psycopg.Connection,
+    query_embedding: np.ndarray,
+    top_k: int = 5,
+) -> list[dict[str, Any]]:
+    """Nearest chunks across all videos (same embedding index)."""
+    q = np.asarray(query_embedding, dtype=np.float32).reshape(-1)
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT
+                video_id,
+                chunk_index,
+                content,
+                start_ms,
+                end_ms,
+                (embedding <=> %s::vector) AS distance
+            FROM video_chunks
+            ORDER BY embedding <=> %s::vector
+            LIMIT %s
+            """,
+            (q, q, top_k),
+        )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def list_videos(conn: psycopg.Connection) -> list[dict[str, Any]]:
+    """Distinct video_ids present in storage, with chunk counts for UI listing."""
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT video_id, COUNT(*)::bigint AS chunk_count
+            FROM video_chunks
+            GROUP BY video_id
+            ORDER BY video_id
+            """
         )
         return [dict(r) for r in cur.fetchall()]

@@ -26,7 +26,7 @@ load_dotenv()
 import anthropic
 
 from embeddings import encode_texts
-from rag_store import get_connection, search_similar
+from rag_store import get_connection, search_similar, search_similar_global
 
 
 def _ms_to_clock(ms: int | None) -> str:
@@ -44,19 +44,20 @@ def youtube_watch_url(video_id: str, start_ms: int | None) -> str:
     return f"https://www.youtube.com/watch?v={video_id}&t={sec}s"
 
 
-def _format_context(hits: list[dict], video_id: str) -> str:
+def _format_context(hits: list[dict]) -> str:
     blocks = []
     for row in hits:
+        vid = str(row["video_id"])
         idx = int(row["chunk_index"])
         start = row.get("start_ms")
         end = row.get("end_ms")
-        url = youtube_watch_url(video_id, start if isinstance(start, int) else None)
+        url = youtube_watch_url(vid, start if isinstance(start, int) else None)
         dist = float(row["distance"])
         end_clock = _ms_to_clock(end) if isinstance(end, int) else "??:??"
         blocks.append(
             dedent(
                 f"""
-                ### Excerpt {idx} (relevance distance {dist:.4f}; ~{_ms_to_clock(start)}–{end_clock})
+                ### Video {vid} · excerpt {idx} (distance {dist:.4f}; ~{_ms_to_clock(start)}–{end_clock})
                 Playback: {url}
                 {row["content"]}
                 """
@@ -68,7 +69,7 @@ def _format_context(hits: list[dict], video_id: str) -> str:
 def run_rag_agent(
     prompt: str,
     *,
-    video_id: str,
+    video_id: str | None,
     top_k: int,
     model: str,
     max_tokens: int,
@@ -79,25 +80,30 @@ def run_rag_agent(
 
     qvec = encode_texts([q])[0]
     with get_connection() as conn:
-        hits = search_similar(conn, video_id, qvec, top_k=top_k)
+        if video_id:
+            hits = search_similar(conn, video_id, qvec, top_k=top_k)
+        else:
+            hits = search_similar_global(conn, qvec, top_k=top_k)
 
     if not hits:
         raise RuntimeError(
-            f"No transcript chunks found for video_id={video_id!r}. "
+            "No transcript chunks found. Run ingest_transcript.py first."
+            if not video_id
+            else f"No transcript chunks found for video_id={video_id!r}. "
             "Run ingest_transcript.py first."
         )
 
-    context = _format_context(hits, video_id)
+    context = _format_context(hits)
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
     system = dedent(
         """
-        You are an expert tutor for a Stanford physics lecture (classical mechanics).
-        The user message includes labeled transcript excerpts from the lecture with
-        approximate timestamps and playback URLs. Use ONLY that material to answer.
-        If the excerpts do not contain enough information, say so and suggest what
-        topic might need a different search. Be clear, technical, and faithful to
-        the lecture wording where it matters.
+        You are an expert tutor for Stanford physics lectures (classical mechanics and related topics).
+        The user message includes transcript excerpts that may come from one lecture or from several
+        different videos in a course playlist. Each block is labeled with its YouTube video id,
+        timestamps, and a playback URL. Use ONLY this material to answer.
+        If the excerpts do not contain enough information, say so clearly. Be technical and faithful
+        to the lecture wording where it matters; name which video(s) you are drawing from when helpful.
         """
     ).strip()
 
@@ -135,6 +141,11 @@ def main() -> int:
         default=os.getenv("VIDEO_ID", "pyX8kQ-JzHI"),
         help="YouTube video id stored in video_chunks (default: pyX8kQ-JzHI)",
     )
+    p.add_argument(
+        "--all-videos",
+        action="store_true",
+        help="Search across all ingested videos instead of a single --video-id.",
+    )
     p.add_argument("--top-k", type=int, default=8, help="Number of chunks to retrieve (default: 8)")
     p.add_argument(
         "--model",
@@ -157,7 +168,7 @@ def main() -> int:
     try:
         answer, hits = run_rag_agent(
             prompt,
-            video_id=args.video_id,
+            video_id=None if args.all_videos else args.video_id,
             top_k=args.top_k,
             model=args.model,
             max_tokens=args.max_tokens,
@@ -169,11 +180,11 @@ def main() -> int:
     print(answer)
     print()
     print("--- Playback (from matched transcript chunks) ---")
-    vid = args.video_id
     for i, row in enumerate(hits):
         start = row.get("start_ms")
         if not isinstance(start, int):
             continue
+        vid = str(row["video_id"])
         url = youtube_watch_url(vid, start)
         label = "Primary match" if i == 0 else f"Related #{i + 1}"
         print(f"{label}: {url}  (~{_ms_to_clock(start)}, chunk {row['chunk_index']})")

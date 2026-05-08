@@ -22,9 +22,39 @@ from rag_store import (
 from srt_chunker import chunk_cues, parse_srt
 
 _REPO_ROOT = Path(__file__).resolve().parent.parent
-_DEFAULT_SRT = _REPO_ROOT / (
-    "Lecture 1 ｜ Modern Physics： Classical Mechanics (Stanford) [pyX8kQ-JzHI].en.srt"
-)
+_DEFAULT_SRT = _REPO_ROOT / "lectures_physics" / "pyX8kQ-JzHI.en.srt"
+
+
+def ingest_one_srt(
+    path: Path,
+    *,
+    video_id: str,
+    chunk_chars: int = 1500,
+    replace: bool = False,
+    verbose: bool = True,
+) -> int:
+    """Parse one SRT, embed chunks, insert into video_chunks. Returns row count."""
+    if not path.is_file():
+        raise FileNotFoundError(path)
+
+    text = path.read_text(encoding="utf-8", errors="replace")
+    cues = parse_srt(text)
+    chunks = chunk_cues(cues, max_chars=chunk_chars)
+    if not chunks:
+        raise ValueError("No cues or chunks parsed from SRT.")
+
+    if verbose:
+        print(f"Database: {database_url()}")
+        print(f"{path.name}: cues={len(cues)}, chunks={len(chunks)} (max {chunk_chars} chars)")
+
+    dim = embedding_dim()
+    vectors = encode_texts([c["content"] for c in chunks])
+
+    with get_connection() as conn:
+        init_schema(conn, dim)
+        if replace:
+            delete_video_chunks(conn, video_id)
+        return insert_chunks(conn, video_id, chunks, vectors)
 
 
 def main() -> int:
@@ -34,7 +64,7 @@ def main() -> int:
         nargs="?",
         type=Path,
         default=_DEFAULT_SRT,
-        help="Path to .srt file (default: lecture transcript at repo root)",
+        help="Path to .srt file (default: lectures_physics/pyX8kQ-JzHI.en.srt)",
     )
     p.add_argument(
         "--video-id",
@@ -55,28 +85,20 @@ def main() -> int:
     args = p.parse_args()
 
     path: Path = args.srt_path
-    if not path.is_file():
+    try:
+        n = ingest_one_srt(
+            path,
+            video_id=args.video_id,
+            chunk_chars=args.chunk_chars,
+            replace=args.replace,
+            verbose=True,
+        )
+    except FileNotFoundError:
         print(f"File not found: {path}", file=sys.stderr)
         return 1
-
-    text = path.read_text(encoding="utf-8", errors="replace")
-    cues = parse_srt(text)
-    chunks = chunk_cues(cues, max_chars=args.chunk_chars)
-    if not chunks:
-        print("No cues or chunks parsed from SRT.", file=sys.stderr)
+    except ValueError as e:
+        print(str(e), file=sys.stderr)
         return 1
-
-    print(f"Database: {database_url()}")
-    print(f"Cues: {len(cues)}, chunks: {len(chunks)} (max {args.chunk_chars} chars)")
-
-    dim = embedding_dim()
-    vectors = encode_texts([c["content"] for c in chunks])
-
-    with get_connection() as conn:
-        init_schema(conn, dim)
-        if args.replace:
-            delete_video_chunks(conn, args.video_id)
-        n = insert_chunks(conn, args.video_id, chunks, vectors)
     print(f"Ingested {n} rows for video_id={args.video_id!r}")
     return 0
 
