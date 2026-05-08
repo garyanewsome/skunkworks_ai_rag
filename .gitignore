@@ -1,0 +1,80 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+pip-wheel-metadata/
+wheels/
+*.manifest
+*.spec
+build/
+develop-eggs/
+sdist/
+downloads/
+*.cover
+.hypothesis/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+cython_debug/
+.ruff.toml.swp
+
+# Virtual environments (anywhere in repo)
+venv/
+.venv/
+ENV/
+env/
+
+# Node / Vite
+node_modules/
+dist/
+dist-ssr/
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Logs
+logs/
+*.log
+
+# Generated / downloaded media and metadata (regenerate with yt-dlp etc.)
+output.json
+subs.json
+*.mp4
+*.mkv
+*.webm
+*.m4a
+*.wav
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*~
+
+# VS Code — keep shared extension recommendations if present
+.vscode/*
+!.vscode/extensions.json
