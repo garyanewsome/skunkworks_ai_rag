@@ -1,0 +1,9245 @@
+1
+00:00:01,950 --> 00:00:05,269
+
+[Music]
+
+2
+00:00:05,269 --> 00:00:05,279
+
+ 
+
+3
+00:00:05,279 --> 00:00:08,070
+
+Stanford
+
+4
+00:00:08,070 --> 00:00:08,080
+
+ 
+
+5
+00:00:08,080 --> 00:00:09,870
+
+University well I think what I'm going
+
+6
+00:00:09,870 --> 00:00:09,880
+University well I think what I'm going
+ 
+
+7
+00:00:09,880 --> 00:00:11,190
+University well I think what I'm going
+to
+
+8
+00:00:11,190 --> 00:00:11,200
+to
+ 
+
+9
+00:00:11,200 --> 00:00:13,270
+to
+do
+
+10
+00:00:13,270 --> 00:00:13,280
+do
+ 
+
+11
+00:00:13,280 --> 00:00:16,670
+do
+is take roughly a half an hour or
+
+12
+00:00:16,670 --> 00:00:16,680
+is take roughly a half an hour or
+ 
+
+13
+00:00:16,680 --> 00:00:18,990
+is take roughly a half an hour or
+something like
+
+14
+00:00:18,990 --> 00:00:19,000
+something like
+ 
+
+15
+00:00:19,000 --> 00:00:22,390
+something like
+that and just discuss some elementary
+
+16
+00:00:22,390 --> 00:00:22,400
+that and just discuss some elementary
+ 
+
+17
+00:00:22,400 --> 00:00:26,029
+that and just discuss some elementary
+mathematics now I want you to learn this
+
+18
+00:00:26,029 --> 00:00:26,039
+mathematics now I want you to learn this
+ 
+
+19
+00:00:26,039 --> 00:00:29,630
+mathematics now I want you to learn this
+mathematics and if need be to look it up
+
+20
+00:00:29,630 --> 00:00:29,640
+mathematics and if need be to look it up
+ 
+
+21
+00:00:29,640 --> 00:00:31,870
+mathematics and if need be to look it up
+it's three simple
+
+22
+00:00:31,870 --> 00:00:31,880
+it's three simple
+ 
+
+23
+00:00:31,880 --> 00:00:34,030
+it's three simple
+pieces three simple pieces of
+
+24
+00:00:34,030 --> 00:00:34,040
+pieces three simple pieces of
+ 
+
+25
+00:00:34,040 --> 00:00:38,270
+pieces three simple pieces of
+mathematics all elementary and I suspect
+
+26
+00:00:38,270 --> 00:00:38,280
+mathematics all elementary and I suspect
+ 
+
+27
+00:00:38,280 --> 00:00:41,069
+mathematics all elementary and I suspect
+most of you either know this or knew it
+
+28
+00:00:41,069 --> 00:00:41,079
+most of you either know this or knew it
+ 
+
+29
+00:00:41,079 --> 00:00:44,229
+most of you either know this or knew it
+at one time but it's so Central that I
+
+30
+00:00:44,229 --> 00:00:44,239
+at one time but it's so Central that I
+ 
+
+31
+00:00:44,239 --> 00:00:48,029
+at one time but it's so Central that I
+think we need to lay it out and uh and
+
+32
+00:00:48,029 --> 00:00:48,039
+think we need to lay it out and uh and
+ 
+
+33
+00:00:48,039 --> 00:00:48,830
+think we need to lay it out and uh and
+use
+
+34
+00:00:48,830 --> 00:00:48,840
+use
+ 
+
+35
+00:00:48,840 --> 00:00:53,270
+use
+it use it lay it out for few future
+
+36
+00:00:53,270 --> 00:00:53,280
+it use it lay it out for few future
+ 
+
+37
+00:00:53,280 --> 00:00:56,709
+it use it lay it out for few future
+purposes okay the first piece of
+
+38
+00:00:56,709 --> 00:00:56,719
+purposes okay the first piece of
+ 
+
+39
+00:00:56,719 --> 00:01:00,310
+purposes okay the first piece of
+mathematics is called lrange multiply
+
+40
+00:01:00,310 --> 00:01:00,320
+mathematics is called lrange multiply
+ 
+
+41
+00:01:00,320 --> 00:01:02,189
+mathematics is called lrange multiply
+how many people here have seen lrange
+
+42
+00:01:02,189 --> 00:01:02,199
+how many people here have seen lrange
+ 
+
+43
+00:01:02,199 --> 00:01:04,149
+how many people here have seen lrange
+multipliers how many of those people
+
+44
+00:01:04,149 --> 00:01:04,159
+multipliers how many of those people
+ 
+
+45
+00:01:04,159 --> 00:01:07,350
+multipliers how many of those people
+remember what a lrange multiplier
+
+46
+00:01:07,350 --> 00:01:07,360
+remember what a lrange multiplier
+ 
+
+47
+00:01:07,360 --> 00:01:10,109
+remember what a lrange multiplier
+is so roughly half the people have seen
+
+48
+00:01:10,109 --> 00:01:10,119
+is so roughly half the people have seen
+ 
+
+49
+00:01:10,119 --> 00:01:13,350
+is so roughly half the people have seen
+it can use it would that be fair to say
+
+50
+00:01:13,350 --> 00:01:13,360
+it can use it would that be fair to say
+ 
+
+51
+00:01:13,360 --> 00:01:15,190
+it can use it would that be fair to say
+how many people have never seen a lrange
+
+52
+00:01:15,190 --> 00:01:15,200
+how many people have never seen a lrange
+ 
+
+53
+00:01:15,200 --> 00:01:18,350
+how many people have never seen a lrange
+multiplier or can't remember what it
+
+54
+00:01:18,350 --> 00:01:18,360
+multiplier or can't remember what it
+ 
+
+55
+00:01:18,360 --> 00:01:21,950
+multiplier or can't remember what it
+is all right so uh the the answer is the
+
+56
+00:01:21,950 --> 00:01:21,960
+is all right so uh the the answer is the
+ 
+
+57
+00:01:21,960 --> 00:01:25,149
+is all right so uh the the answer is the
+majority of you have but uh I'm going to
+
+58
+00:01:25,149 --> 00:01:25,159
+majority of you have but uh I'm going to
+ 
+
+59
+00:01:25,159 --> 00:01:26,910
+majority of you have but uh I'm going to
+remind you anyway because it is
+
+60
+00:01:26,910 --> 00:01:26,920
+remind you anyway because it is
+ 
+
+61
+00:01:26,920 --> 00:01:30,789
+remind you anyway because it is
+absolutely Central we're constantly
+
+62
+00:01:30,789 --> 00:01:30,799
+absolutely Central we're constantly
+ 
+
+63
+00:01:30,799 --> 00:01:34,789
+absolutely Central we're constantly
+minimizing or maximizing things subject
+
+64
+00:01:34,789 --> 00:01:34,799
+minimizing or maximizing things subject
+ 
+
+65
+00:01:34,799 --> 00:01:37,149
+minimizing or maximizing things subject
+to constraints what is the thing that
+
+66
+00:01:37,149 --> 00:01:37,159
+to constraints what is the thing that
+ 
+
+67
+00:01:37,159 --> 00:01:39,429
+to constraints what is the thing that
+we're likely to minimize incidentally or
+
+68
+00:01:39,429 --> 00:01:39,439
+we're likely to minimize incidentally or
+ 
+
+69
+00:01:39,439 --> 00:01:43,510
+we're likely to minimize incidentally or
+maximize sorry entropy but we'll get to
+
+70
+00:01:43,510 --> 00:01:43,520
+maximize sorry entropy but we'll get to
+ 
+
+71
+00:01:43,520 --> 00:01:45,469
+maximize sorry entropy but we'll get to
+why entropy
+
+72
+00:01:45,469 --> 00:01:45,479
+why entropy
+ 
+
+73
+00:01:45,479 --> 00:01:48,749
+why entropy
+uh not tonight next time I suspect but
+
+74
+00:01:48,749 --> 00:01:48,759
+uh not tonight next time I suspect but
+ 
+
+75
+00:01:48,759 --> 00:01:53,749
+uh not tonight next time I suspect but
+um why we maximize entropy but yes
+
+76
+00:01:53,749 --> 00:01:53,759
+um why we maximize entropy but yes
+ 
+
+77
+00:01:53,759 --> 00:01:57,469
+um why we maximize entropy but yes
+thermal equilibrium is a state of
+
+78
+00:01:57,469 --> 00:01:57,479
+thermal equilibrium is a state of
+ 
+
+79
+00:01:57,479 --> 00:01:59,389
+thermal equilibrium is a state of
+Maximum entropy and that means we want
+
+80
+00:01:59,389 --> 00:01:59,399
+Maximum entropy and that means we want
+ 
+
+81
+00:01:59,399 --> 00:02:01,590
+Maximum entropy and that means we want
+to Max maximize something as a function
+
+82
+00:02:01,590 --> 00:02:01,600
+to Max maximize something as a function
+ 
+
+83
+00:02:01,600 --> 00:02:03,469
+to Max maximize something as a function
+of something else we want to maximize a
+
+84
+00:02:03,469 --> 00:02:03,479
+of something else we want to maximize a
+ 
+
+85
+00:02:03,479 --> 00:02:06,830
+of something else we want to maximize a
+certain function as a function of the
+
+86
+00:02:06,830 --> 00:02:06,840
+certain function as a function of the
+ 
+
+87
+00:02:06,840 --> 00:02:09,710
+certain function as a function of the
+variables that Define it number one
+
+88
+00:02:09,710 --> 00:02:09,720
+variables that Define it number one
+ 
+
+89
+00:02:09,720 --> 00:02:13,190
+variables that Define it number one
+number two there are
+
+90
+00:02:13,190 --> 00:02:13,200
+
+ 
+
+91
+00:02:13,200 --> 00:02:16,470
+
+constraints we don't just want to M
+
+92
+00:02:16,470 --> 00:02:16,480
+constraints we don't just want to M
+ 
+
+93
+00:02:16,480 --> 00:02:18,830
+constraints we don't just want to M
+maximize a function but we want to
+
+94
+00:02:18,830 --> 00:02:18,840
+maximize a function but we want to
+ 
+
+95
+00:02:18,840 --> 00:02:23,229
+maximize a function but we want to
+maximize a function subject to some
+
+96
+00:02:23,229 --> 00:02:23,239
+maximize a function subject to some
+ 
+
+97
+00:02:23,239 --> 00:02:26,790
+maximize a function subject to some
+constraints what might the constraints
+
+98
+00:02:26,790 --> 00:02:26,800
+constraints what might the constraints
+ 
+
+99
+00:02:26,800 --> 00:02:30,589
+constraints what might the constraints
+be well a particular con straint might
+
+100
+00:02:30,589 --> 00:02:30,599
+be well a particular con straint might
+ 
+
+101
+00:02:30,599 --> 00:02:33,790
+be well a particular con straint might
+be that we know the total energy of the
+
+102
+00:02:33,790 --> 00:02:33,800
+be that we know the total energy of the
+ 
+
+103
+00:02:33,800 --> 00:02:36,470
+be that we know the total energy of the
+system or we know the average energy of
+
+104
+00:02:36,470 --> 00:02:36,480
+system or we know the average energy of
+ 
+
+105
+00:02:36,480 --> 00:02:39,509
+system or we know the average energy of
+the system for some reason we may know
+
+106
+00:02:39,509 --> 00:02:39,519
+the system for some reason we may know
+ 
+
+107
+00:02:39,519 --> 00:02:41,190
+the system for some reason we may know
+the average energy of the system for
+
+108
+00:02:41,190 --> 00:02:41,200
+the average energy of the system for
+ 
+
+109
+00:02:41,200 --> 00:02:44,229
+the average energy of the system for
+example we might
+
+110
+00:02:44,229 --> 00:02:44,239
+example we might
+ 
+
+111
+00:02:44,239 --> 00:02:46,030
+example we might
+have
+
+112
+00:02:46,030 --> 00:02:46,040
+have
+ 
+
+113
+00:02:46,040 --> 00:02:49,750
+have
+again a container full of a lot of
+
+114
+00:02:49,750 --> 00:02:49,760
+again a container full of a lot of
+ 
+
+115
+00:02:49,760 --> 00:02:52,070
+again a container full of a lot of
+molecules we break it up into small
+
+116
+00:02:52,070 --> 00:02:52,080
+molecules we break it up into small
+ 
+
+117
+00:02:52,080 --> 00:02:54,589
+molecules we break it up into small
+pieces we're going to study one small
+
+118
+00:02:54,589 --> 00:02:54,599
+pieces we're going to study one small
+ 
+
+119
+00:02:54,599 --> 00:02:57,110
+pieces we're going to study one small
+piece and I tell you that the total
+
+120
+00:02:57,110 --> 00:02:57,120
+piece and I tell you that the total
+ 
+
+121
+00:02:57,120 --> 00:02:59,830
+piece and I tell you that the total
+energy in that container is what
+
+122
+00:02:59,830 --> 00:02:59,840
+energy in that container is what
+ 
+
+123
+00:02:59,840 --> 00:03:03,309
+energy in that container is what
+whatever it is 20 zillion
+
+124
+00:03:03,309 --> 00:03:03,319
+whatever it is 20 zillion
+ 
+
+125
+00:03:03,319 --> 00:03:05,070
+whatever it is 20 zillion
+um uh
+
+126
+00:03:05,070 --> 00:03:05,080
+um uh
+ 
+
+127
+00:03:05,080 --> 00:03:08,630
+um uh
+Jews okay I also tell you that it's
+
+128
+00:03:08,630 --> 00:03:08,640
+Jews okay I also tell you that it's
+ 
+
+129
+00:03:08,640 --> 00:03:11,710
+Jews okay I also tell you that it's
+composed of a bunch of identical Parts
+
+130
+00:03:11,710 --> 00:03:11,720
+composed of a bunch of identical Parts
+ 
+
+131
+00:03:11,720 --> 00:03:15,550
+composed of a bunch of identical Parts
+how many identical Parts 10,000 of them
+
+132
+00:03:15,550 --> 00:03:15,560
+how many identical Parts 10,000 of them
+ 
+
+133
+00:03:15,560 --> 00:03:17,670
+how many identical Parts 10,000 of them
+what's the average energy in each one
+
+134
+00:03:17,670 --> 00:03:17,680
+what's the average energy in each one
+ 
+
+135
+00:03:17,680 --> 00:03:19,910
+what's the average energy in each one
+well you take the total energy and you
+
+136
+00:03:19,910 --> 00:03:19,920
+well you take the total energy and you
+ 
+
+137
+00:03:19,920 --> 00:03:22,070
+well you take the total energy and you
+divide it by the number of parts and
+
+138
+00:03:22,070 --> 00:03:22,080
+divide it by the number of parts and
+ 
+
+139
+00:03:22,080 --> 00:03:24,070
+divide it by the number of parts and
+that tells you the the to the average
+
+140
+00:03:24,070 --> 00:03:24,080
+that tells you the the to the average
+ 
+
+141
+00:03:24,080 --> 00:03:26,789
+that tells you the the to the average
+energy in each part now I want to focus
+
+142
+00:03:26,789 --> 00:03:26,799
+energy in each part now I want to focus
+ 
+
+143
+00:03:26,799 --> 00:03:28,070
+energy in each part now I want to focus
+on this
+
+144
+00:03:28,070 --> 00:03:28,080
+on this
+ 
+
+145
+00:03:28,080 --> 00:03:30,990
+on this
+part and say I know the average energy
+
+146
+00:03:30,990 --> 00:03:31,000
+part and say I know the average energy
+ 
+
+147
+00:03:31,000 --> 00:03:34,670
+part and say I know the average energy
+and I want to maximize the entropy
+
+148
+00:03:34,670 --> 00:03:34,680
+and I want to maximize the entropy
+ 
+
+149
+00:03:34,680 --> 00:03:37,429
+and I want to maximize the entropy
+subject to the constraint that the total
+
+150
+00:03:37,429 --> 00:03:37,439
+subject to the constraint that the total
+ 
+
+151
+00:03:37,439 --> 00:03:39,350
+subject to the constraint that the total
+energy is
+
+152
+00:03:39,350 --> 00:03:39,360
+energy is
+ 
+
+153
+00:03:39,360 --> 00:03:42,309
+energy is
+fixed that's a problem that's the kind
+
+154
+00:03:42,309 --> 00:03:42,319
+fixed that's a problem that's the kind
+ 
+
+155
+00:03:42,319 --> 00:03:45,309
+fixed that's a problem that's the kind
+of problem that emerges time and time
+
+156
+00:03:45,309 --> 00:03:45,319
+of problem that emerges time and time
+ 
+
+157
+00:03:45,319 --> 00:03:48,190
+of problem that emerges time and time
+again over and over another example is
+
+158
+00:03:48,190 --> 00:03:48,200
+again over and over another example is
+ 
+
+159
+00:03:48,200 --> 00:03:49,869
+again over and over another example is
+we may to know the total amount of
+
+160
+00:03:49,869 --> 00:03:49,879
+we may to know the total amount of
+ 
+
+161
+00:03:49,879 --> 00:03:53,069
+we may to know the total amount of
+electric charge in a in a region and we
+
+162
+00:03:53,069 --> 00:03:53,079
+electric charge in a in a region and we
+ 
+
+163
+00:03:53,079 --> 00:03:56,229
+electric charge in a in a region and we
+may want to maximize the entropy given
+
+164
+00:03:56,229 --> 00:03:56,239
+may want to maximize the entropy given
+ 
+
+165
+00:03:56,239 --> 00:03:58,830
+may want to maximize the entropy given
+the total amount of electric charge or
+
+166
+00:03:58,830 --> 00:03:58,840
+the total amount of electric charge or
+ 
+
+167
+00:03:58,840 --> 00:04:01,830
+the total amount of electric charge or
+the total amount of angular momentum or
+
+168
+00:04:01,830 --> 00:04:01,840
+the total amount of angular momentum or
+ 
+
+169
+00:04:01,840 --> 00:04:05,149
+the total amount of angular momentum or
+whatever so we constantly face problems
+
+170
+00:04:05,149 --> 00:04:05,159
+whatever so we constantly face problems
+ 
+
+171
+00:04:05,159 --> 00:04:07,630
+whatever so we constantly face problems
+of minimizing or maximizing the
+
+172
+00:04:07,630 --> 00:04:07,640
+of minimizing or maximizing the
+ 
+
+173
+00:04:07,640 --> 00:04:10,229
+of minimizing or maximizing the
+mathematical uh subject of minimizing
+
+174
+00:04:10,229 --> 00:04:10,239
+mathematical uh subject of minimizing
+ 
+
+175
+00:04:10,239 --> 00:04:12,110
+mathematical uh subject of minimizing
+and maximizing are equivalent to each
+
+176
+00:04:12,110 --> 00:04:12,120
+and maximizing are equivalent to each
+ 
+
+177
+00:04:12,120 --> 00:04:15,270
+and maximizing are equivalent to each
+other or the same uh we constantly want
+
+178
+00:04:15,270 --> 00:04:15,280
+other or the same uh we constantly want
+ 
+
+179
+00:04:15,280 --> 00:04:17,430
+other or the same uh we constantly want
+to maximize
+
+180
+00:04:17,430 --> 00:04:17,440
+to maximize
+ 
+
+181
+00:04:17,440 --> 00:04:19,949
+to maximize
+functions of several
+
+182
+00:04:19,949 --> 00:04:19,959
+functions of several
+ 
+
+183
+00:04:19,959 --> 00:04:22,830
+functions of several
+variables subject to constraints on
+
+184
+00:04:22,830 --> 00:04:22,840
+variables subject to constraints on
+ 
+
+185
+00:04:22,840 --> 00:04:30,430
+variables subject to constraints on
+those variables what does that mean
+
+186
+00:04:30,430 --> 00:04:30,440
+
+ 
+
+187
+00:04:30,440 --> 00:04:38,990
+
+example a function of two
+
+188
+00:04:38,990 --> 00:04:39,000
+
+ 
+
+189
+00:04:39,000 --> 00:04:42,870
+
+variables let's let's literally take an
+
+190
+00:04:42,870 --> 00:04:42,880
+variables let's let's literally take an
+ 
+
+191
+00:04:42,880 --> 00:04:46,909
+variables let's let's literally take an
+example uh I want to minimize minimize
+
+192
+00:04:46,909 --> 00:04:46,919
+example uh I want to minimize minimize
+ 
+
+193
+00:04:46,919 --> 00:04:49,510
+example uh I want to minimize minimize
+or maximize minimize I think
+
+194
+00:04:49,510 --> 00:04:49,520
+or maximize minimize I think
+ 
+
+195
+00:04:49,520 --> 00:04:52,270
+or maximize minimize I think
+X2 +
+
+196
+00:04:52,270 --> 00:04:52,280
+X2 +
+ 
+
+197
+00:04:52,280 --> 00:04:56,110
+X2 +
+y^2 now anybody can minimize X2 + y^2
+
+198
+00:04:56,110 --> 00:04:56,120
+y^2 now anybody can minimize X2 + y^2
+ 
+
+199
+00:04:56,120 --> 00:05:00,550
+y^2 now anybody can minimize X2 + y^2
+what's the minimum value of X2 + y^2
+
+200
+00:05:00,550 --> 00:05:00,560
+what's the minimum value of X2 + y^2
+ 
+
+201
+00:05:00,560 --> 00:05:02,590
+what's the minimum value of X2 + y^2
+it can't be less than Z because x^2 and
+
+202
+00:05:02,590 --> 00:05:02,600
+it can't be less than Z because x^2 and
+ 
+
+203
+00:05:02,600 --> 00:05:06,070
+it can't be less than Z because x^2 and
+y^2 are both positive at x equal 0 and Y
+
+204
+00:05:06,070 --> 00:05:06,080
+y^2 are both positive at x equal 0 and Y
+ 
+
+205
+00:05:06,080 --> 00:05:08,790
+y^2 are both positive at x equal 0 and Y
+equals 0 it is equal to 0 but it's not
+
+206
+00:05:08,790 --> 00:05:08,800
+equals 0 it is equal to 0 but it's not
+ 
+
+207
+00:05:08,800 --> 00:05:10,629
+equals 0 it is equal to 0 but it's not
+equal to zero anywhere else so the
+
+208
+00:05:10,629 --> 00:05:10,639
+equal to zero anywhere else so the
+ 
+
+209
+00:05:10,639 --> 00:05:14,029
+equal to zero anywhere else so the
+minimum is right at xal y equals z and
+
+210
+00:05:14,029 --> 00:05:14,039
+minimum is right at xal y equals z and
+ 
+
+211
+00:05:14,039 --> 00:05:15,950
+minimum is right at xal y equals z and
+the function is equal to zero at that
+
+212
+00:05:15,950 --> 00:05:15,960
+the function is equal to zero at that
+ 
+
+213
+00:05:15,960 --> 00:05:18,670
+the function is equal to zero at that
+point but now supposing I tell you I
+
+214
+00:05:18,670 --> 00:05:18,680
+point but now supposing I tell you I
+ 
+
+215
+00:05:18,680 --> 00:05:21,150
+point but now supposing I tell you I
+want to minimize it subject to a
+
+216
+00:05:21,150 --> 00:05:21,160
+want to minimize it subject to a
+ 
+
+217
+00:05:21,160 --> 00:05:23,670
+want to minimize it subject to a
+constraint I want to know where X2 + y
+
+218
+00:05:23,670 --> 00:05:23,680
+constraint I want to know where X2 + y
+ 
+
+219
+00:05:23,680 --> 00:05:26,350
+constraint I want to know where X2 + y
+squ is minimum
+
+220
+00:05:26,350 --> 00:05:26,360
+squ is minimum
+ 
+
+221
+00:05:26,360 --> 00:05:32,550
+squ is minimum
+given that I don't know let's say x + 2
+
+222
+00:05:32,550 --> 00:05:32,560
+given that I don't know let's say x + 2
+ 
+
+223
+00:05:32,560 --> 00:05:36,110
+given that I don't know let's say x + 2
+y is equal to uh to
+
+224
+00:05:36,110 --> 00:05:36,120
+y is equal to uh to
+ 
+
+225
+00:05:36,120 --> 00:05:39,150
+y is equal to uh to
+one right to draw
+
+226
+00:05:39,150 --> 00:05:39,160
+one right to draw
+ 
+
+227
+00:05:39,160 --> 00:05:42,710
+one right to draw
+picture we can plot on the plane here
+
+228
+00:05:42,710 --> 00:05:42,720
+picture we can plot on the plane here
+ 
+
+229
+00:05:42,720 --> 00:05:47,710
+picture we can plot on the plane here
+the Contours of X2 + y^2 X2 + y^2 the
+
+230
+00:05:47,710 --> 00:05:47,720
+the Contours of X2 + y^2 X2 + y^2 the
+ 
+
+231
+00:05:47,720 --> 00:05:50,830
+the Contours of X2 + y^2 X2 + y^2 the
+cont like a contour
+
+232
+00:05:50,830 --> 00:05:50,840
+cont like a contour
+ 
+
+233
+00:05:50,840 --> 00:05:53,309
+cont like a contour
+map right at the center it's minimized
+
+234
+00:05:53,309 --> 00:05:53,319
+map right at the center it's minimized
+ 
+
+235
+00:05:53,319 --> 00:05:56,990
+map right at the center it's minimized
+and as we move away it forms a bowl uh a
+
+236
+00:05:56,990 --> 00:05:57,000
+and as we move away it forms a bowl uh a
+ 
+
+237
+00:05:57,000 --> 00:05:59,230
+and as we move away it forms a bowl uh a
+Valley and the contour map would look
+
+238
+00:05:59,230 --> 00:05:59,240
+Valley and the contour map would look
+ 
+
+239
+00:05:59,240 --> 00:06:00,309
+Valley and the contour map would look
+like this
+
+240
+00:06:00,309 --> 00:06:00,319
+like this
+ 
+
+241
+00:06:00,319 --> 00:06:02,590
+like this
+on the other hand and of course the
+
+242
+00:06:02,590 --> 00:06:02,600
+on the other hand and of course the
+ 
+
+243
+00:06:02,600 --> 00:06:04,230
+on the other hand and of course the
+minimum of the function is right at the
+
+244
+00:06:04,230 --> 00:06:04,240
+minimum of the function is right at the
+ 
+
+245
+00:06:04,240 --> 00:06:07,589
+minimum of the function is right at the
+center on the other hand I won't really
+
+246
+00:06:07,589 --> 00:06:07,599
+center on the other hand I won't really
+ 
+
+247
+00:06:07,599 --> 00:06:09,189
+center on the other hand I won't really
+want to minimize it subject to a
+
+248
+00:06:09,189 --> 00:06:09,199
+want to minimize it subject to a
+ 
+
+249
+00:06:09,199 --> 00:06:12,110
+want to minimize it subject to a
+constraint and that constraint is uh x +
+
+250
+00:06:12,110 --> 00:06:12,120
+constraint and that constraint is uh x +
+ 
+
+251
+00:06:12,120 --> 00:06:16,230
+constraint and that constraint is uh x +
+2 y = 1 that's a straight line and I
+
+252
+00:06:16,230 --> 00:06:16,240
+2 y = 1 that's a straight line and I
+ 
+
+253
+00:06:16,240 --> 00:06:18,350
+2 y = 1 that's a straight line and I
+don't know it's a straight line maybe it
+
+254
+00:06:18,350 --> 00:06:18,360
+don't know it's a straight line maybe it
+ 
+
+255
+00:06:18,360 --> 00:06:20,510
+don't know it's a straight line maybe it
+looks something like that so what I'm
+
+256
+00:06:20,510 --> 00:06:20,520
+looks something like that so what I'm
+ 
+
+257
+00:06:20,520 --> 00:06:24,070
+looks something like that so what I'm
+really asking is where along this line
+
+258
+00:06:24,070 --> 00:06:24,080
+really asking is where along this line
+ 
+
+259
+00:06:24,080 --> 00:06:25,710
+really asking is where along this line
+is x^2 +
+
+260
+00:06:25,710 --> 00:06:25,720
+is x^2 +
+ 
+
+261
+00:06:25,720 --> 00:06:27,589
+is x^2 +
+y^2
+
+262
+00:06:27,589 --> 00:06:27,599
+y^2
+ 
+
+263
+00:06:27,599 --> 00:06:30,350
+y^2
+minimized given that you're on line well
+
+264
+00:06:30,350 --> 00:06:30,360
+minimized given that you're on line well
+ 
+
+265
+00:06:30,360 --> 00:06:31,990
+minimized given that you're on line well
+that's certainly not at the origin here
+
+266
+00:06:31,990 --> 00:06:32,000
+that's certainly not at the origin here
+ 
+
+267
+00:06:32,000 --> 00:06:34,350
+that's certainly not at the origin here
+it's somewhere along here looks like
+
+268
+00:06:34,350 --> 00:06:34,360
+it's somewhere along here looks like
+ 
+
+269
+00:06:34,360 --> 00:06:36,670
+it's somewhere along here looks like
+it's about over here doesn't
+
+270
+00:06:36,670 --> 00:06:36,680
+it's about over here doesn't
+ 
+
+271
+00:06:36,680 --> 00:06:40,070
+it's about over here doesn't
+it X2 + y^2 of course is just the the
+
+272
+00:06:40,070 --> 00:06:40,080
+it X2 + y^2 of course is just the the
+ 
+
+273
+00:06:40,080 --> 00:06:42,950
+it X2 + y^2 of course is just the the
+squar distance from the origin and so
+
+274
+00:06:42,950 --> 00:06:42,960
+squar distance from the origin and so
+ 
+
+275
+00:06:42,960 --> 00:06:45,390
+squar distance from the origin and so
+you're kind of asking along this line
+
+276
+00:06:45,390 --> 00:06:45,400
+you're kind of asking along this line
+ 
+
+277
+00:06:45,400 --> 00:06:48,070
+you're kind of asking along this line
+where is the line closest to the origin
+
+278
+00:06:48,070 --> 00:06:48,080
+where is the line closest to the origin
+ 
+
+279
+00:06:48,080 --> 00:06:49,629
+where is the line closest to the origin
+that's the geometric problem that
+
+280
+00:06:49,629 --> 00:06:49,639
+that's the geometric problem that
+ 
+
+281
+00:06:49,639 --> 00:06:51,309
+that's the geometric problem that
+corresponds to it but the mathematics
+
+282
+00:06:51,309 --> 00:06:51,319
+corresponds to it but the mathematics
+ 
+
+283
+00:06:51,319 --> 00:06:55,029
+corresponds to it but the mathematics
+problem is to minimize x s + y^2 subject
+
+284
+00:06:55,029 --> 00:06:55,039
+problem is to minimize x s + y^2 subject
+ 
+
+285
+00:06:55,039 --> 00:06:57,430
+problem is to minimize x s + y^2 subject
+to a constraint that x x + 2 y is equal
+
+286
+00:06:57,430 --> 00:06:57,440
+to a constraint that x x + 2 y is equal
+ 
+
+287
+00:06:57,440 --> 00:07:00,589
+to a constraint that x x + 2 y is equal
+to 1 how do you do that well
+
+288
+00:07:00,589 --> 00:07:00,599
+to 1 how do you do that well
+ 
+
+289
+00:07:00,599 --> 00:07:03,309
+to 1 how do you do that well
+uh one way would just be to eliminate
+
+290
+00:07:03,309 --> 00:07:03,319
+uh one way would just be to eliminate
+ 
+
+291
+00:07:03,319 --> 00:07:06,110
+uh one way would just be to eliminate
+let's do it we could eliminate one of
+
+292
+00:07:06,110 --> 00:07:06,120
+let's do it we could eliminate one of
+ 
+
+293
+00:07:06,120 --> 00:07:09,710
+let's do it we could eliminate one of
+the variables plug it into here and then
+
+294
+00:07:09,710 --> 00:07:09,720
+the variables plug it into here and then
+ 
+
+295
+00:07:09,720 --> 00:07:12,070
+the variables plug it into here and then
+minimize the remaining function for
+
+296
+00:07:12,070 --> 00:07:12,080
+minimize the remaining function for
+ 
+
+297
+00:07:12,080 --> 00:07:13,950
+minimize the remaining function for
+example what does that mean we could
+
+298
+00:07:13,950 --> 00:07:13,960
+example what does that mean we could
+ 
+
+299
+00:07:13,960 --> 00:07:18,110
+example what does that mean we could
+solve for x and find that X is equal to
+
+300
+00:07:18,110 --> 00:07:18,120
+solve for x and find that X is equal to
+ 
+
+301
+00:07:18,120 --> 00:07:19,990
+solve for x and find that X is equal to
+1 - 2
+
+302
+00:07:19,990 --> 00:07:20,000
+1 - 2
+ 
+
+303
+00:07:20,000 --> 00:07:22,869
+1 - 2
+Y and then plug it into here and we
+
+304
+00:07:22,869 --> 00:07:22,879
+Y and then plug it into here and we
+ 
+
+305
+00:07:22,879 --> 00:07:25,430
+Y and then plug it into here and we
+would have 1 - 2
+
+306
+00:07:25,430 --> 00:07:25,440
+would have 1 - 2
+ 
+
+307
+00:07:25,440 --> 00:07:30,309
+would have 1 - 2
+y^ 2ar that's x^2 +
+
+308
+00:07:30,309 --> 00:07:30,319
+y^ 2ar that's x^2 +
+ 
+
+309
+00:07:30,319 --> 00:07:36,110
+y^ 2ar that's x^2 +
+y^2 let's just call this f f on the line
+
+310
+00:07:36,110 --> 00:07:36,120
+y^2 let's just call this f f on the line
+ 
+
+311
+00:07:36,120 --> 00:07:40,150
+y^2 let's just call this f f on the line
+on the red line F would be given by this
+
+312
+00:07:40,150 --> 00:07:40,160
+on the red line F would be given by this
+ 
+
+313
+00:07:40,160 --> 00:07:41,670
+on the red line F would be given by this
+and then the next step is just to
+
+314
+00:07:41,670 --> 00:07:41,680
+and then the next step is just to
+ 
+
+315
+00:07:41,680 --> 00:07:44,950
+and then the next step is just to
+minimize f with respect to Y we don't
+
+316
+00:07:44,950 --> 00:07:44,960
+minimize f with respect to Y we don't
+ 
+
+317
+00:07:44,960 --> 00:07:46,309
+minimize f with respect to Y we don't
+have to worry about the constraint
+
+318
+00:07:46,309 --> 00:07:46,319
+have to worry about the constraint
+ 
+
+319
+00:07:46,319 --> 00:07:47,869
+have to worry about the constraint
+anymore because we've already taken the
+
+320
+00:07:47,869 --> 00:07:47,879
+anymore because we've already taken the
+ 
+
+321
+00:07:47,879 --> 00:07:50,950
+anymore because we've already taken the
+constraint into account so that's one
+
+322
+00:07:50,950 --> 00:07:50,960
+constraint into account so that's one
+ 
+
+323
+00:07:50,960 --> 00:07:53,869
+constraint into account so that's one
+way of doing the problem now in many
+
+324
+00:07:53,869 --> 00:07:53,879
+way of doing the problem now in many
+ 
+
+325
+00:07:53,879 --> 00:07:56,110
+way of doing the problem now in many
+cases the constraint is just too
+
+326
+00:07:56,110 --> 00:07:56,120
+cases the constraint is just too
+ 
+
+327
+00:07:56,120 --> 00:07:58,790
+cases the constraint is just too
+complicated to solve it might be some
+
+328
+00:07:58,790 --> 00:07:58,800
+complicated to solve it might be some
+ 
+
+329
+00:07:58,800 --> 00:08:01,510
+complicated to solve it might be some
+stupid complicated function that's just
+
+330
+00:08:01,510 --> 00:08:01,520
+stupid complicated function that's just
+ 
+
+331
+00:08:01,520 --> 00:08:04,070
+stupid complicated function that's just
+too complicated to solve but there is
+
+332
+00:08:04,070 --> 00:08:04,080
+too complicated to solve but there is
+ 
+
+333
+00:08:04,080 --> 00:08:06,390
+too complicated to solve but there is
+another way to do the problem and the
+
+334
+00:08:06,390 --> 00:08:06,400
+another way to do the problem and the
+ 
+
+335
+00:08:06,400 --> 00:08:10,749
+another way to do the problem and the
+problem is called the method of lrange
+
+336
+00:08:10,749 --> 00:08:10,759
+
+ 
+
+337
+00:08:10,759 --> 00:08:14,189
+
+multipliers um maybe I'll perhaps as we
+
+338
+00:08:14,189 --> 00:08:14,199
+multipliers um maybe I'll perhaps as we
+ 
+
+339
+00:08:14,199 --> 00:08:16,629
+multipliers um maybe I'll perhaps as we
+go along I will prove that it
+
+340
+00:08:16,629 --> 00:08:16,639
+go along I will prove that it
+ 
+
+341
+00:08:16,639 --> 00:08:19,950
+go along I will prove that it
+works uh for a simple for well not for
+
+342
+00:08:19,950 --> 00:08:19,960
+works uh for a simple for well not for
+ 
+
+343
+00:08:19,960 --> 00:08:21,350
+works uh for a simple for well not for
+this example but maybe a little more
+
+344
+00:08:21,350 --> 00:08:21,360
+this example but maybe a little more
+ 
+
+345
+00:08:21,360 --> 00:08:23,990
+this example but maybe a little more
+General example but let me just tell you
+
+346
+00:08:23,990 --> 00:08:24,000
+General example but let me just tell you
+ 
+
+347
+00:08:24,000 --> 00:08:26,550
+General example but let me just tell you
+what the method is I'm going to tell you
+
+348
+00:08:26,550 --> 00:08:26,560
+what the method is I'm going to tell you
+ 
+
+349
+00:08:26,560 --> 00:08:29,189
+what the method is I'm going to tell you
+the rule then we can try to see maybe
+
+350
+00:08:29,189 --> 00:08:29,199
+the rule then we can try to see maybe
+ 
+
+351
+00:08:29,199 --> 00:08:30,670
+the rule then we can try to see maybe
+why the rule is
+
+352
+00:08:30,670 --> 00:08:30,680
+why the rule is
+ 
+
+353
+00:08:30,680 --> 00:08:33,350
+why the rule is
+true all right what you do here's our
+
+354
+00:08:33,350 --> 00:08:33,360
+true all right what you do here's our
+ 
+
+355
+00:08:33,360 --> 00:08:35,829
+true all right what you do here's our
+problem we have a function of some
+
+356
+00:08:35,829 --> 00:08:35,839
+problem we have a function of some
+ 
+
+357
+00:08:35,839 --> 00:08:37,990
+problem we have a function of some
+variables in this case just
+
+358
+00:08:37,990 --> 00:08:38,000
+variables in this case just
+ 
+
+359
+00:08:38,000 --> 00:08:40,630
+variables in this case just
+two function of X and
+
+360
+00:08:40,630 --> 00:08:40,640
+two function of X and
+ 
+
+361
+00:08:40,640 --> 00:08:44,949
+two function of X and
+Y and we want to minimize it given that
+
+362
+00:08:44,949 --> 00:08:44,959
+Y and we want to minimize it given that
+ 
+
+363
+00:08:44,959 --> 00:08:47,950
+Y and we want to minimize it given that
+some other function G of X and
+
+364
+00:08:47,950 --> 00:08:47,960
+some other function G of X and
+ 
+
+365
+00:08:47,960 --> 00:08:49,310
+some other function G of X and
+[Music]
+
+366
+00:08:49,310 --> 00:08:49,320
+[Music]
+ 
+
+367
+00:08:49,320 --> 00:08:53,750
+[Music]
+Y is equal to zero g of X and Y in this
+
+368
+00:08:53,750 --> 00:08:53,760
+Y is equal to zero g of X and Y in this
+ 
+
+369
+00:08:53,760 --> 00:08:57,190
+Y is equal to zero g of X and Y in this
+case over here just corresponds to what
+
+370
+00:08:57,190 --> 00:08:57,200
+case over here just corresponds to what
+ 
+
+371
+00:08:57,200 --> 00:09:02,230
+case over here just corresponds to what
+was it uh x + 2 y y - 1 x + 2 y - 1 is
+
+372
+00:09:02,230 --> 00:09:02,240
+was it uh x + 2 y y - 1 x + 2 y - 1 is
+ 
+
+373
+00:09:02,240 --> 00:09:03,710
+was it uh x + 2 y y - 1 x + 2 y - 1 is
+equal to
+
+374
+00:09:03,710 --> 00:09:03,720
+equal to
+ 
+
+375
+00:09:03,720 --> 00:09:07,910
+equal to
+0 that's the
+
+376
+00:09:07,910 --> 00:09:07,920
+
+ 
+
+377
+00:09:07,920 --> 00:09:09,870
+
+constraint all right here's the trick
+
+378
+00:09:09,870 --> 00:09:09,880
+constraint all right here's the trick
+ 
+
+379
+00:09:09,880 --> 00:09:12,870
+constraint all right here's the trick
+that you do you take the constraint and
+
+380
+00:09:12,870 --> 00:09:12,880
+that you do you take the constraint and
+ 
+
+381
+00:09:12,880 --> 00:09:16,230
+that you do you take the constraint and
+you multiply it by a new variable the
+
+382
+00:09:16,230 --> 00:09:16,240
+you multiply it by a new variable the
+ 
+
+383
+00:09:16,240 --> 00:09:18,350
+you multiply it by a new variable the
+new variable is often called
+
+384
+00:09:18,350 --> 00:09:18,360
+new variable is often called
+ 
+
+385
+00:09:18,360 --> 00:09:21,030
+new variable is often called
+Lambda usually a Greek letter and it's
+
+386
+00:09:21,030 --> 00:09:21,040
+Lambda usually a Greek letter and it's
+ 
+
+387
+00:09:21,040 --> 00:09:23,230
+Lambda usually a Greek letter and it's
+called a lrange
+
+388
+00:09:23,230 --> 00:09:23,240
+called a lrange
+ 
+
+389
+00:09:23,240 --> 00:09:27,630
+called a lrange
+multiplier you add that to F add or
+
+390
+00:09:27,630 --> 00:09:27,640
+multiplier you add that to F add or
+ 
+
+391
+00:09:27,640 --> 00:09:30,150
+multiplier you add that to F add or
+subtract it doesn't matter
+
+392
+00:09:30,150 --> 00:09:30,160
+subtract it doesn't matter
+ 
+
+393
+00:09:30,160 --> 00:09:33,910
+subtract it doesn't matter
+uh you add it to F and now you have a
+
+394
+00:09:33,910 --> 00:09:33,920
+uh you add it to F and now you have a
+ 
+
+395
+00:09:33,920 --> 00:09:36,829
+uh you add it to F and now you have a
+new function of X and Y that also
+
+396
+00:09:36,829 --> 00:09:36,839
+new function of X and Y that also
+ 
+
+397
+00:09:36,839 --> 00:09:39,069
+new function of X and Y that also
+depends on this auxiliary variable which
+
+398
+00:09:39,069 --> 00:09:39,079
+depends on this auxiliary variable which
+ 
+
+399
+00:09:39,079 --> 00:09:40,949
+depends on this auxiliary variable which
+we're going to get rid of soon
+
+400
+00:09:40,949 --> 00:09:40,959
+we're going to get rid of soon
+ 
+
+401
+00:09:40,959 --> 00:09:43,310
+we're going to get rid of soon
+enough we're going to get rid of it in a
+
+402
+00:09:43,310 --> 00:09:43,320
+enough we're going to get rid of it in a
+ 
+
+403
+00:09:43,320 --> 00:09:46,160
+enough we're going to get rid of it in a
+moment uh but we have a new
+
+404
+00:09:46,160 --> 00:09:46,170
+moment uh but we have a new
+ 
+
+405
+00:09:46,170 --> 00:09:47,550
+moment uh but we have a new
+[Music]
+
+406
+00:09:47,550 --> 00:09:47,560
+[Music]
+ 
+
+407
+00:09:47,560 --> 00:09:52,069
+[Music]
+thing which is f and Lambda G and then
+
+408
+00:09:52,069 --> 00:09:52,079
+thing which is f and Lambda G and then
+ 
+
+409
+00:09:52,079 --> 00:09:55,790
+thing which is f and Lambda G and then
+what we do is we just
+
+410
+00:09:55,790 --> 00:09:55,800
+what we do is we just
+ 
+
+411
+00:09:55,800 --> 00:10:00,269
+what we do is we just
+minimize f plus Lambda G with respect to
+
+412
+00:10:00,269 --> 00:10:00,279
+minimize f plus Lambda G with respect to
+ 
+
+413
+00:10:00,279 --> 00:10:03,230
+minimize f plus Lambda G with respect to
+X and Y ignoring the
+
+414
+00:10:03,230 --> 00:10:03,240
+X and Y ignoring the
+ 
+
+415
+00:10:03,240 --> 00:10:05,430
+X and Y ignoring the
+constraint for get the constraint and
+
+416
+00:10:05,430 --> 00:10:05,440
+constraint for get the constraint and
+ 
+
+417
+00:10:05,440 --> 00:10:07,750
+constraint for get the constraint and
+just think of this new object here and
+
+418
+00:10:07,750 --> 00:10:07,760
+just think of this new object here and
+ 
+
+419
+00:10:07,760 --> 00:10:10,030
+just think of this new object here and
+minimize it with respect to X and Y okay
+
+420
+00:10:10,030 --> 00:10:10,040
+minimize it with respect to X and Y okay
+ 
+
+421
+00:10:10,040 --> 00:10:11,949
+minimize it with respect to X and Y okay
+how do you minimize a function of two
+
+422
+00:10:11,949 --> 00:10:11,959
+how do you minimize a function of two
+ 
+
+423
+00:10:11,959 --> 00:10:13,710
+how do you minimize a function of two
+variables with respect to uh with
+
+424
+00:10:13,710 --> 00:10:13,720
+variables with respect to uh with
+ 
+
+425
+00:10:13,720 --> 00:10:15,670
+variables with respect to uh with
+respect to its
+
+426
+00:10:15,670 --> 00:10:15,680
+respect to its
+ 
+
+427
+00:10:15,680 --> 00:10:17,990
+respect to its
+variables you differentiate with respect
+
+428
+00:10:17,990 --> 00:10:18,000
+variables you differentiate with respect
+ 
+
+429
+00:10:18,000 --> 00:10:19,550
+variables you differentiate with respect
+to the variables and you set the result
+
+430
+00:10:19,550 --> 00:10:19,560
+to the variables and you set the result
+ 
+
+431
+00:10:19,560 --> 00:10:22,590
+to the variables and you set the result
+equal to zero so that would
+
+432
+00:10:22,590 --> 00:10:22,600
+equal to zero so that would
+ 
+
+433
+00:10:22,600 --> 00:10:27,550
+equal to zero so that would
+say we differentiate DF by
+
+434
+00:10:27,550 --> 00:10:27,560
+say we differentiate DF by
+ 
+
+435
+00:10:27,560 --> 00:10:30,949
+say we differentiate DF by
+DX plus Lambda Lambda is treated as just
+
+436
+00:10:30,949 --> 00:10:30,959
+DX plus Lambda Lambda is treated as just
+ 
+
+437
+00:10:30,959 --> 00:10:35,870
+DX plus Lambda Lambda is treated as just
+a constant times DG by
+
+438
+00:10:35,870 --> 00:10:35,880
+a constant times DG by
+ 
+
+439
+00:10:35,880 --> 00:10:39,750
+a constant times DG by
+DX and we set that equal to zero that's
+
+440
+00:10:39,750 --> 00:10:39,760
+DX and we set that equal to zero that's
+ 
+
+441
+00:10:39,760 --> 00:10:42,310
+DX and we set that equal to zero that's
+one equation and the other equation is
+
+442
+00:10:42,310 --> 00:10:42,320
+one equation and the other equation is
+ 
+
+443
+00:10:42,320 --> 00:10:45,949
+one equation and the other equation is
+DF by
+
+444
+00:10:45,949 --> 00:10:45,959
+
+ 
+
+445
+00:10:45,959 --> 00:10:52,069
+
+Dy plus Lambda DG by
+
+446
+00:10:52,069 --> 00:10:52,079
+
+ 
+
+447
+00:10:52,079 --> 00:10:55,509
+
+Dy is equal to zero those are the two
+
+448
+00:10:55,509 --> 00:10:55,519
+Dy is equal to zero those are the two
+ 
+
+449
+00:10:55,519 --> 00:10:58,550
+Dy is equal to zero those are the two
+equations for minimizing this particular
+
+450
+00:10:58,550 --> 00:10:58,560
+equations for minimizing this particular
+ 
+
+451
+00:10:58,560 --> 00:11:00,110
+equations for minimizing this particular
+object over here
+
+452
+00:11:00,110 --> 00:11:00,120
+object over here
+ 
+
+453
+00:11:00,120 --> 00:11:03,509
+object over here
+here all right here are two equations
+
+454
+00:11:03,509 --> 00:11:03,519
+here all right here are two equations
+ 
+
+455
+00:11:03,519 --> 00:11:06,069
+here all right here are two equations
+for two unknowns X and Y both of them
+
+456
+00:11:06,069 --> 00:11:06,079
+for two unknowns X and Y both of them
+ 
+
+457
+00:11:06,079 --> 00:11:08,190
+for two unknowns X and Y both of them
+depend on X and
+
+458
+00:11:08,190 --> 00:11:08,200
+depend on X and
+ 
+
+459
+00:11:08,200 --> 00:11:11,790
+depend on X and
+Y X and Y X and
+
+460
+00:11:11,790 --> 00:11:11,800
+Y X and Y X and
+ 
+
+461
+00:11:11,800 --> 00:11:15,350
+Y X and Y X and
+Y and we can solve them for X and Y but
+
+462
+00:11:15,350 --> 00:11:15,360
+Y and we can solve them for X and Y but
+ 
+
+463
+00:11:15,360 --> 00:11:17,110
+Y and we can solve them for X and Y but
+wait a minute we have this thing Lambda
+
+464
+00:11:17,110 --> 00:11:17,120
+wait a minute we have this thing Lambda
+ 
+
+465
+00:11:17,120 --> 00:11:19,590
+wait a minute we have this thing Lambda
+there what do we do with that thing
+
+466
+00:11:19,590 --> 00:11:19,600
+there what do we do with that thing
+ 
+
+467
+00:11:19,600 --> 00:11:23,590
+there what do we do with that thing
+Lambda right the answer for X and Y will
+
+468
+00:11:23,590 --> 00:11:23,600
+Lambda right the answer for X and Y will
+ 
+
+469
+00:11:23,600 --> 00:11:26,069
+Lambda right the answer for X and Y will
+depend on this parameter
+
+470
+00:11:26,069 --> 00:11:26,079
+depend on this parameter
+ 
+
+471
+00:11:26,079 --> 00:11:28,509
+depend on this parameter
+Lambda what we do with the parameter
+
+472
+00:11:28,509 --> 00:11:28,519
+Lambda what we do with the parameter
+ 
+
+473
+00:11:28,519 --> 00:11:29,750
+Lambda what we do with the parameter
+Lambda at the
+
+474
+00:11:29,750 --> 00:11:29,760
+Lambda at the
+ 
+
+475
+00:11:29,760 --> 00:11:33,150
+Lambda at the
+end after we have solved this problem
+
+476
+00:11:33,150 --> 00:11:33,160
+end after we have solved this problem
+ 
+
+477
+00:11:33,160 --> 00:11:36,910
+end after we have solved this problem
+over here implicitly in terms of Lambda
+
+478
+00:11:36,910 --> 00:11:36,920
+over here implicitly in terms of Lambda
+ 
+
+479
+00:11:36,920 --> 00:11:40,190
+over here implicitly in terms of Lambda
+is that we set Lambda to whatever value
+
+480
+00:11:40,190 --> 00:11:40,200
+is that we set Lambda to whatever value
+ 
+
+481
+00:11:40,200 --> 00:11:42,389
+is that we set Lambda to whatever value
+was necessary in order that the
+
+482
+00:11:42,389 --> 00:11:42,399
+was necessary in order that the
+ 
+
+483
+00:11:42,399 --> 00:11:45,670
+was necessary in order that the
+constraint the original constraint g
+
+484
+00:11:45,670 --> 00:11:45,680
+constraint the original constraint g
+ 
+
+485
+00:11:45,680 --> 00:11:48,629
+constraint the original constraint g
+equals z is really satisfied I'm going
+
+486
+00:11:48,629 --> 00:11:48,639
+equals z is really satisfied I'm going
+ 
+
+487
+00:11:48,639 --> 00:11:49,670
+equals z is really satisfied I'm going
+to give you an example I'm going to show
+
+488
+00:11:49,670 --> 00:11:49,680
+to give you an example I'm going to show
+ 
+
+489
+00:11:49,680 --> 00:11:52,269
+to give you an example I'm going to show
+you how it works by
+
+490
+00:11:52,269 --> 00:11:52,279
+you how it works by
+ 
+
+491
+00:11:52,279 --> 00:11:54,430
+you how it works by
+example in fact we might as well do that
+
+492
+00:11:54,430 --> 00:11:54,440
+example in fact we might as well do that
+ 
+
+493
+00:11:54,440 --> 00:11:56,509
+example in fact we might as well do that
+example and then I'm going to show you
+
+494
+00:11:56,509 --> 00:11:56,519
+example and then I'm going to show you
+ 
+
+495
+00:11:56,519 --> 00:11:58,590
+example and then I'm going to show you
+why it works show you that it work show
+
+496
+00:11:58,590 --> 00:11:58,600
+why it works show you that it work show
+ 
+
+497
+00:11:58,600 --> 00:12:01,269
+why it works show you that it work show
+you how it works and then why it
+
+498
+00:12:01,269 --> 00:12:01,279
+you how it works and then why it
+ 
+
+499
+00:12:01,279 --> 00:12:04,550
+you how it works and then why it
+works okay incidentally you could
+
+500
+00:12:04,550 --> 00:12:04,560
+works okay incidentally you could
+ 
+
+501
+00:12:04,560 --> 00:12:09,150
+works okay incidentally you could
+imagine having more variables XY z w and
+
+502
+00:12:09,150 --> 00:12:09,160
+imagine having more variables XY z w and
+ 
+
+503
+00:12:09,160 --> 00:12:11,350
+imagine having more variables XY z w and
+have several
+
+504
+00:12:11,350 --> 00:12:11,360
+have several
+ 
+
+505
+00:12:11,360 --> 00:12:13,790
+have several
+constraints I'll tell you later on what
+
+506
+00:12:13,790 --> 00:12:13,800
+constraints I'll tell you later on what
+ 
+
+507
+00:12:13,800 --> 00:12:15,350
+constraints I'll tell you later on what
+you do with several constraints but
+
+508
+00:12:15,350 --> 00:12:15,360
+you do with several constraints but
+ 
+
+509
+00:12:15,360 --> 00:12:16,910
+you do with several constraints but
+let's just do it as a function of two
+
+510
+00:12:16,910 --> 00:12:16,920
+let's just do it as a function of two
+ 
+
+511
+00:12:16,920 --> 00:12:19,030
+let's just do it as a function of two
+variables for one constraint okay so
+
+512
+00:12:19,030 --> 00:12:19,040
+variables for one constraint okay so
+ 
+
+513
+00:12:19,040 --> 00:12:20,710
+variables for one constraint okay so
+let's solve this problem up here here's
+
+514
+00:12:20,710 --> 00:12:20,720
+let's solve this problem up here here's
+ 
+
+515
+00:12:20,720 --> 00:12:23,110
+let's solve this problem up here here's
+our
+
+516
+00:12:23,110 --> 00:12:23,120
+
+ 
+
+517
+00:12:23,120 --> 00:12:26,710
+
+problem minimize x^2 +
+
+518
+00:12:26,710 --> 00:12:26,720
+problem minimize x^2 +
+ 
+
+519
+00:12:26,720 --> 00:12:30,269
+problem minimize x^2 +
+y^2 subject to the constraint that x + 2
+
+520
+00:12:30,269 --> 00:12:30,279
+y^2 subject to the constraint that x + 2
+ 
+
+521
+00:12:30,279 --> 00:12:32,150
+y^2 subject to the constraint that x + 2
+y - 1 is equal to
+
+522
+00:12:32,150 --> 00:12:32,160
+y - 1 is equal to
+ 
+
+523
+00:12:32,160 --> 00:12:34,710
+y - 1 is equal to
+0 well
+
+524
+00:12:34,710 --> 00:12:34,720
+0 well
+ 
+
+525
+00:12:34,720 --> 00:12:40,350
+0 well
+we add this quantity x^2 +
+
+526
+00:12:40,350 --> 00:12:40,360
+we add this quantity x^2 +
+ 
+
+527
+00:12:40,360 --> 00:12:43,230
+we add this quantity x^2 +
+y^2 plus
+
+528
+00:12:43,230 --> 00:12:43,240
+y^2 plus
+ 
+
+529
+00:12:43,240 --> 00:12:46,990
+y^2 plus
+Lambda time the
+
+530
+00:12:46,990 --> 00:12:47,000
+Lambda time the
+ 
+
+531
+00:12:47,000 --> 00:12:53,030
+Lambda time the
+constraint x + 2 y - 1 in this case the
+
+532
+00:12:53,030 --> 00:12:53,040
+constraint x + 2 y - 1 in this case the
+ 
+
+533
+00:12:53,040 --> 00:12:54,790
+constraint x + 2 y - 1 in this case the
+one is not going to be very important to
+
+534
+00:12:54,790 --> 00:12:54,800
+one is not going to be very important to
+ 
+
+535
+00:12:54,800 --> 00:12:58,189
+one is not going to be very important to
+this calculation that's a new object and
+
+536
+00:12:58,189 --> 00:12:58,199
+this calculation that's a new object and
+ 
+
+537
+00:12:58,199 --> 00:13:00,389
+this calculation that's a new object and
+now we minimize it how do we minimize it
+
+538
+00:13:00,389 --> 00:13:00,399
+now we minimize it how do we minimize it
+ 
+
+539
+00:13:00,399 --> 00:13:02,230
+now we minimize it how do we minimize it
+we differentiate it with respect to X
+
+540
+00:13:02,230 --> 00:13:02,240
+we differentiate it with respect to X
+ 
+
+541
+00:13:02,240 --> 00:13:04,829
+we differentiate it with respect to X
+and set the result equal to zero what's
+
+542
+00:13:04,829 --> 00:13:04,839
+and set the result equal to zero what's
+ 
+
+543
+00:13:04,839 --> 00:13:07,350
+and set the result equal to zero what's
+the derivative of this that's
+
+544
+00:13:07,350 --> 00:13:07,360
+the derivative of this that's
+ 
+
+545
+00:13:07,360 --> 00:13:13,550
+the derivative of this that's
+2x plus Lambda x = 0 we differentiate
+
+546
+00:13:13,550 --> 00:13:13,560
+2x plus Lambda x = 0 we differentiate
+ 
+
+547
+00:13:13,560 --> 00:13:15,110
+2x plus Lambda x = 0 we differentiate
+with respect to
+
+548
+00:13:15,110 --> 00:13:15,120
+with respect to
+ 
+
+549
+00:13:15,120 --> 00:13:18,470
+with respect to
+lamb oh sorry plus Lambda good thank
+
+550
+00:13:18,470 --> 00:13:18,480
+lamb oh sorry plus Lambda good thank
+ 
+
+551
+00:13:18,480 --> 00:13:23,829
+lamb oh sorry plus Lambda good thank
+you plus Lambda equal 0 2x plus Lambda
+
+552
+00:13:23,829 --> 00:13:23,839
+you plus Lambda equal 0 2x plus Lambda
+ 
+
+553
+00:13:23,839 --> 00:13:28,269
+you plus Lambda equal 0 2x plus Lambda
+equal 0 and then same thing with Y 2 Y
+
+554
+00:13:28,269 --> 00:13:28,279
+equal 0 and then same thing with Y 2 Y
+ 
+
+555
+00:13:28,279 --> 00:13:31,629
+equal 0 and then same thing with Y 2 Y
+and in this case it's + 2 Lambda extra
+
+556
+00:13:31,629 --> 00:13:31,639
+and in this case it's + 2 Lambda extra
+ 
+
+557
+00:13:31,639 --> 00:13:34,110
+and in this case it's + 2 Lambda extra
+two here equals
+
+558
+00:13:34,110 --> 00:13:34,120
+two here equals
+ 
+
+559
+00:13:34,120 --> 00:13:37,670
+two here equals
+z now we can solve for x and y in terms
+
+560
+00:13:37,670 --> 00:13:37,680
+z now we can solve for x and y in terms
+ 
+
+561
+00:13:37,680 --> 00:13:39,750
+z now we can solve for x and y in terms
+of Lambda we don't know what Lambda is
+
+562
+00:13:39,750 --> 00:13:39,760
+of Lambda we don't know what Lambda is
+ 
+
+563
+00:13:39,760 --> 00:13:44,670
+of Lambda we don't know what Lambda is
+yet but let's solve it in terms of X and
+
+564
+00:13:44,670 --> 00:13:44,680
+yet but let's solve it in terms of X and
+ 
+
+565
+00:13:44,680 --> 00:13:47,750
+yet but let's solve it in terms of X and
+Y uh let's solve for x and y in terms of
+
+566
+00:13:47,750 --> 00:13:47,760
+Y uh let's solve for x and y in terms of
+ 
+
+567
+00:13:47,760 --> 00:13:52,069
+Y uh let's solve for x and y in terms of
+Lambda X is equal to minus Lambda / 2
+
+568
+00:13:52,069 --> 00:13:52,079
+Lambda X is equal to minus Lambda / 2
+ 
+
+569
+00:13:52,079 --> 00:13:54,670
+Lambda X is equal to minus Lambda / 2
+that's this equation x is minus Lambda /
+
+570
+00:13:54,670 --> 00:13:54,680
+that's this equation x is minus Lambda /
+ 
+
+571
+00:13:54,680 --> 00:13:57,710
+that's this equation x is minus Lambda /
+2 and Y I think is just equal to minus
+
+572
+00:13:57,710 --> 00:13:57,720
+2 and Y I think is just equal to minus
+ 
+
+573
+00:13:57,720 --> 00:14:00,670
+2 and Y I think is just equal to minus
+Lambda
+
+574
+00:14:00,670 --> 00:14:00,680
+Lambda
+ 
+
+575
+00:14:00,680 --> 00:14:04,230
+Lambda
+everybody agree with that right okay so
+
+576
+00:14:04,230 --> 00:14:04,240
+everybody agree with that right okay so
+ 
+
+577
+00:14:04,240 --> 00:14:05,910
+everybody agree with that right okay so
+we've solved that problem except we
+
+578
+00:14:05,910 --> 00:14:05,920
+we've solved that problem except we
+ 
+
+579
+00:14:05,920 --> 00:14:09,150
+we've solved that problem except we
+don't know what Lambda is what we do now
+
+580
+00:14:09,150 --> 00:14:09,160
+don't know what Lambda is what we do now
+ 
+
+581
+00:14:09,160 --> 00:14:11,910
+don't know what Lambda is what we do now
+is we choose Lambda so that the
+
+582
+00:14:11,910 --> 00:14:11,920
+is we choose Lambda so that the
+ 
+
+583
+00:14:11,920 --> 00:14:14,790
+is we choose Lambda so that the
+constraint is actually satisfied let's
+
+584
+00:14:14,790 --> 00:14:14,800
+constraint is actually satisfied let's
+ 
+
+585
+00:14:14,800 --> 00:14:15,629
+constraint is actually satisfied let's
+do
+
+586
+00:14:15,629 --> 00:14:15,639
+do
+ 
+
+587
+00:14:15,639 --> 00:14:20,310
+do
+that x + 2 y - 1 is equal to 0 let's
+
+588
+00:14:20,310 --> 00:14:20,320
+that x + 2 y - 1 is equal to 0 let's
+ 
+
+589
+00:14:20,320 --> 00:14:23,710
+that x + 2 y - 1 is equal to 0 let's
+plug in the solution the solution is X
+
+590
+00:14:23,710 --> 00:14:23,720
+plug in the solution the solution is X
+ 
+
+591
+00:14:23,720 --> 00:14:27,790
+plug in the solution the solution is X
+which is minus Lambda / 2 this one plus
+
+592
+00:14:27,790 --> 00:14:27,800
+which is minus Lambda / 2 this one plus
+ 
+
+593
+00:14:27,800 --> 00:14:32,310
+which is minus Lambda / 2 this one plus
+2 y which is minus 2 Lambda I
+
+594
+00:14:32,310 --> 00:14:32,320
+2 y which is minus 2 Lambda I
+ 
+
+595
+00:14:32,320 --> 00:14:37,590
+2 y which is minus 2 Lambda I
+believe 2 Y is - 2
+
+596
+00:14:37,590 --> 00:14:37,600
+believe 2 Y is - 2
+ 
+
+597
+00:14:37,600 --> 00:14:39,829
+believe 2 Y is - 2
+Lambda minus
+
+598
+00:14:39,829 --> 00:14:39,839
+Lambda minus
+ 
+
+599
+00:14:39,839 --> 00:14:43,710
+Lambda minus
+one is equal to zero sorry is equal to 1
+
+600
+00:14:43,710 --> 00:14:43,720
+one is equal to zero sorry is equal to 1
+ 
+
+601
+00:14:43,720 --> 00:14:46,670
+one is equal to zero sorry is equal to 1
+is equal to one I just transposed the
+
+602
+00:14:46,670 --> 00:14:46,680
+is equal to one I just transposed the
+ 
+
+603
+00:14:46,680 --> 00:14:49,350
+is equal to one I just transposed the
+one over to the other side and now what
+
+604
+00:14:49,350 --> 00:14:49,360
+one over to the other side and now what
+ 
+
+605
+00:14:49,360 --> 00:14:56,189
+one over to the other side and now what
+does that mean in terms of
+
+606
+00:14:56,189 --> 00:14:56,199
+
+ 
+
+607
+00:14:56,199 --> 00:15:06,990
+
+Lambda excuse me
+
+608
+00:15:06,990 --> 00:15:07,000
+
+ 
+
+609
+00:15:07,000 --> 00:15:08,910
+
+2 is 4 over
+
+610
+00:15:08,910 --> 00:15:08,920
+2 is 4 over
+ 
+
+611
+00:15:08,920 --> 00:15:12,470
+2 is 4 over
+two
+
+612
+00:15:12,470 --> 00:15:12,480
+
+ 
+
+613
+00:15:12,480 --> 00:15:16,949
+
+uh okay so this is what minus 5 Lambda -
+
+614
+00:15:16,949 --> 00:15:16,959
+uh okay so this is what minus 5 Lambda -
+ 
+
+615
+00:15:16,959 --> 00:15:21,629
+uh okay so this is what minus 5 Lambda -
+5 Lambda equal 1 or Lambda is equal to -
+
+616
+00:15:21,629 --> 00:15:21,639
+5 Lambda equal 1 or Lambda is equal to -
+ 
+
+617
+00:15:21,639 --> 00:15:23,110
+5 Lambda equal 1 or Lambda is equal to -
+2
+
+618
+00:15:23,110 --> 00:15:23,120
+2
+ 
+
+619
+00:15:23,120 --> 00:15:26,629
+2
+fths and now we solve our problem Lambda
+
+620
+00:15:26,629 --> 00:15:26,639
+fths and now we solve our problem Lambda
+ 
+
+621
+00:15:26,639 --> 00:15:30,910
+fths and now we solve our problem Lambda
+is equal to - 25s which means Lambda / 2
+
+622
+00:15:30,910 --> 00:15:30,920
+is equal to - 25s which means Lambda / 2
+ 
+
+623
+00:15:30,920 --> 00:15:33,829
+is equal to - 25s which means Lambda / 2
+is lookus Lambda / 2 is
+
+624
+00:15:33,829 --> 00:15:33,839
+is lookus Lambda / 2 is
+ 
+
+625
+00:15:33,839 --> 00:15:38,030
+is lookus Lambda / 2 is
+1/5 I think let's see Lambda over
+
+626
+00:15:38,030 --> 00:15:38,040
+1/5 I think let's see Lambda over
+ 
+
+627
+00:15:38,040 --> 00:15:44,030
+1/5 I think let's see Lambda over
+2 yeah is 1/5 and Y is equal
+
+628
+00:15:44,030 --> 00:15:44,040
+2 yeah is 1/5 and Y is equal
+ 
+
+629
+00:15:44,040 --> 00:15:46,189
+2 yeah is 1/5 and Y is equal
+to 2
+
+630
+00:15:46,189 --> 00:15:46,199
+to 2
+ 
+
+631
+00:15:46,199 --> 00:15:49,870
+to 2
+fths I've just plugged in what Lambda
+
+632
+00:15:49,870 --> 00:15:49,880
+fths I've just plugged in what Lambda
+ 
+
+633
+00:15:49,880 --> 00:15:55,269
+fths I've just plugged in what Lambda
+is minus Lambda is 2 fsus Lambda / 2 is
+
+634
+00:15:55,269 --> 00:15:55,279
+is minus Lambda is 2 fsus Lambda / 2 is
+ 
+
+635
+00:15:55,279 --> 00:15:59,910
+is minus Lambda is 2 fsus Lambda / 2 is
+1/5 and we have now found out where
+
+636
+00:15:59,910 --> 00:15:59,920
+1/5 and we have now found out where
+ 
+
+637
+00:15:59,920 --> 00:16:04,150
+1/5 and we have now found out where
+this curve or where this
+
+638
+00:16:04,150 --> 00:16:04,160
+this curve or where this
+ 
+
+639
+00:16:04,160 --> 00:16:07,670
+this curve or where this
+line achieves its closest distance to
+
+640
+00:16:07,670 --> 00:16:07,680
+line achieves its closest distance to
+ 
+
+641
+00:16:07,680 --> 00:16:10,030
+line achieves its closest distance to
+the origin that was the mathematics
+
+642
+00:16:10,030 --> 00:16:10,040
+the origin that was the mathematics
+ 
+
+643
+00:16:10,040 --> 00:16:13,710
+the origin that was the mathematics
+problem minimize x^2 + y^2 which is just
+
+644
+00:16:13,710 --> 00:16:13,720
+problem minimize x^2 + y^2 which is just
+ 
+
+645
+00:16:13,720 --> 00:16:16,030
+problem minimize x^2 + y^2 which is just
+the square of the distance of a point to
+
+646
+00:16:16,030 --> 00:16:16,040
+the square of the distance of a point to
+ 
+
+647
+00:16:16,040 --> 00:16:19,389
+the square of the distance of a point to
+the origin minimize it along this line
+
+648
+00:16:19,389 --> 00:16:19,399
+the origin minimize it along this line
+ 
+
+649
+00:16:19,399 --> 00:16:21,269
+the origin minimize it along this line
+and that means find the point along the
+
+650
+00:16:21,269 --> 00:16:21,279
+and that means find the point along the
+ 
+
+651
+00:16:21,279 --> 00:16:23,629
+and that means find the point along the
+line which is closest to the
+
+652
+00:16:23,629 --> 00:16:23,639
+line which is closest to the
+ 
+
+653
+00:16:23,639 --> 00:16:25,350
+line which is closest to the
+center
+
+654
+00:16:25,350 --> 00:16:25,360
+center
+ 
+
+655
+00:16:25,360 --> 00:16:28,150
+center
+right now we could check in we can check
+
+656
+00:16:28,150 --> 00:16:28,160
+right now we could check in we can check
+ 
+
+657
+00:16:28,160 --> 00:16:29,910
+right now we could check in we can check
+independently of course we could do the
+
+658
+00:16:29,910 --> 00:16:29,920
+independently of course we could do the
+ 
+
+659
+00:16:29,920 --> 00:16:32,670
+independently of course we could do the
+calculation the other way by
+
+660
+00:16:32,670 --> 00:16:32,680
+calculation the other way by
+ 
+
+661
+00:16:32,680 --> 00:16:35,150
+calculation the other way by
+eliminating the constraint by solving
+
+662
+00:16:35,150 --> 00:16:35,160
+eliminating the constraint by solving
+ 
+
+663
+00:16:35,160 --> 00:16:36,870
+eliminating the constraint by solving
+the constraint for one of the variables
+
+664
+00:16:36,870 --> 00:16:36,880
+the constraint for one of the variables
+ 
+
+665
+00:16:36,880 --> 00:16:39,309
+the constraint for one of the variables
+and plugging it back in and we could uh
+
+666
+00:16:39,309 --> 00:16:39,319
+and plugging it back in and we could uh
+ 
+
+667
+00:16:39,319 --> 00:16:40,590
+and plugging it back in and we could uh
+we could do it that way of course we'll
+
+668
+00:16:40,590 --> 00:16:40,600
+we could do it that way of course we'll
+ 
+
+669
+00:16:40,600 --> 00:16:41,629
+we could do it that way of course we'll
+get the same
+
+670
+00:16:41,629 --> 00:16:41,639
+get the same
+ 
+
+671
+00:16:41,639 --> 00:16:44,110
+get the same
+answer let me show you why this works so
+
+672
+00:16:44,110 --> 00:16:44,120
+answer let me show you why this works so
+ 
+
+673
+00:16:44,120 --> 00:16:45,430
+answer let me show you why this works so
+just a little bit of algebra it just
+
+674
+00:16:45,430 --> 00:16:45,440
+just a little bit of algebra it just
+ 
+
+675
+00:16:45,440 --> 00:16:47,069
+just a little bit of algebra it just
+takes a little bit of algebra to see why
+
+676
+00:16:47,069 --> 00:16:47,079
+takes a little bit of algebra to see why
+ 
+
+677
+00:16:47,079 --> 00:16:49,790
+takes a little bit of algebra to see why
+it works and it's very general it's
+
+678
+00:16:49,790 --> 00:16:49,800
+it works and it's very general it's
+ 
+
+679
+00:16:49,800 --> 00:16:51,790
+it works and it's very general it's
+extremely General it's
+
+680
+00:16:51,790 --> 00:16:51,800
+extremely General it's
+ 
+
+681
+00:16:51,800 --> 00:16:56,269
+extremely General it's
+not uh X2 + y^2 was just an arbitrary
+
+682
+00:16:56,269 --> 00:16:56,279
+not uh X2 + y^2 was just an arbitrary
+ 
+
+683
+00:16:56,279 --> 00:16:58,949
+not uh X2 + y^2 was just an arbitrary
+function that I picked
+
+684
+00:16:58,949 --> 00:16:58,959
+function that I picked
+ 
+
+685
+00:16:58,959 --> 00:17:00,030
+function that I picked
+any other
+
+686
+00:17:00,030 --> 00:17:00,040
+any other
+ 
+
+687
+00:17:00,040 --> 00:17:02,829
+any other
+function the fact that I chose the
+
+688
+00:17:02,829 --> 00:17:02,839
+function the fact that I chose the
+ 
+
+689
+00:17:02,839 --> 00:17:05,470
+function the fact that I chose the
+constraint to be a straight line a
+
+690
+00:17:05,470 --> 00:17:05,480
+constraint to be a straight line a
+ 
+
+691
+00:17:05,480 --> 00:17:08,390
+constraint to be a straight line a
+linear function again nothing special
+
+692
+00:17:08,390 --> 00:17:08,400
+linear function again nothing special
+ 
+
+693
+00:17:08,400 --> 00:17:13,510
+linear function again nothing special
+about that okay let's uh let's do the
+
+694
+00:17:13,510 --> 00:17:13,520
+about that okay let's uh let's do the
+ 
+
+695
+00:17:13,520 --> 00:17:16,189
+about that okay let's uh let's do the
+problem not this problem but a general
+
+696
+00:17:16,189 --> 00:17:16,199
+problem not this problem but a general
+ 
+
+697
+00:17:16,199 --> 00:17:19,390
+problem not this problem but a general
+problem in both ways and see that we get
+
+698
+00:17:19,390 --> 00:17:19,400
+problem in both ways and see that we get
+ 
+
+699
+00:17:19,400 --> 00:17:20,630
+problem in both ways and see that we get
+the same
+
+700
+00:17:20,630 --> 00:17:20,640
+the same
+ 
+
+701
+00:17:20,640 --> 00:17:23,990
+the same
+answer so let's start by the method of
+
+702
+00:17:23,990 --> 00:17:24,000
+answer so let's start by the method of
+ 
+
+703
+00:17:24,000 --> 00:17:26,110
+answer so let's start by the method of
+eliminating one of the variables from
+
+704
+00:17:26,110 --> 00:17:26,120
+eliminating one of the variables from
+ 
+
+705
+00:17:26,120 --> 00:17:27,590
+eliminating one of the variables from
+the constraint here we here's our
+
+706
+00:17:27,590 --> 00:17:27,600
+the constraint here we here's our
+ 
+
+707
+00:17:27,600 --> 00:17:31,110
+the constraint here we here's our
+problem we have f of x and
+
+708
+00:17:31,110 --> 00:17:31,120
+problem we have f of x and
+ 
+
+709
+00:17:31,120 --> 00:17:34,710
+problem we have f of x and
+y we want to minimize it subject to the
+
+710
+00:17:34,710 --> 00:17:34,720
+y we want to minimize it subject to the
+ 
+
+711
+00:17:34,720 --> 00:17:38,430
+y we want to minimize it subject to the
+constraint that g of X and Y is equal to
+
+712
+00:17:38,430 --> 00:17:38,440
+constraint that g of X and Y is equal to
+ 
+
+713
+00:17:38,440 --> 00:17:42,150
+constraint that g of X and Y is equal to
+Zer G of X and Y equals 0 is some curve
+
+714
+00:17:42,150 --> 00:17:42,160
+Zer G of X and Y equals 0 is some curve
+ 
+
+715
+00:17:42,160 --> 00:17:44,669
+Zer G of X and Y equals 0 is some curve
+and it means we're minimizing F along
+
+716
+00:17:44,669 --> 00:17:44,679
+and it means we're minimizing F along
+ 
+
+717
+00:17:44,679 --> 00:17:45,669
+and it means we're minimizing F along
+that
+
+718
+00:17:45,669 --> 00:17:45,679
+that
+ 
+
+719
+00:17:45,679 --> 00:17:48,710
+that
+curve all right here's the way I'm going
+
+720
+00:17:48,710 --> 00:17:48,720
+curve all right here's the way I'm going
+ 
+
+721
+00:17:48,720 --> 00:17:51,029
+curve all right here's the way I'm going
+to do it I'm going to imagine this it
+
+722
+00:17:51,029 --> 00:17:51,039
+to do it I'm going to imagine this it
+ 
+
+723
+00:17:51,039 --> 00:17:52,470
+to do it I'm going to imagine this it
+may be too hard to do but it doesn't
+
+724
+00:17:52,470 --> 00:17:52,480
+may be too hard to do but it doesn't
+ 
+
+725
+00:17:52,480 --> 00:17:54,070
+may be too hard to do but it doesn't
+matter all I have to do is Imagine doing
+
+726
+00:17:54,070 --> 00:17:54,080
+matter all I have to do is Imagine doing
+ 
+
+727
+00:17:54,080 --> 00:17:57,110
+matter all I have to do is Imagine doing
+it solving this equation for one of the
+
+728
+00:17:57,110 --> 00:17:57,120
+it solving this equation for one of the
+ 
+
+729
+00:17:57,120 --> 00:17:59,990
+it solving this equation for one of the
+two variables which one all right let's
+
+730
+00:17:59,990 --> 00:18:00,000
+two variables which one all right let's
+ 
+
+731
+00:18:00,000 --> 00:18:03,149
+two variables which one all right let's
+imagine solving for y if we solve this
+
+732
+00:18:03,149 --> 00:18:03,159
+imagine solving for y if we solve this
+ 
+
+733
+00:18:03,159 --> 00:18:06,270
+imagine solving for y if we solve this
+equation for y it will tell us what Y is
+
+734
+00:18:06,270 --> 00:18:06,280
+equation for y it will tell us what Y is
+ 
+
+735
+00:18:06,280 --> 00:18:07,630
+equation for y it will tell us what Y is
+as a function of
+
+736
+00:18:07,630 --> 00:18:07,640
+as a function of
+ 
+
+737
+00:18:07,640 --> 00:18:10,750
+as a function of
+X in other words this was some
+
+738
+00:18:10,750 --> 00:18:10,760
+X in other words this was some
+ 
+
+739
+00:18:10,760 --> 00:18:13,510
+X in other words this was some
+curve it corresponds to a curve that
+
+740
+00:18:13,510 --> 00:18:13,520
+curve it corresponds to a curve that
+ 
+
+741
+00:18:13,520 --> 00:18:16,750
+curve it corresponds to a curve that
+represents y as a function of X let's
+
+742
+00:18:16,750 --> 00:18:16,760
+represents y as a function of X let's
+ 
+
+743
+00:18:16,760 --> 00:18:18,470
+represents y as a function of X let's
+not worry right now whether it's single
+
+744
+00:18:18,470 --> 00:18:18,480
+not worry right now whether it's single
+ 
+
+745
+00:18:18,480 --> 00:18:20,390
+not worry right now whether it's single
+valued not single valued that that
+
+746
+00:18:20,390 --> 00:18:20,400
+valued not single valued that that
+ 
+
+747
+00:18:20,400 --> 00:18:22,789
+valued not single valued that that
+that's not an important issue here it
+
+748
+00:18:22,789 --> 00:18:22,799
+that's not an important issue here it
+ 
+
+749
+00:18:22,799 --> 00:18:25,870
+that's not an important issue here it
+gives us a y as a function of X then we
+
+750
+00:18:25,870 --> 00:18:25,880
+gives us a y as a function of X then we
+ 
+
+751
+00:18:25,880 --> 00:18:27,909
+gives us a y as a function of X then we
+plug that back into here and when we say
+
+752
+00:18:27,909 --> 00:18:27,919
+plug that back into here and when we say
+ 
+
+753
+00:18:27,919 --> 00:18:30,470
+plug that back into here and when we say
+what we're really trying to minimize is
+
+754
+00:18:30,470 --> 00:18:30,480
+what we're really trying to minimize is
+ 
+
+755
+00:18:30,480 --> 00:18:31,430
+what we're really trying to minimize is
+f
+
+756
+00:18:31,430 --> 00:18:31,440
+f
+ 
+
+757
+00:18:31,440 --> 00:18:34,950
+f
+ofx and Y
+
+758
+00:18:34,950 --> 00:18:34,960
+ofx and Y
+ 
+
+759
+00:18:34,960 --> 00:18:37,990
+ofx and Y
+ofx this is now a function of a single
+
+760
+00:18:37,990 --> 00:18:38,000
+ofx this is now a function of a single
+ 
+
+761
+00:18:38,000 --> 00:18:41,750
+ofx this is now a function of a single
+variable it's only a function of X
+
+762
+00:18:41,750 --> 00:18:41,760
+variable it's only a function of X
+ 
+
+763
+00:18:41,760 --> 00:18:45,430
+variable it's only a function of X
+because Y is now a definite function of
+
+764
+00:18:45,430 --> 00:18:45,440
+because Y is now a definite function of
+ 
+
+765
+00:18:45,440 --> 00:18:51,230
+because Y is now a definite function of
+x f ofx and Y becomes F ofx and Y ofx
+
+766
+00:18:51,230 --> 00:18:51,240
+x f ofx and Y becomes F ofx and Y ofx
+ 
+
+767
+00:18:51,240 --> 00:18:55,789
+x f ofx and Y becomes F ofx and Y ofx
+okay next step what's the next
+
+768
+00:18:55,789 --> 00:18:55,799
+
+ 
+
+769
+00:18:55,799 --> 00:18:58,430
+
+step differentiate this with respect to
+
+770
+00:18:58,430 --> 00:18:58,440
+step differentiate this with respect to
+ 
+
+771
+00:18:58,440 --> 00:19:00,470
+step differentiate this with respect to
+X and set the result equal to
+
+772
+00:19:00,470 --> 00:19:00,480
+X and set the result equal to
+ 
+
+773
+00:19:00,480 --> 00:19:03,590
+X and set the result equal to
+zero that will find us the minimum of X
+
+774
+00:19:03,590 --> 00:19:03,600
+zero that will find us the minimum of X
+ 
+
+775
+00:19:03,600 --> 00:19:05,350
+zero that will find us the minimum of X
+subject to the constraint so let's see
+
+776
+00:19:05,350 --> 00:19:05,360
+subject to the constraint so let's see
+ 
+
+777
+00:19:05,360 --> 00:19:06,270
+subject to the constraint so let's see
+let's do
+
+778
+00:19:06,270 --> 00:19:06,280
+let's do
+ 
+
+779
+00:19:06,280 --> 00:19:09,190
+let's do
+that we have to differentiate the X
+
+780
+00:19:09,190 --> 00:19:09,200
+that we have to differentiate the X
+ 
+
+781
+00:19:09,200 --> 00:19:12,430
+that we have to differentiate the X
+dependence that's DF by
+
+782
+00:19:12,430 --> 00:19:12,440
+dependence that's DF by
+ 
+
+783
+00:19:12,440 --> 00:19:16,310
+dependence that's DF by
+DX but then we have to add to that the
+
+784
+00:19:16,310 --> 00:19:16,320
+DX but then we have to add to that the
+ 
+
+785
+00:19:16,320 --> 00:19:18,690
+DX but then we have to add to that the
+derivative of f with respect to
+
+786
+00:19:18,690 --> 00:19:18,700
+derivative of f with respect to
+ 
+
+787
+00:19:18,700 --> 00:19:21,870
+derivative of f with respect to
+[Music]
+
+788
+00:19:21,870 --> 00:19:21,880
+
+ 
+
+789
+00:19:21,880 --> 00:19:25,830
+
+Y time D time Dy by DX this is an
+
+790
+00:19:25,830 --> 00:19:25,840
+Y time D time Dy by DX this is an
+ 
+
+791
+00:19:25,840 --> 00:19:26,950
+Y time D time Dy by DX this is an
+ordinary
+
+792
+00:19:26,950 --> 00:19:26,960
+ordinary
+ 
+
+793
+00:19:26,960 --> 00:19:30,710
+ordinary
+derivative Dy by DX
+
+794
+00:19:30,710 --> 00:19:30,720
+derivative Dy by DX
+ 
+
+795
+00:19:30,720 --> 00:19:34,830
+derivative Dy by DX
+DX all right this is the change in F
+
+796
+00:19:34,830 --> 00:19:34,840
+DX all right this is the change in F
+ 
+
+797
+00:19:34,840 --> 00:19:36,789
+DX all right this is the change in F
+when we change the first argument here
+
+798
+00:19:36,789 --> 00:19:36,799
+when we change the first argument here
+ 
+
+799
+00:19:36,799 --> 00:19:39,110
+when we change the first argument here
+of the function and this is the change
+
+800
+00:19:39,110 --> 00:19:39,120
+of the function and this is the change
+ 
+
+801
+00:19:39,120 --> 00:19:42,870
+of the function and this is the change
+due to the change in y but the change in
+
+802
+00:19:42,870 --> 00:19:42,880
+due to the change in y but the change in
+ 
+
+803
+00:19:42,880 --> 00:19:48,230
+due to the change in y but the change in
+y is determined by the change in X okay
+
+804
+00:19:48,230 --> 00:19:48,240
+y is determined by the change in X okay
+ 
+
+805
+00:19:48,240 --> 00:19:53,830
+y is determined by the change in X okay
+and we set this equal to
+
+806
+00:19:53,830 --> 00:19:53,840
+
+ 
+
+807
+00:19:53,840 --> 00:19:57,669
+
+zero okay that's that's an equation but
+
+808
+00:19:57,669 --> 00:19:57,679
+zero okay that's that's an equation but
+ 
+
+809
+00:19:57,679 --> 00:19:59,789
+zero okay that's that's an equation but
+what about d y by DX what do I know
+
+810
+00:19:59,789 --> 00:19:59,799
+what about d y by DX what do I know
+ 
+
+811
+00:19:59,799 --> 00:20:01,789
+what about d y by DX what do I know
+about Dy by DX let's see what we can
+
+812
+00:20:01,789 --> 00:20:01,799
+about Dy by DX let's see what we can
+ 
+
+813
+00:20:01,799 --> 00:20:06,990
+about Dy by DX let's see what we can
+figure out about Dy by DX this curve
+
+814
+00:20:06,990 --> 00:20:07,000
+figure out about Dy by DX this curve
+ 
+
+815
+00:20:07,000 --> 00:20:11,390
+figure out about Dy by DX this curve
+here is a curve of constant G let's
+
+816
+00:20:11,390 --> 00:20:11,400
+here is a curve of constant G let's
+ 
+
+817
+00:20:11,400 --> 00:20:13,870
+here is a curve of constant G let's
+imagine moving along it imagine moving
+
+818
+00:20:13,870 --> 00:20:13,880
+imagine moving along it imagine moving
+ 
+
+819
+00:20:13,880 --> 00:20:17,710
+imagine moving along it imagine moving
+along it and making a small differential
+
+820
+00:20:17,710 --> 00:20:17,720
+along it and making a small differential
+ 
+
+821
+00:20:17,720 --> 00:20:20,390
+along it and making a small differential
+displacement a small differential
+
+822
+00:20:20,390 --> 00:20:20,400
+displacement a small differential
+ 
+
+823
+00:20:20,400 --> 00:20:23,430
+displacement a small differential
+displacement along the curve of constant
+
+824
+00:20:23,430 --> 00:20:23,440
+displacement along the curve of constant
+ 
+
+825
+00:20:23,440 --> 00:20:26,750
+displacement along the curve of constant
+G will not change G by definition if
+
+826
+00:20:26,750 --> 00:20:26,760
+G will not change G by definition if
+ 
+
+827
+00:20:26,760 --> 00:20:30,270
+G will not change G by definition if
+we're moving along the curve of constant
+
+828
+00:20:30,270 --> 00:20:30,280
+we're moving along the curve of constant
+ 
+
+829
+00:20:30,280 --> 00:20:33,710
+we're moving along the curve of constant
+G then G doesn't change so I can write
+
+830
+00:20:33,710 --> 00:20:33,720
+G then G doesn't change so I can write
+ 
+
+831
+00:20:33,720 --> 00:20:36,669
+G then G doesn't change so I can write
+the following equation along this curve
+
+832
+00:20:36,669 --> 00:20:36,679
+the following equation along this curve
+ 
+
+833
+00:20:36,679 --> 00:20:40,830
+the following equation along this curve
+the derivative of G with respect to x
+
+834
+00:20:40,830 --> 00:20:40,840
+the derivative of G with respect to x
+ 
+
+835
+00:20:40,840 --> 00:20:42,190
+the derivative of G with respect to x
+times
+
+836
+00:20:42,190 --> 00:20:42,200
+times
+ 
+
+837
+00:20:42,200 --> 00:20:45,070
+times
+DX plus the derivative of G with respect
+
+838
+00:20:45,070 --> 00:20:45,080
+DX plus the derivative of G with respect
+ 
+
+839
+00:20:45,080 --> 00:20:45,950
+DX plus the derivative of G with respect
+to
+
+840
+00:20:45,950 --> 00:20:45,960
+to
+ 
+
+841
+00:20:45,960 --> 00:20:50,789
+to
+Y time d y is equal to zero that says G
+
+842
+00:20:50,789 --> 00:20:50,799
+Y time d y is equal to zero that says G
+ 
+
+843
+00:20:50,799 --> 00:20:53,270
+Y time d y is equal to zero that says G
+doesn't change when I make a small
+
+844
+00:20:53,270 --> 00:20:53,280
+doesn't change when I make a small
+ 
+
+845
+00:20:53,280 --> 00:20:55,950
+doesn't change when I make a small
+differential displacement the reason I
+
+846
+00:20:55,950 --> 00:20:55,960
+differential displacement the reason I
+ 
+
+847
+00:20:55,960 --> 00:20:58,310
+differential displacement the reason I
+did this is because this allows me to
+
+848
+00:20:58,310 --> 00:20:58,320
+did this is because this allows me to
+ 
+
+849
+00:20:58,320 --> 00:21:03,190
+did this is because this allows me to
+Sol solve for Dy by DX in terms of
+
+850
+00:21:03,190 --> 00:21:03,200
+Sol solve for Dy by DX in terms of
+ 
+
+851
+00:21:03,200 --> 00:21:06,350
+Sol solve for Dy by DX in terms of
+things involving the constraint G all
+
+852
+00:21:06,350 --> 00:21:06,360
+things involving the constraint G all
+ 
+
+853
+00:21:06,360 --> 00:21:11,430
+things involving the constraint G all
+right so Dy by DX we just divide by
+
+854
+00:21:11,430 --> 00:21:11,440
+
+ 
+
+855
+00:21:11,440 --> 00:21:15,430
+
+DX and what do we get we get Dy by
+
+856
+00:21:15,430 --> 00:21:15,440
+DX and what do we get we get Dy by
+ 
+
+857
+00:21:15,440 --> 00:21:18,310
+DX and what do we get we get Dy by
+DX d y by
+
+858
+00:21:18,310 --> 00:21:18,320
+DX d y by
+ 
+
+859
+00:21:18,320 --> 00:21:20,830
+DX d y by
+DX is equal to
+
+860
+00:21:20,830 --> 00:21:20,840
+DX is equal to
+ 
+
+861
+00:21:20,840 --> 00:21:23,909
+DX is equal to
+minus D G by
+
+862
+00:21:23,909 --> 00:21:23,919
+minus D G by
+ 
+
+863
+00:21:23,919 --> 00:21:26,149
+minus D G by
+DX divided
+
+864
+00:21:26,149 --> 00:21:26,159
+DX divided
+ 
+
+865
+00:21:26,159 --> 00:21:32,190
+DX divided
+by D G by Dy
+
+866
+00:21:32,190 --> 00:21:32,200
+
+ 
+
+867
+00:21:32,200 --> 00:21:34,510
+
+right very simple we just use the
+
+868
+00:21:34,510 --> 00:21:34,520
+right very simple we just use the
+ 
+
+869
+00:21:34,520 --> 00:21:37,029
+right very simple we just use the
+statement that the constraint along the
+
+870
+00:21:37,029 --> 00:21:37,039
+statement that the constraint along the
+ 
+
+871
+00:21:37,039 --> 00:21:39,510
+statement that the constraint along the
+constraint G is constant and that tells
+
+872
+00:21:39,510 --> 00:21:39,520
+constraint G is constant and that tells
+ 
+
+873
+00:21:39,520 --> 00:21:42,470
+constraint G is constant and that tells
+us something about the derivative of y
+
+874
+00:21:42,470 --> 00:21:42,480
+us something about the derivative of y
+ 
+
+875
+00:21:42,480 --> 00:21:44,789
+us something about the derivative of y
+with respect to X along that curve and
+
+876
+00:21:44,789 --> 00:21:44,799
+with respect to X along that curve and
+ 
+
+877
+00:21:44,799 --> 00:21:47,990
+with respect to X along that curve and
+now we plug it in we plug it into
+
+878
+00:21:47,990 --> 00:21:48,000
+now we plug it in we plug it into
+ 
+
+879
+00:21:48,000 --> 00:21:53,470
+now we plug it in we plug it into
+here let's see what we get Dy by DX well
+
+880
+00:21:53,470 --> 00:21:53,480
+here let's see what we get Dy by DX well
+ 
+
+881
+00:21:53,480 --> 00:21:57,990
+here let's see what we get Dy by DX well
+might as well write it over we get DF by
+
+882
+00:21:57,990 --> 00:21:58,000
+might as well write it over we get DF by
+ 
+
+883
+00:21:58,000 --> 00:21:59,590
+might as well write it over we get DF by
+DX
+
+884
+00:21:59,590 --> 00:21:59,600
+DX
+ 
+
+885
+00:21:59,600 --> 00:22:02,110
+DX
+X now there's going to be a minus sign
+
+886
+00:22:02,110 --> 00:22:02,120
+X now there's going to be a minus sign
+ 
+
+887
+00:22:02,120 --> 00:22:04,269
+X now there's going to be a minus sign
+from the Dy by DX so let's put the minus
+
+888
+00:22:04,269 --> 00:22:04,279
+from the Dy by DX so let's put the minus
+ 
+
+889
+00:22:04,279 --> 00:22:07,230
+from the Dy by DX so let's put the minus
+sign here DF by
+
+890
+00:22:07,230 --> 00:22:07,240
+sign here DF by
+ 
+
+891
+00:22:07,240 --> 00:22:11,510
+sign here DF by
+Dy and now d y by DX except I already
+
+892
+00:22:11,510 --> 00:22:11,520
+Dy and now d y by DX except I already
+ 
+
+893
+00:22:11,520 --> 00:22:13,990
+Dy and now d y by DX except I already
+took into account the minus sign this is
+
+894
+00:22:13,990 --> 00:22:14,000
+took into account the minus sign this is
+ 
+
+895
+00:22:14,000 --> 00:22:15,990
+took into account the minus sign this is
+D G by
+
+896
+00:22:15,990 --> 00:22:16,000
+D G by
+ 
+
+897
+00:22:16,000 --> 00:22:19,950
+D G by
+DX divided by DG by
+
+898
+00:22:19,950 --> 00:22:19,960
+DX divided by DG by
+ 
+
+899
+00:22:19,960 --> 00:22:23,789
+DX divided by DG by
+Dy let's put it in there DG by
+
+900
+00:22:23,789 --> 00:22:23,799
+Dy let's put it in there DG by
+ 
+
+901
+00:22:23,799 --> 00:22:29,430
+Dy let's put it in there DG by
+Dy equals z let's multiply by DG by Dy y
+
+902
+00:22:29,430 --> 00:22:29,440
+Dy equals z let's multiply by DG by Dy y
+ 
+
+903
+00:22:29,440 --> 00:22:33,029
+Dy equals z let's multiply by DG by Dy y
+so we get D G by d
+
+904
+00:22:33,029 --> 00:22:33,039
+so we get D G by d
+ 
+
+905
+00:22:33,039 --> 00:22:35,590
+so we get D G by d
+y equals
+
+906
+00:22:35,590 --> 00:22:35,600
+y equals
+ 
+
+907
+00:22:35,600 --> 00:22:38,630
+y equals
+z that's not a badl looking
+
+908
+00:22:38,630 --> 00:22:38,640
+z that's not a badl looking
+ 
+
+909
+00:22:38,640 --> 00:22:41,830
+z that's not a badl looking
+equation that's the
+
+910
+00:22:41,830 --> 00:22:41,840
+equation that's the
+ 
+
+911
+00:22:41,840 --> 00:22:45,390
+equation that's the
+equation after we've
+
+912
+00:22:45,390 --> 00:22:45,400
+equation after we've
+ 
+
+913
+00:22:45,400 --> 00:22:49,110
+equation after we've
+eliminated y this is the equation which
+
+914
+00:22:49,110 --> 00:22:49,120
+eliminated y this is the equation which
+ 
+
+915
+00:22:49,120 --> 00:22:54,029
+eliminated y this is the equation which
+solves for the minimum of f subject to G
+
+916
+00:22:54,029 --> 00:22:54,039
+solves for the minimum of f subject to G
+ 
+
+917
+00:22:54,039 --> 00:22:55,549
+solves for the minimum of f subject to G
+what I want to show you I don't want you
+
+918
+00:22:55,549 --> 00:22:55,559
+what I want to show you I don't want you
+ 
+
+919
+00:22:55,559 --> 00:22:56,909
+what I want to show you I don't want you
+to use this this is not we're not going
+
+920
+00:22:56,909 --> 00:22:56,919
+to use this this is not we're not going
+ 
+
+921
+00:22:56,919 --> 00:22:59,190
+to use this this is not we're not going
+to use this well we're going to do is
+
+922
+00:22:59,190 --> 00:22:59,200
+to use this well we're going to do is
+ 
+
+923
+00:22:59,200 --> 00:23:01,269
+to use this well we're going to do is
+show that you get exactly the same
+
+924
+00:23:01,269 --> 00:23:01,279
+show that you get exactly the same
+ 
+
+925
+00:23:01,279 --> 00:23:04,470
+show that you get exactly the same
+relationship from the method of lrange
+
+926
+00:23:04,470 --> 00:23:04,480
+relationship from the method of lrange
+ 
+
+927
+00:23:04,480 --> 00:23:06,909
+relationship from the method of lrange
+multipliers okay so let's go to the
+
+928
+00:23:06,909 --> 00:23:06,919
+multipliers okay so let's go to the
+ 
+
+929
+00:23:06,919 --> 00:23:12,789
+multipliers okay so let's go to the
+method of lrange
+
+930
+00:23:12,789 --> 00:23:12,799
+
+ 
+
+931
+00:23:12,799 --> 00:23:16,029
+
+multipliers here are the two
+
+932
+00:23:16,029 --> 00:23:16,039
+multipliers here are the two
+ 
+
+933
+00:23:16,039 --> 00:23:18,669
+multipliers here are the two
+equations that followed from the method
+
+934
+00:23:18,669 --> 00:23:18,679
+equations that followed from the method
+ 
+
+935
+00:23:18,679 --> 00:23:21,909
+equations that followed from the method
+of lrange multipliers but now let's
+
+936
+00:23:21,909 --> 00:23:21,919
+of lrange multipliers but now let's
+ 
+
+937
+00:23:21,919 --> 00:23:25,190
+of lrange multipliers but now let's
+eliminate Lambda from the equation how
+
+938
+00:23:25,190 --> 00:23:25,200
+eliminate Lambda from the equation how
+ 
+
+939
+00:23:25,200 --> 00:23:27,470
+eliminate Lambda from the equation how
+can we do that we can solve for Lambda
+
+940
+00:23:27,470 --> 00:23:27,480
+can we do that we can solve for Lambda
+ 
+
+941
+00:23:27,480 --> 00:23:30,549
+can we do that we can solve for Lambda
+in one equation and plug it into the
+
+942
+00:23:30,549 --> 00:23:30,559
+in one equation and plug it into the
+ 
+
+943
+00:23:30,559 --> 00:23:32,950
+in one equation and plug it into the
+other all right so let's see we have
+
+944
+00:23:32,950 --> 00:23:32,960
+other all right so let's see we have
+ 
+
+945
+00:23:32,960 --> 00:23:33,750
+other all right so let's see we have
+here
+
+946
+00:23:33,750 --> 00:23:33,760
+here
+ 
+
+947
+00:23:33,760 --> 00:23:39,230
+here
+Lambda it says Lambda is equal to
+
+948
+00:23:39,230 --> 00:23:39,240
+Lambda it says Lambda is equal to
+ 
+
+949
+00:23:39,240 --> 00:23:42,950
+Lambda it says Lambda is equal to
+minus DF by
+
+950
+00:23:42,950 --> 00:23:42,960
+minus DF by
+ 
+
+951
+00:23:42,960 --> 00:23:49,110
+minus DF by
+DX ided by DG by DX is that
+
+952
+00:23:49,110 --> 00:23:49,120
+
+ 
+
+953
+00:23:49,120 --> 00:23:53,710
+
+right let's see yeah minus because I've
+
+954
+00:23:53,710 --> 00:23:53,720
+right let's see yeah minus because I've
+ 
+
+955
+00:23:53,720 --> 00:23:56,310
+right let's see yeah minus because I've
+got the transpose and then Lambda will
+
+956
+00:23:56,310 --> 00:23:56,320
+got the transpose and then Lambda will
+ 
+
+957
+00:23:56,320 --> 00:24:01,350
+got the transpose and then Lambda will
+be DF by DX / by DG by DX now let's plug
+
+958
+00:24:01,350 --> 00:24:01,360
+be DF by DX / by DG by DX now let's plug
+ 
+
+959
+00:24:01,360 --> 00:24:02,430
+be DF by DX / by DG by DX now let's plug
+it into
+
+960
+00:24:02,430 --> 00:24:02,440
+it into
+ 
+
+961
+00:24:02,440 --> 00:24:05,950
+it into
+here right let's plug Lambda into here
+
+962
+00:24:05,950 --> 00:24:05,960
+here right let's plug Lambda into here
+ 
+
+963
+00:24:05,960 --> 00:24:07,950
+here right let's plug Lambda into here
+so we have
+
+964
+00:24:07,950 --> 00:24:07,960
+so we have
+ 
+
+965
+00:24:07,960 --> 00:24:11,070
+so we have
+Lambda minus
+
+966
+00:24:11,070 --> 00:24:11,080
+Lambda minus
+ 
+
+967
+00:24:11,080 --> 00:24:16,510
+Lambda minus
+s DF by
+
+968
+00:24:16,510 --> 00:24:16,520
+
+ 
+
+969
+00:24:16,520 --> 00:24:20,630
+
+DX divided by DG by DX but instead of
+
+970
+00:24:20,630 --> 00:24:20,640
+DX divided by DG by DX but instead of
+ 
+
+971
+00:24:20,640 --> 00:24:22,710
+DX divided by DG by DX but instead of
+dividing by DG by DX over here let's
+
+972
+00:24:22,710 --> 00:24:22,720
+dividing by DG by DX over here let's
+ 
+
+973
+00:24:22,720 --> 00:24:26,789
+dividing by DG by DX over here let's
+just multiply by DG by DX over
+
+974
+00:24:26,789 --> 00:24:26,799
+just multiply by DG by DX over
+ 
+
+975
+00:24:26,799 --> 00:24:29,389
+just multiply by DG by DX over
+here all right the really was divided by
+
+976
+00:24:29,389 --> 00:24:29,399
+here all right the really was divided by
+ 
+
+977
+00:24:29,399 --> 00:24:32,310
+here all right the really was divided by
+DG by DX but then I just multiply the
+
+978
+00:24:32,310 --> 00:24:32,320
+DG by DX but then I just multiply the
+ 
+
+979
+00:24:32,320 --> 00:24:36,029
+DG by DX but then I just multiply the
+right hand side is zero okay hopefully
+
+980
+00:24:36,029 --> 00:24:36,039
+right hand side is zero okay hopefully
+ 
+
+981
+00:24:36,039 --> 00:24:37,710
+right hand side is zero okay hopefully
+it's the same
+
+982
+00:24:37,710 --> 00:24:37,720
+it's the same
+ 
+
+983
+00:24:37,720 --> 00:24:40,630
+it's the same
+equation I'm not even going to look
+
+984
+00:24:40,630 --> 00:24:40,640
+equation I'm not even going to look
+ 
+
+985
+00:24:40,640 --> 00:24:43,710
+equation I'm not even going to look
+I I I hope it's the same equation is it
+
+986
+00:24:43,710 --> 00:24:43,720
+I I I hope it's the same equation is it
+ 
+
+987
+00:24:43,720 --> 00:24:47,430
+I I I hope it's the same equation is it
+the same
+
+988
+00:24:47,430 --> 00:24:47,440
+
+ 
+
+989
+00:24:47,440 --> 00:24:52,190
+
+equation they both have minus
+
+990
+00:24:52,190 --> 00:24:52,200
+
+ 
+
+991
+00:24:52,200 --> 00:24:56,870
+
+sign
+
+992
+00:24:56,870 --> 00:24:56,880
+
+ 
+
+993
+00:24:56,880 --> 00:25:00,870
+
+H they're both
+
+994
+00:25:00,870 --> 00:25:00,880
+
+ 
+
+995
+00:25:00,880 --> 00:25:03,990
+
+[Music]
+
+996
+00:25:03,990 --> 00:25:04,000
+[Music]
+ 
+
+997
+00:25:04,000 --> 00:25:07,149
+[Music]
+zero right we have to multiply by minus
+
+998
+00:25:07,149 --> 00:25:07,159
+zero right we have to multiply by minus
+ 
+
+999
+00:25:07,159 --> 00:25:09,070
+zero right we have to multiply by minus
+one to get them to be the same but they
+
+1000
+00:25:09,070 --> 00:25:09,080
+one to get them to be the same but they
+ 
+
+1001
+00:25:09,080 --> 00:25:11,269
+one to get them to be the same but they
+are the same all right so this was just
+
+1002
+00:25:11,269 --> 00:25:11,279
+are the same all right so this was just
+ 
+
+1003
+00:25:11,279 --> 00:25:13,350
+are the same all right so this was just
+a simple
+
+1004
+00:25:13,350 --> 00:25:13,360
+a simple
+ 
+
+1005
+00:25:13,360 --> 00:25:15,669
+a simple
+illustration that the method of there's
+
+1006
+00:25:15,669 --> 00:25:15,679
+illustration that the method of there's
+ 
+
+1007
+00:25:15,679 --> 00:25:18,830
+illustration that the method of there's
+an intuitive geometric picture of it but
+
+1008
+00:25:18,830 --> 00:25:18,840
+an intuitive geometric picture of it but
+ 
+
+1009
+00:25:18,840 --> 00:25:20,750
+an intuitive geometric picture of it but
+uh it it takes longer to explain than
+
+1010
+00:25:20,750 --> 00:25:20,760
+uh it it takes longer to explain than
+ 
+
+1011
+00:25:20,760 --> 00:25:22,029
+uh it it takes longer to explain than
+just to do the
+
+1012
+00:25:22,029 --> 00:25:22,039
+just to do the
+ 
+
+1013
+00:25:22,039 --> 00:25:24,070
+just to do the
+arithmetic the method of lrange
+
+1014
+00:25:24,070 --> 00:25:24,080
+arithmetic the method of lrange
+ 
+
+1015
+00:25:24,080 --> 00:25:27,470
+arithmetic the method of lrange
+multipliers is completely equivalent to
+
+1016
+00:25:27,470 --> 00:25:27,480
+multipliers is completely equivalent to
+ 
+
+1017
+00:25:27,480 --> 00:25:29,190
+multipliers is completely equivalent to
+solving the
+
+1018
+00:25:29,190 --> 00:25:29,200
+solving the
+ 
+
+1019
+00:25:29,200 --> 00:25:32,430
+solving the
+constraint and then plugging back in and
+
+1020
+00:25:32,430 --> 00:25:32,440
+constraint and then plugging back in and
+ 
+
+1021
+00:25:32,440 --> 00:25:35,230
+constraint and then plugging back in and
+it's usually easier okay so what are the
+
+1022
+00:25:35,230 --> 00:25:35,240
+it's usually easier okay so what are the
+ 
+
+1023
+00:25:35,240 --> 00:25:37,590
+it's usually easier okay so what are the
+rules again you take the constraint you
+
+1024
+00:25:37,590 --> 00:25:37,600
+rules again you take the constraint you
+ 
+
+1025
+00:25:37,600 --> 00:25:40,590
+rules again you take the constraint you
+multiply it by Lambda you add it to the
+
+1026
+00:25:40,590 --> 00:25:40,600
+multiply it by Lambda you add it to the
+ 
+
+1027
+00:25:40,600 --> 00:25:42,230
+multiply it by Lambda you add it to the
+thing that you're trying to make minimum
+
+1028
+00:25:42,230 --> 00:25:42,240
+thing that you're trying to make minimum
+ 
+
+1029
+00:25:42,240 --> 00:25:45,950
+thing that you're trying to make minimum
+or maximum you then differentiate as if
+
+1030
+00:25:45,950 --> 00:25:45,960
+or maximum you then differentiate as if
+ 
+
+1031
+00:25:45,960 --> 00:25:49,549
+or maximum you then differentiate as if
+you were trying to minimize the whole
+
+1032
+00:25:49,549 --> 00:25:49,559
+you were trying to minimize the whole
+ 
+
+1033
+00:25:49,559 --> 00:25:53,430
+you were trying to minimize the whole
+thing you get two equations let's
+
+1034
+00:25:53,430 --> 00:25:53,440
+thing you get two equations let's
+ 
+
+1035
+00:25:53,440 --> 00:25:56,870
+thing you get two equations let's
+say or however many equations there are
+
+1036
+00:25:56,870 --> 00:25:56,880
+say or however many equations there are
+ 
+
+1037
+00:25:56,880 --> 00:26:00,710
+say or however many equations there are
+variables in the problem
+
+1038
+00:26:00,710 --> 00:26:00,720
+
+ 
+
+1039
+00:26:00,720 --> 00:26:03,350
+
+doesn't have to be two okay so the other
+
+1040
+00:26:03,350 --> 00:26:03,360
+doesn't have to be two okay so the other
+ 
+
+1041
+00:26:03,360 --> 00:26:06,590
+doesn't have to be two okay so the other
+one is DF by
+
+1042
+00:26:06,590 --> 00:26:06,600
+one is DF by
+ 
+
+1043
+00:26:06,600 --> 00:26:10,870
+one is DF by
+Dy plus Lambda DG by
+
+1044
+00:26:10,870 --> 00:26:10,880
+Dy plus Lambda DG by
+ 
+
+1045
+00:26:10,880 --> 00:26:12,350
+Dy plus Lambda DG by
+Dy equal
+
+1046
+00:26:12,350 --> 00:26:12,360
+Dy equal
+ 
+
+1047
+00:26:12,360 --> 00:26:14,310
+Dy equal
+[Music]
+
+1048
+00:26:14,310 --> 00:26:14,320
+[Music]
+ 
+
+1049
+00:26:14,320 --> 00:26:17,110
+[Music]
+Z you solve those two equations they're
+
+1050
+00:26:17,110 --> 00:26:17,120
+Z you solve those two equations they're
+ 
+
+1051
+00:26:17,120 --> 00:26:20,669
+Z you solve those two equations they're
+two equations for two unknowns X and Y
+
+1052
+00:26:20,669 --> 00:26:20,679
+two equations for two unknowns X and Y
+ 
+
+1053
+00:26:20,679 --> 00:26:23,029
+two equations for two unknowns X and Y
+but then after you
+
+1054
+00:26:23,029 --> 00:26:23,039
+but then after you
+ 
+
+1055
+00:26:23,039 --> 00:26:26,230
+but then after you
+finished you choose Lambda so that the
+
+1056
+00:26:26,230 --> 00:26:26,240
+finished you choose Lambda so that the
+ 
+
+1057
+00:26:26,240 --> 00:26:28,789
+finished you choose Lambda so that the
+constraint is actually satisfied
+
+1058
+00:26:28,789 --> 00:26:28,799
+constraint is actually satisfied
+ 
+
+1059
+00:26:28,799 --> 00:26:30,909
+constraint is actually satisfied
+so that the constraint g equals 0 is
+
+1060
+00:26:30,909 --> 00:26:30,919
+so that the constraint g equals 0 is
+ 
+
+1061
+00:26:30,919 --> 00:26:33,750
+so that the constraint g equals 0 is
+satisfied so I gave you some examp an
+
+1062
+00:26:33,750 --> 00:26:33,760
+satisfied so I gave you some examp an
+ 
+
+1063
+00:26:33,760 --> 00:26:36,389
+satisfied so I gave you some examp an
+example make up your own examples work
+
+1064
+00:26:36,389 --> 00:26:36,399
+example make up your own examples work
+ 
+
+1065
+00:26:36,399 --> 00:26:39,590
+example make up your own examples work
+out uh I don't know instead of X2 + y^2
+
+1066
+00:26:39,590 --> 00:26:39,600
+out uh I don't know instead of X2 + y^2
+ 
+
+1067
+00:26:39,600 --> 00:26:43,789
+out uh I don't know instead of X2 + y^2
+uh take um X Cub + y cubed and the
+
+1068
+00:26:43,789 --> 00:26:43,799
+uh take um X Cub + y cubed and the
+ 
+
+1069
+00:26:43,799 --> 00:26:46,750
+uh take um X Cub + y cubed and the
+constraint is that s of x + y is three I
+
+1070
+00:26:46,750 --> 00:26:46,760
+constraint is that s of x + y is three I
+ 
+
+1071
+00:26:46,760 --> 00:26:51,389
+constraint is that s of x + y is three I
+don't know no s of X Plus y can't be
+
+1072
+00:26:51,389 --> 00:26:51,399
+
+ 
+
+1073
+00:26:51,399 --> 00:26:55,110
+
+three e to x + y is equal to
+
+1074
+00:26:55,110 --> 00:26:55,120
+three e to x + y is equal to
+ 
+
+1075
+00:26:55,120 --> 00:26:57,389
+three e to x + y is equal to
+3 right all right just make up an
+
+1076
+00:26:57,389 --> 00:26:57,399
+3 right all right just make up an
+ 
+
+1077
+00:26:57,399 --> 00:26:59,310
+3 right all right just make up an
+example or two
+
+1078
+00:26:59,310 --> 00:26:59,320
+example or two
+ 
+
+1079
+00:26:59,320 --> 00:27:02,230
+example or two
+try doing it by by eliminating one of
+
+1080
+00:27:02,230 --> 00:27:02,240
+try doing it by by eliminating one of
+ 
+
+1081
+00:27:02,240 --> 00:27:04,710
+try doing it by by eliminating one of
+the variables and you'll quickly
+
+1082
+00:27:04,710 --> 00:27:04,720
+the variables and you'll quickly
+ 
+
+1083
+00:27:04,720 --> 00:27:06,950
+the variables and you'll quickly
+discover that it's usually easier to
+
+1084
+00:27:06,950 --> 00:27:06,960
+discover that it's usually easier to
+ 
+
+1085
+00:27:06,960 --> 00:27:09,389
+discover that it's usually easier to
+just use the method of lrange
+
+1086
+00:27:09,389 --> 00:27:09,399
+just use the method of lrange
+ 
+
+1087
+00:27:09,399 --> 00:27:11,590
+just use the method of lrange
+multipliers but one of the nice things
+
+1088
+00:27:11,590 --> 00:27:11,600
+multipliers but one of the nice things
+ 
+
+1089
+00:27:11,600 --> 00:27:13,830
+multipliers but one of the nice things
+about the method of lrange multipliers
+
+1090
+00:27:13,830 --> 00:27:13,840
+about the method of lrange multipliers
+ 
+
+1091
+00:27:13,840 --> 00:27:16,190
+about the method of lrange multipliers
+it doesn't force you to single out one
+
+1092
+00:27:16,190 --> 00:27:16,200
+it doesn't force you to single out one
+ 
+
+1093
+00:27:16,200 --> 00:27:17,070
+it doesn't force you to single out one
+of the
+
+1094
+00:27:17,070 --> 00:27:17,080
+of the
+ 
+
+1095
+00:27:17,080 --> 00:27:19,669
+of the
+variables for special
+
+1096
+00:27:19,669 --> 00:27:19,679
+variables for special
+ 
+
+1097
+00:27:19,679 --> 00:27:24,190
+variables for special
+treatment the method of that I used here
+
+1098
+00:27:24,190 --> 00:27:24,200
+treatment the method of that I used here
+ 
+
+1099
+00:27:24,200 --> 00:27:26,269
+treatment the method of that I used here
+singled out
+
+1100
+00:27:26,269 --> 00:27:26,279
+singled out
+ 
+
+1101
+00:27:26,279 --> 00:27:29,070
+singled out
+X as opposed to y
+
+1102
+00:27:29,070 --> 00:27:29,080
+X as opposed to y
+ 
+
+1103
+00:27:29,080 --> 00:27:31,750
+X as opposed to y
+it wasn't special but I singled it out
+
+1104
+00:27:31,750 --> 00:27:31,760
+it wasn't special but I singled it out
+ 
+
+1105
+00:27:31,760 --> 00:27:35,549
+it wasn't special but I singled it out
+to solve for it I I solve for y actually
+
+1106
+00:27:35,549 --> 00:27:35,559
+to solve for it I I solve for y actually
+ 
+
+1107
+00:27:35,559 --> 00:27:37,669
+to solve for it I I solve for y actually
+and so I didn't treat the variables
+
+1108
+00:27:37,669 --> 00:27:37,679
+and so I didn't treat the variables
+ 
+
+1109
+00:27:37,679 --> 00:27:39,710
+and so I didn't treat the variables
+symmetrically no problem there's nothing
+
+1110
+00:27:39,710 --> 00:27:39,720
+symmetrically no problem there's nothing
+ 
+
+1111
+00:27:39,720 --> 00:27:42,269
+symmetrically no problem there's nothing
+wrong with that but it's a nice feature
+
+1112
+00:27:42,269 --> 00:27:42,279
+wrong with that but it's a nice feature
+ 
+
+1113
+00:27:42,279 --> 00:27:44,310
+wrong with that but it's a nice feature
+of the method of lrange multipliers that
+
+1114
+00:27:44,310 --> 00:27:44,320
+of the method of lrange multipliers that
+ 
+
+1115
+00:27:44,320 --> 00:27:46,990
+of the method of lrange multipliers that
+it treats the variables
+
+1116
+00:27:46,990 --> 00:27:47,000
+it treats the variables
+ 
+
+1117
+00:27:47,000 --> 00:27:49,870
+it treats the variables
+symmetrically uh let me just tell you
+
+1118
+00:27:49,870 --> 00:27:49,880
+symmetrically uh let me just tell you
+ 
+
+1119
+00:27:49,880 --> 00:27:52,470
+symmetrically uh let me just tell you
+without proving supposing I had a
+
+1120
+00:27:52,470 --> 00:27:52,480
+without proving supposing I had a
+ 
+
+1121
+00:27:52,480 --> 00:27:54,149
+without proving supposing I had a
+function of several
+
+1122
+00:27:54,149 --> 00:27:54,159
+function of several
+ 
+
+1123
+00:27:54,159 --> 00:28:01,310
+function of several
+variables function of X1 dot dot dot dot
+
+1124
+00:28:01,310 --> 00:28:01,320
+variables function of X1 dot dot dot dot
+ 
+
+1125
+00:28:01,320 --> 00:28:04,070
+variables function of X1 dot dot dot dot
+xn whatever they happen to
+
+1126
+00:28:04,070 --> 00:28:04,080
+xn whatever they happen to
+ 
+
+1127
+00:28:04,080 --> 00:28:07,470
+xn whatever they happen to
+be and now I have a collection of
+
+1128
+00:28:07,470 --> 00:28:07,480
+be and now I have a collection of
+ 
+
+1129
+00:28:07,480 --> 00:28:10,990
+be and now I have a collection of
+constraints not just one constraint for
+
+1130
+00:28:10,990 --> 00:28:11,000
+constraints not just one constraint for
+ 
+
+1131
+00:28:11,000 --> 00:28:12,630
+constraints not just one constraint for
+example I may have two constraints one
+
+1132
+00:28:12,630 --> 00:28:12,640
+example I may have two constraints one
+ 
+
+1133
+00:28:12,640 --> 00:28:14,190
+example I may have two constraints one
+of the constraints might be that the
+
+1134
+00:28:14,190 --> 00:28:14,200
+of the constraints might be that the
+ 
+
+1135
+00:28:14,200 --> 00:28:17,110
+of the constraints might be that the
+total energy is fixed another constraint
+
+1136
+00:28:17,110 --> 00:28:17,120
+total energy is fixed another constraint
+ 
+
+1137
+00:28:17,120 --> 00:28:19,509
+total energy is fixed another constraint
+might be that the total charge is fixed
+
+1138
+00:28:19,509 --> 00:28:19,519
+might be that the total charge is fixed
+ 
+
+1139
+00:28:19,519 --> 00:28:21,830
+might be that the total charge is fixed
+or the energy and the angular momentum
+
+1140
+00:28:21,830 --> 00:28:21,840
+or the energy and the angular momentum
+ 
+
+1141
+00:28:21,840 --> 00:28:23,870
+or the energy and the angular momentum
+they would be two separate
+
+1142
+00:28:23,870 --> 00:28:23,880
+they would be two separate
+ 
+
+1143
+00:28:23,880 --> 00:28:27,149
+they would be two separate
+constraints and so I would have a set of
+
+1144
+00:28:27,149 --> 00:28:27,159
+constraints and so I would have a set of
+ 
+
+1145
+00:28:27,159 --> 00:28:30,750
+constraints and so I would have a set of
+constraints G1 let's call it is equal to
+
+1146
+00:28:30,750 --> 00:28:30,760
+constraints G1 let's call it is equal to
+ 
+
+1147
+00:28:30,760 --> 00:28:34,630
+constraints G1 let's call it is equal to
+zero G1 is a function of the same set of
+
+1148
+00:28:34,630 --> 00:28:34,640
+zero G1 is a function of the same set of
+ 
+
+1149
+00:28:34,640 --> 00:28:38,029
+zero G1 is a function of the same set of
+variables G2 is equal to zero however
+
+1150
+00:28:38,029 --> 00:28:38,039
+variables G2 is equal to zero however
+ 
+
+1151
+00:28:38,039 --> 00:28:40,430
+variables G2 is equal to zero however
+many I have it's important that there
+
+1152
+00:28:40,430 --> 00:28:40,440
+many I have it's important that there
+ 
+
+1153
+00:28:40,440 --> 00:28:42,509
+many I have it's important that there
+not be more constraints than variables
+
+1154
+00:28:42,509 --> 00:28:42,519
+not be more constraints than variables
+ 
+
+1155
+00:28:42,519 --> 00:28:44,190
+not be more constraints than variables
+otherwise you can't solve
+
+1156
+00:28:44,190 --> 00:28:44,200
+otherwise you can't solve
+ 
+
+1157
+00:28:44,200 --> 00:28:46,590
+otherwise you can't solve
+it if you have more constraints than
+
+1158
+00:28:46,590 --> 00:28:46,600
+it if you have more constraints than
+ 
+
+1159
+00:28:46,600 --> 00:28:48,230
+it if you have more constraints than
+variables in general there is no
+
+1160
+00:28:48,230 --> 00:28:48,240
+variables in general there is no
+ 
+
+1161
+00:28:48,240 --> 00:28:52,990
+variables in general there is no
+solution but uh but fewer constraints
+
+1162
+00:28:52,990 --> 00:28:53,000
+solution but uh but fewer constraints
+ 
+
+1163
+00:28:53,000 --> 00:28:55,470
+solution but uh but fewer constraints
+than variables then what you do is you
+
+1164
+00:28:55,470 --> 00:28:55,480
+than variables then what you do is you
+ 
+
+1165
+00:28:55,480 --> 00:28:58,350
+than variables then what you do is you
+introduce a lrange multiplier for each
+
+1166
+00:28:58,350 --> 00:28:58,360
+introduce a lrange multiplier for each
+ 
+
+1167
+00:28:58,360 --> 00:29:02,269
+introduce a lrange multiplier for each
+of the constraints so you write
+
+1168
+00:29:02,269 --> 00:29:02,279
+of the constraints so you write
+ 
+
+1169
+00:29:02,279 --> 00:29:06,830
+of the constraints so you write
+f plus the first lrange multiplier time
+
+1170
+00:29:06,830 --> 00:29:06,840
+f plus the first lrange multiplier time
+ 
+
+1171
+00:29:06,840 --> 00:29:09,909
+f plus the first lrange multiplier time
+G1 plus the second lrange multiplier
+
+1172
+00:29:09,909 --> 00:29:09,919
+G1 plus the second lrange multiplier
+ 
+
+1173
+00:29:09,919 --> 00:29:12,190
+G1 plus the second lrange multiplier
+time G2 and however many lrange
+
+1174
+00:29:12,190 --> 00:29:12,200
+time G2 and however many lrange
+ 
+
+1175
+00:29:12,200 --> 00:29:13,870
+time G2 and however many lrange
+multipliers you have or however many
+
+1176
+00:29:13,870 --> 00:29:13,880
+multipliers you have or however many
+ 
+
+1177
+00:29:13,880 --> 00:29:17,269
+multipliers you have or however many
+constraints you have and then you
+
+1178
+00:29:17,269 --> 00:29:17,279
+constraints you have and then you
+ 
+
+1179
+00:29:17,279 --> 00:29:19,669
+constraints you have and then you
+minimize or
+
+1180
+00:29:19,669 --> 00:29:19,679
+minimize or
+ 
+
+1181
+00:29:19,679 --> 00:29:22,350
+minimize or
+differentiate the result with respect to
+
+1182
+00:29:22,350 --> 00:29:22,360
+differentiate the result with respect to
+ 
+
+1183
+00:29:22,360 --> 00:29:24,909
+differentiate the result with respect to
+the X's set them equal to
+
+1184
+00:29:24,909 --> 00:29:24,919
+the X's set them equal to
+ 
+
+1185
+00:29:24,919 --> 00:29:31,350
+the X's set them equal to
+zero the f plus the sum of Lambda I
+
+1186
+00:29:31,350 --> 00:29:31,360
+zero the f plus the sum of Lambda I
+ 
+
+1187
+00:29:31,360 --> 00:29:38,269
+zero the f plus the sum of Lambda I
+GI with respect
+
+1188
+00:29:38,269 --> 00:29:38,279
+
+ 
+
+1189
+00:29:38,279 --> 00:29:42,070
+
+to each one of the x's and set it equal
+
+1190
+00:29:42,070 --> 00:29:42,080
+to each one of the x's and set it equal
+ 
+
+1191
+00:29:42,080 --> 00:29:42,280
+to each one of the x's and set it equal
+to
+
+1192
+00:29:42,280 --> 00:29:42,290
+to
+ 
+
+1193
+00:29:42,290 --> 00:29:44,509
+to
+[Music]
+
+1194
+00:29:44,509 --> 00:29:44,519
+[Music]
+ 
+
+1195
+00:29:44,519 --> 00:29:46,750
+[Music]
+zero solve
+
+1196
+00:29:46,750 --> 00:29:46,760
+zero solve
+ 
+
+1197
+00:29:46,760 --> 00:29:48,630
+zero solve
+it and
+
+1198
+00:29:48,630 --> 00:29:48,640
+it and
+ 
+
+1199
+00:29:48,640 --> 00:29:52,190
+it and
+then choose all of the lambdas how many
+
+1200
+00:29:52,190 --> 00:29:52,200
+then choose all of the lambdas how many
+ 
+
+1201
+00:29:52,200 --> 00:29:54,389
+then choose all of the lambdas how many
+lambdas do you have one for each
+
+1202
+00:29:54,389 --> 00:29:54,399
+lambdas do you have one for each
+ 
+
+1203
+00:29:54,399 --> 00:29:57,710
+lambdas do you have one for each
+constraint choose all of the lambdas so
+
+1204
+00:29:57,710 --> 00:29:57,720
+constraint choose all of the lambdas so
+ 
+
+1205
+00:29:57,720 --> 00:30:01,310
+constraint choose all of the lambdas so
+that all the constraints are satisfied
+
+1206
+00:30:01,310 --> 00:30:01,320
+that all the constraints are satisfied
+ 
+
+1207
+00:30:01,320 --> 00:30:03,630
+that all the constraints are satisfied
+that's that's the method of lrange
+
+1208
+00:30:03,630 --> 00:30:03,640
+that's that's the method of lrange
+ 
+
+1209
+00:30:03,640 --> 00:30:07,830
+that's that's the method of lrange
+multipliers and as I said it is Central
+
+1210
+00:30:07,830 --> 00:30:07,840
+multipliers and as I said it is Central
+ 
+
+1211
+00:30:07,840 --> 00:30:11,070
+multipliers and as I said it is Central
+to statistical mechanics we will use it
+
+1212
+00:30:11,070 --> 00:30:11,080
+to statistical mechanics we will use it
+ 
+
+1213
+00:30:11,080 --> 00:30:14,470
+to statistical mechanics we will use it
+over and over again and if you're not
+
+1214
+00:30:14,470 --> 00:30:14,480
+over and over again and if you're not
+ 
+
+1215
+00:30:14,480 --> 00:30:16,990
+over and over again and if you're not
+familiar with it just look it up on U
+
+1216
+00:30:16,990 --> 00:30:17,000
+familiar with it just look it up on U
+ 
+
+1217
+00:30:17,000 --> 00:30:19,909
+familiar with it just look it up on U
+I'm sure you can find it easily on the
+
+1218
+00:30:19,909 --> 00:30:19,919
+I'm sure you can find it easily on the
+ 
+
+1219
+00:30:19,919 --> 00:30:22,470
+I'm sure you can find it easily on the
+uh just Google it lrange multipliers
+
+1220
+00:30:22,470 --> 00:30:22,480
+uh just Google it lrange multipliers
+ 
+
+1221
+00:30:22,480 --> 00:30:24,470
+uh just Google it lrange multipliers
+it's probably a Wikipedia
+
+1222
+00:30:24,470 --> 00:30:24,480
+it's probably a Wikipedia
+ 
+
+1223
+00:30:24,480 --> 00:30:26,830
+it's probably a Wikipedia
+article and try it out work with it a
+
+1224
+00:30:26,830 --> 00:30:26,840
+article and try it out work with it a
+ 
+
+1225
+00:30:26,840 --> 00:30:30,230
+article and try it out work with it a
+little bit and become amiliar with
+
+1226
+00:30:30,230 --> 00:30:30,240
+little bit and become amiliar with
+ 
+
+1227
+00:30:30,240 --> 00:30:32,710
+little bit and become amiliar with
+it I will not explain it again but I
+
+1228
+00:30:32,710 --> 00:30:32,720
+it I will not explain it again but I
+ 
+
+1229
+00:30:32,720 --> 00:30:34,110
+it I will not explain it again but I
+will use it
+
+1230
+00:30:34,110 --> 00:30:34,120
+will use it
+ 
+
+1231
+00:30:34,120 --> 00:30:36,830
+will use it
+again over and
+
+1232
+00:30:36,830 --> 00:30:36,840
+again over and
+ 
+
+1233
+00:30:36,840 --> 00:30:38,669
+again over and
+over what is the thing that we're
+
+1234
+00:30:38,669 --> 00:30:38,679
+over what is the thing that we're
+ 
+
+1235
+00:30:38,679 --> 00:30:41,630
+over what is the thing that we're
+typically going to minimize the entropy
+
+1236
+00:30:41,630 --> 00:30:41,640
+typically going to minimize the entropy
+ 
+
+1237
+00:30:41,640 --> 00:30:42,789
+typically going to minimize the entropy
+what are the
+
+1238
+00:30:42,789 --> 00:30:42,799
+what are the
+ 
+
+1239
+00:30:42,799 --> 00:30:45,389
+what are the
+constraints constraints such as we know
+
+1240
+00:30:45,389 --> 00:30:45,399
+constraints constraints such as we know
+ 
+
+1241
+00:30:45,399 --> 00:30:47,070
+constraints constraints such as we know
+the total energy we know the total
+
+1242
+00:30:47,070 --> 00:30:47,080
+the total energy we know the total
+ 
+
+1243
+00:30:47,080 --> 00:30:48,630
+the total energy we know the total
+whatever it happens to
+
+1244
+00:30:48,630 --> 00:30:48,640
+whatever it happens to
+ 
+
+1245
+00:30:48,640 --> 00:30:53,070
+whatever it happens to
+be okay next little theorem these things
+
+1246
+00:30:53,070 --> 00:30:53,080
+be okay next little theorem these things
+ 
+
+1247
+00:30:53,080 --> 00:30:55,470
+be okay next little theorem these things
+are too small to really be called
+
+1248
+00:30:55,470 --> 00:30:55,480
+are too small to really be called
+ 
+
+1249
+00:30:55,480 --> 00:30:58,750
+are too small to really be called
+theorems uh Sterlings approxim
+
+1250
+00:30:58,750 --> 00:30:58,760
+theorems uh Sterlings approxim
+ 
+
+1251
+00:30:58,760 --> 00:31:02,110
+theorems uh Sterlings approxim
+to the factorial function everybody know
+
+1252
+00:31:02,110 --> 00:31:02,120
+to the factorial function everybody know
+ 
+
+1253
+00:31:02,120 --> 00:31:03,549
+to the factorial function everybody know
+what Sterling anybody not know what
+
+1254
+00:31:03,549 --> 00:31:03,559
+what Sterling anybody not know what
+ 
+
+1255
+00:31:03,559 --> 00:31:05,430
+what Sterling anybody not know what
+Sterling's approximation
+
+1256
+00:31:05,430 --> 00:31:05,440
+Sterling's approximation
+ 
+
+1257
+00:31:05,440 --> 00:31:10,669
+Sterling's approximation
+is if anybody not
+
+1258
+00:31:10,669 --> 00:31:10,679
+
+ 
+
+1259
+00:31:10,679 --> 00:31:12,870
+
+know oh no no no but I mean do you know
+
+1260
+00:31:12,870 --> 00:31:12,880
+know oh no no no but I mean do you know
+ 
+
+1261
+00:31:12,880 --> 00:31:14,350
+know oh no no no but I mean do you know
+how to prove
+
+1262
+00:31:14,350 --> 00:31:14,360
+how to prove
+ 
+
+1263
+00:31:14,360 --> 00:31:15,909
+how to prove
+it
+
+1264
+00:31:15,909 --> 00:31:15,919
+it
+ 
+
+1265
+00:31:15,919 --> 00:31:19,430
+it
+okay where it comes from all right so
+
+1266
+00:31:19,430 --> 00:31:19,440
+okay where it comes from all right so
+ 
+
+1267
+00:31:19,440 --> 00:31:21,430
+okay where it comes from all right so
+let's uh let's just review very quickly
+
+1268
+00:31:21,430 --> 00:31:21,440
+let's uh let's just review very quickly
+ 
+
+1269
+00:31:21,440 --> 00:31:24,549
+let's uh let's just review very quickly
+Sterling's
+
+1270
+00:31:24,549 --> 00:31:24,559
+
+ 
+
+1271
+00:31:24,559 --> 00:31:27,990
+
+approximation in factorial occurs over
+
+1272
+00:31:27,990 --> 00:31:28,000
+approximation in factorial occurs over
+ 
+
+1273
+00:31:28,000 --> 00:31:32,509
+approximation in factorial occurs over
+and over in all sorts of probability
+
+1274
+00:31:32,509 --> 00:31:32,519
+and over in all sorts of probability
+ 
+
+1275
+00:31:32,519 --> 00:31:34,950
+and over in all sorts of probability
+contexts every time you calculate
+
+1276
+00:31:34,950 --> 00:31:34,960
+contexts every time you calculate
+ 
+
+1277
+00:31:34,960 --> 00:31:37,269
+contexts every time you calculate
+permutations in combinations in order to
+
+1278
+00:31:37,269 --> 00:31:37,279
+permutations in combinations in order to
+ 
+
+1279
+00:31:37,279 --> 00:31:38,430
+permutations in combinations in order to
+calculate
+
+1280
+00:31:38,430 --> 00:31:38,440
+calculate
+ 
+
+1281
+00:31:38,440 --> 00:31:41,190
+calculate
+probabilities in factorials appear all
+
+1282
+00:31:41,190 --> 00:31:41,200
+probabilities in factorials appear all
+ 
+
+1283
+00:31:41,200 --> 00:31:45,629
+probabilities in factorials appear all
+over the place okay
+
+1284
+00:31:45,629 --> 00:31:45,639
+over the place okay
+ 
+
+1285
+00:31:45,639 --> 00:31:49,830
+over the place okay
+um generally the NS which appear are
+
+1286
+00:31:49,830 --> 00:31:49,840
+um generally the NS which appear are
+ 
+
+1287
+00:31:49,840 --> 00:31:52,470
+um generally the NS which appear are
+very large numbers they have to do with
+
+1288
+00:31:52,470 --> 00:31:52,480
+very large numbers they have to do with
+ 
+
+1289
+00:31:52,480 --> 00:31:54,509
+very large numbers they have to do with
+how many ways there are arranging or
+
+1290
+00:31:54,509 --> 00:31:54,519
+how many ways there are arranging or
+ 
+
+1291
+00:31:54,519 --> 00:31:56,750
+how many ways there are arranging or
+rearranging a large number of variables
+
+1292
+00:31:56,750 --> 00:31:56,760
+rearranging a large number of variables
+ 
+
+1293
+00:31:56,760 --> 00:31:59,190
+rearranging a large number of variables
+in some large number of way ways and so
+
+1294
+00:31:59,190 --> 00:31:59,200
+in some large number of way ways and so
+ 
+
+1295
+00:31:59,200 --> 00:32:01,830
+in some large number of way ways and so
+it's important to have an approximation
+
+1296
+00:32:01,830 --> 00:32:01,840
+it's important to have an approximation
+ 
+
+1297
+00:32:01,840 --> 00:32:05,269
+it's important to have an approximation
+of reliable approximation which becomes
+
+1298
+00:32:05,269 --> 00:32:05,279
+of reliable approximation which becomes
+ 
+
+1299
+00:32:05,279 --> 00:32:08,070
+of reliable approximation which becomes
+better and better as n becomes large for
+
+1300
+00:32:08,070 --> 00:32:08,080
+better and better as n becomes large for
+ 
+
+1301
+00:32:08,080 --> 00:32:09,629
+better and better as n becomes large for
+the factorial
+
+1302
+00:32:09,629 --> 00:32:09,639
+the factorial
+ 
+
+1303
+00:32:09,639 --> 00:32:11,350
+the factorial
+function n
+
+1304
+00:32:11,350 --> 00:32:11,360
+function n
+ 
+
+1305
+00:32:11,360 --> 00:32:22,430
+function n
+[Music]
+
+1306
+00:32:22,430 --> 00:32:22,440
+
+ 
+
+1307
+00:32:22,440 --> 00:32:27,590
+
+factorial equals 1 * 2 * 3 dot dot dot
+
+1308
+00:32:27,590 --> 00:32:27,600
+factorial equals 1 * 2 * 3 dot dot dot
+ 
+
+1309
+00:32:27,600 --> 00:32:29,470
+factorial equals 1 * 2 * 3 dot dot dot
+dot up to
+
+1310
+00:32:29,470 --> 00:32:29,480
+dot up to
+ 
+
+1311
+00:32:29,480 --> 00:32:32,629
+dot up to
+n that's the factorial function
+
+1312
+00:32:32,629 --> 00:32:32,639
+n that's the factorial function
+ 
+
+1313
+00:32:32,639 --> 00:32:34,990
+n that's the factorial function
+right all right now I want to find a
+
+1314
+00:32:34,990 --> 00:32:35,000
+right all right now I want to find a
+ 
+
+1315
+00:32:35,000 --> 00:32:37,590
+right all right now I want to find a
+good estimate for it what I'm going to
+
+1316
+00:32:37,590 --> 00:32:37,600
+good estimate for it what I'm going to
+ 
+
+1317
+00:32:37,600 --> 00:32:40,110
+good estimate for it what I'm going to
+begin with is by taking its logarithm
+
+1318
+00:32:40,110 --> 00:32:40,120
+begin with is by taking its logarithm
+ 
+
+1319
+00:32:40,120 --> 00:32:41,870
+begin with is by taking its logarithm
+I'm going to Cal I'm going to estimate
+
+1320
+00:32:41,870 --> 00:32:41,880
+I'm going to Cal I'm going to estimate
+ 
+
+1321
+00:32:41,880 --> 00:32:44,590
+I'm going to Cal I'm going to estimate
+the logarithm of n factorial once I've
+
+1322
+00:32:44,590 --> 00:32:44,600
+the logarithm of n factorial once I've
+ 
+
+1323
+00:32:44,600 --> 00:32:46,710
+the logarithm of n factorial once I've
+estimated the logarithm of n factorial
+
+1324
+00:32:46,710 --> 00:32:46,720
+estimated the logarithm of n factorial
+ 
+
+1325
+00:32:46,720 --> 00:32:49,549
+estimated the logarithm of n factorial
+how do I estimate n
+
+1326
+00:32:49,549 --> 00:32:49,559
+how do I estimate n
+ 
+
+1327
+00:32:49,559 --> 00:32:52,629
+how do I estimate n
+factorial we exponentiate the logarithm
+
+1328
+00:32:52,629 --> 00:32:52,639
+factorial we exponentiate the logarithm
+ 
+
+1329
+00:32:52,639 --> 00:32:55,110
+factorial we exponentiate the logarithm
+right so it's just as good to all right
+
+1330
+00:32:55,110 --> 00:32:55,120
+right so it's just as good to all right
+ 
+
+1331
+00:32:55,120 --> 00:32:57,909
+right so it's just as good to all right
+so let's calculate the let's estimate
+
+1332
+00:32:57,909 --> 00:32:57,919
+so let's calculate the let's estimate
+ 
+
+1333
+00:32:57,919 --> 00:33:01,190
+so let's calculate the let's estimate
+the logarithm of n factorial log n
+
+1334
+00:33:01,190 --> 00:33:01,200
+the logarithm of n factorial log n
+ 
+
+1335
+00:33:01,200 --> 00:33:04,070
+the logarithm of n factorial log n
+factorial that's equal to log of one
+
+1336
+00:33:04,070 --> 00:33:04,080
+factorial that's equal to log of one
+ 
+
+1337
+00:33:04,080 --> 00:33:06,070
+factorial that's equal to log of one
+plus log of two plus log of three plus
+
+1338
+00:33:06,070 --> 00:33:06,080
+plus log of two plus log of three plus
+ 
+
+1339
+00:33:06,080 --> 00:33:08,110
+plus log of two plus log of three plus
+and so forth and so
+
+1340
+00:33:08,110 --> 00:33:08,120
+and so forth and so
+ 
+
+1341
+00:33:08,120 --> 00:33:12,470
+and so forth and so
+on log one log one happens to be zero
+
+1342
+00:33:12,470 --> 00:33:12,480
+on log one log one happens to be zero
+ 
+
+1343
+00:33:12,480 --> 00:33:15,269
+on log one log one happens to be zero
+but nevertheless write it down plus log
+
+1344
+00:33:15,269 --> 00:33:15,279
+but nevertheless write it down plus log
+ 
+
+1345
+00:33:15,279 --> 00:33:22,070
+but nevertheless write it down plus log
+two plus log 3 dot dot dot plus log
+
+1346
+00:33:22,070 --> 00:33:22,080
+
+ 
+
+1347
+00:33:22,080 --> 00:33:25,190
+
+in all right so what do I have let's
+
+1348
+00:33:25,190 --> 00:33:25,200
+in all right so what do I have let's
+ 
+
+1349
+00:33:25,200 --> 00:33:29,470
+in all right so what do I have let's
+plot in in this direction
+
+1350
+00:33:29,470 --> 00:33:29,480
+plot in in this direction
+ 
+
+1351
+00:33:29,480 --> 00:33:32,029
+plot in in this direction
+let's plot logarithm of n now what does
+
+1352
+00:33:32,029 --> 00:33:32,039
+let's plot logarithm of n now what does
+ 
+
+1353
+00:33:32,039 --> 00:33:34,430
+let's plot logarithm of n now what does
+the logarithm function look like it
+
+1354
+00:33:34,430 --> 00:33:34,440
+the logarithm function look like it
+ 
+
+1355
+00:33:34,440 --> 00:33:38,389
+the logarithm function look like it
+looks like it's zero at n equals 1 and
+
+1356
+00:33:38,389 --> 00:33:38,399
+looks like it's zero at n equals 1 and
+ 
+
+1357
+00:33:38,399 --> 00:33:40,430
+looks like it's zero at n equals 1 and
+it looks something like
+
+1358
+00:33:40,430 --> 00:33:40,440
+it looks something like
+ 
+
+1359
+00:33:40,440 --> 00:33:43,230
+it looks something like
+this and basically what we're doing is
+
+1360
+00:33:43,230 --> 00:33:43,240
+this and basically what we're doing is
+ 
+
+1361
+00:33:43,240 --> 00:33:50,789
+this and basically what we're doing is
+we're adding up the
+
+1362
+00:33:50,789 --> 00:33:50,799
+
+ 
+
+1363
+00:33:50,799 --> 00:33:59,230
+
+areas n = 1 n = 2 N = 3 dot dot dot
+
+1364
+00:33:59,230 --> 00:33:59,240
+areas n = 1 n = 2 N = 3 dot dot dot
+ 
+
+1365
+00:33:59,240 --> 00:34:02,669
+areas n = 1 n = 2 N = 3 dot dot dot
+we're adding up the areas under this
+
+1366
+00:34:02,669 --> 00:34:02,679
+we're adding up the areas under this
+ 
+
+1367
+00:34:02,679 --> 00:34:06,950
+we're adding up the areas under this
+logarithm curve here all right when n
+
+1368
+00:34:06,950 --> 00:34:06,960
+logarithm curve here all right when n
+ 
+
+1369
+00:34:06,960 --> 00:34:08,869
+logarithm curve here all right when n
+becomes
+
+1370
+00:34:08,869 --> 00:34:08,879
+becomes
+ 
+
+1371
+00:34:08,879 --> 00:34:11,149
+becomes
+large it's a good
+
+1372
+00:34:11,149 --> 00:34:11,159
+large it's a good
+ 
+
+1373
+00:34:11,159 --> 00:34:15,629
+large it's a good
+approximation to the sum to replace it
+
+1374
+00:34:15,629 --> 00:34:15,639
+approximation to the sum to replace it
+ 
+
+1375
+00:34:15,639 --> 00:34:17,349
+approximation to the sum to replace it
+by the
+
+1376
+00:34:17,349 --> 00:34:17,359
+by the
+ 
+
+1377
+00:34:17,359 --> 00:34:21,230
+by the
+integral right the
+
+1378
+00:34:21,230 --> 00:34:21,240
+integral right the
+ 
+
+1379
+00:34:21,240 --> 00:34:24,869
+integral right the
+integral so let's consider then instead
+
+1380
+00:34:24,869 --> 00:34:24,879
+integral so let's consider then instead
+ 
+
+1381
+00:34:24,879 --> 00:34:28,790
+integral so let's consider then instead
+of considering the sum here this is sum
+
+1382
+00:34:28,790 --> 00:34:28,800
+of considering the sum here this is sum
+ 
+
+1383
+00:34:28,800 --> 00:34:35,669
+of considering the sum here this is sum
+of log of n from n = 1 to Nal sorry it's
+
+1384
+00:34:35,669 --> 00:34:35,679
+of log of n from n = 1 to Nal sorry it's
+ 
+
+1385
+00:34:35,679 --> 00:34:38,030
+of log of n from n = 1 to Nal sorry it's
+log of uh let's call it log of
+
+1386
+00:34:38,030 --> 00:34:38,040
+log of uh let's call it log of
+ 
+
+1387
+00:34:38,040 --> 00:34:42,430
+log of uh let's call it log of
+x log of x from x =
+
+1388
+00:34:42,430 --> 00:34:42,440
+x log of x from x =
+ 
+
+1389
+00:34:42,440 --> 00:34:45,190
+x log of x from x =
+1 to X =
+
+1390
+00:34:45,190 --> 00:34:45,200
+1 to X =
+ 
+
+1391
+00:34:45,200 --> 00:34:48,310
+1 to X =
+N and we're going to replace that
+
+1392
+00:34:48,310 --> 00:34:48,320
+N and we're going to replace that
+ 
+
+1393
+00:34:48,320 --> 00:34:51,230
+N and we're going to replace that
+by integral
+
+1394
+00:34:51,230 --> 00:34:51,240
+by integral
+ 
+
+1395
+00:34:51,240 --> 00:34:55,270
+by integral
+DX logarithm of
+
+1396
+00:34:55,270 --> 00:34:55,280
+
+ 
+
+1397
+00:34:55,280 --> 00:34:59,069
+
+X okay so we have the
+
+1398
+00:34:59,069 --> 00:34:59,079
+X okay so we have the
+ 
+
+1399
+00:34:59,079 --> 00:35:04,069
+X okay so we have the
+problem of integrating logarithm of X
+
+1400
+00:35:04,069 --> 00:35:04,079
+problem of integrating logarithm of X
+ 
+
+1401
+00:35:04,079 --> 00:35:06,349
+problem of integrating logarithm of X
+it's easy to do you just look it up in a
+
+1402
+00:35:06,349 --> 00:35:06,359
+it's easy to do you just look it up in a
+ 
+
+1403
+00:35:06,359 --> 00:35:06,940
+it's easy to do you just look it up in a
+table of
+
+1404
+00:35:06,940 --> 00:35:06,950
+table of
+ 
+
+1405
+00:35:06,950 --> 00:35:17,829
+table of
+[Music]
+
+1406
+00:35:17,829 --> 00:35:17,839
+
+ 
+
+1407
+00:35:17,839 --> 00:35:21,190
+
+integrals that incidentally means find a
+
+1408
+00:35:21,190 --> 00:35:21,200
+integrals that incidentally means find a
+ 
+
+1409
+00:35:21,200 --> 00:35:23,670
+integrals that incidentally means find a
+function whose derivative is logarithm
+
+1410
+00:35:23,670 --> 00:35:23,680
+function whose derivative is logarithm
+ 
+
+1411
+00:35:23,680 --> 00:35:26,349
+function whose derivative is logarithm
+of X I'll tell you how I would think
+
+1412
+00:35:26,349 --> 00:35:26,359
+of X I'll tell you how I would think
+ 
+
+1413
+00:35:26,359 --> 00:35:28,349
+of X I'll tell you how I would think
+about it if I didn't know the answer
+
+1414
+00:35:28,349 --> 00:35:28,359
+about it if I didn't know the answer
+ 
+
+1415
+00:35:28,359 --> 00:35:31,430
+about it if I didn't know the answer
+I would begin by saying well logarithm
+
+1416
+00:35:31,430 --> 00:35:31,440
+I would begin by saying well logarithm
+ 
+
+1417
+00:35:31,440 --> 00:35:34,910
+I would begin by saying well logarithm
+at least for large x is a very slowly
+
+1418
+00:35:34,910 --> 00:35:34,920
+at least for large x is a very slowly
+ 
+
+1419
+00:35:34,920 --> 00:35:37,990
+at least for large x is a very slowly
+varying function it practically doesn't
+
+1420
+00:35:37,990 --> 00:35:38,000
+varying function it practically doesn't
+ 
+
+1421
+00:35:38,000 --> 00:35:40,589
+varying function it practically doesn't
+vary at all logarithm is a terribly
+
+1422
+00:35:40,589 --> 00:35:40,599
+vary at all logarithm is a terribly
+ 
+
+1423
+00:35:40,599 --> 00:35:43,430
+vary at all logarithm is a terribly
+slowly varying function so I might I
+
+1424
+00:35:43,430 --> 00:35:43,440
+slowly varying function so I might I
+ 
+
+1425
+00:35:43,440 --> 00:35:46,510
+slowly varying function so I might I
+might just try saying well what if this
+
+1426
+00:35:46,510 --> 00:35:46,520
+might just try saying well what if this
+ 
+
+1427
+00:35:46,520 --> 00:35:49,550
+might just try saying well what if this
+logarithm were a constant then what
+
+1428
+00:35:49,550 --> 00:35:49,560
+logarithm were a constant then what
+ 
+
+1429
+00:35:49,560 --> 00:35:53,589
+logarithm were a constant then what
+would be the integral DX of a
+
+1430
+00:35:53,589 --> 00:35:53,599
+
+ 
+
+1431
+00:35:53,599 --> 00:35:57,630
+
+constant x times the constant right X
+
+1432
+00:35:57,630 --> 00:35:57,640
+constant x times the constant right X
+ 
+
+1433
+00:35:57,640 --> 00:36:00,950
+constant x times the constant right X
+time the constant okay so let's try x *
+
+1434
+00:36:00,950 --> 00:36:00,960
+time the constant okay so let's try x *
+ 
+
+1435
+00:36:00,960 --> 00:36:03,990
+time the constant okay so let's try x *
+log
+
+1436
+00:36:03,990 --> 00:36:04,000
+
+ 
+
+1437
+00:36:04,000 --> 00:36:09,230
+
+X x * log X if log X were a constant and
+
+1438
+00:36:09,230 --> 00:36:09,240
+X x * log X if log X were a constant and
+ 
+
+1439
+00:36:09,240 --> 00:36:11,750
+X x * log X if log X were a constant and
+it's very very slowly varying if we
+
+1440
+00:36:11,750 --> 00:36:11,760
+it's very very slowly varying if we
+ 
+
+1441
+00:36:11,760 --> 00:36:14,230
+it's very very slowly varying if we
+replaced it by a constant then the right
+
+1442
+00:36:14,230 --> 00:36:14,240
+replaced it by a constant then the right
+ 
+
+1443
+00:36:14,240 --> 00:36:17,030
+replaced it by a constant then the right
+answer would be x * the constant right
+
+1444
+00:36:17,030 --> 00:36:17,040
+answer would be x * the constant right
+ 
+
+1445
+00:36:17,040 --> 00:36:19,109
+answer would be x * the constant right
+so this shouldn't be too far off now
+
+1446
+00:36:19,109 --> 00:36:19,119
+so this shouldn't be too far off now
+ 
+
+1447
+00:36:19,119 --> 00:36:21,870
+so this shouldn't be too far off now
+let's differentiate it and see if we
+
+1448
+00:36:21,870 --> 00:36:21,880
+let's differentiate it and see if we
+ 
+
+1449
+00:36:21,880 --> 00:36:24,589
+let's differentiate it and see if we
+really get logarithm of X all right so
+
+1450
+00:36:24,589 --> 00:36:24,599
+really get logarithm of X all right so
+ 
+
+1451
+00:36:24,599 --> 00:36:26,550
+really get logarithm of X all right so
+what's the derivative of x log
+
+1452
+00:36:26,550 --> 00:36:26,560
+what's the derivative of x log
+ 
+
+1453
+00:36:26,560 --> 00:36:29,630
+what's the derivative of x log
+X well it's got two factors so the
+
+1454
+00:36:29,630 --> 00:36:29,640
+X well it's got two factors so the
+ 
+
+1455
+00:36:29,640 --> 00:36:32,430
+X well it's got two factors so the
+derivative of the first factor is
+
+1456
+00:36:32,430 --> 00:36:32,440
+derivative of the first factor is
+ 
+
+1457
+00:36:32,440 --> 00:36:35,270
+derivative of the first factor is
+1 time the second factor that gives us
+
+1458
+00:36:35,270 --> 00:36:35,280
+1 time the second factor that gives us
+ 
+
+1459
+00:36:35,280 --> 00:36:37,309
+1 time the second factor that gives us
+good that gives us log X
+
+1460
+00:36:37,309 --> 00:36:37,319
+good that gives us log X
+ 
+
+1461
+00:36:37,319 --> 00:36:39,430
+good that gives us log X
+right but there's another term what's
+
+1462
+00:36:39,430 --> 00:36:39,440
+right but there's another term what's
+ 
+
+1463
+00:36:39,440 --> 00:36:41,390
+right but there's another term what's
+the other
+
+1464
+00:36:41,390 --> 00:36:41,400
+the other
+ 
+
+1465
+00:36:41,400 --> 00:36:44,790
+the other
+term it's x times the derivative of
+
+1466
+00:36:44,790 --> 00:36:44,800
+term it's x times the derivative of
+ 
+
+1467
+00:36:44,800 --> 00:36:46,550
+term it's x times the derivative of
+logarithm of X but the derivative of
+
+1468
+00:36:46,550 --> 00:36:46,560
+logarithm of X but the derivative of
+ 
+
+1469
+00:36:46,560 --> 00:36:48,870
+logarithm of X but the derivative of
+logarithm of X is 1
+
+1470
+00:36:48,870 --> 00:36:48,880
+logarithm of X is 1
+ 
+
+1471
+00:36:48,880 --> 00:36:54,030
+logarithm of X is 1
+/x okay so what do we get + one not log
+
+1472
+00:36:54,030 --> 00:36:54,040
+/x okay so what do we get + one not log
+ 
+
+1473
+00:36:54,040 --> 00:37:01,790
+/x okay so what do we get + one not log
+of x not log X + one but log X 1 + log
+
+1474
+00:37:01,790 --> 00:37:01,800
+
+ 
+
+1475
+00:37:01,800 --> 00:37:04,349
+
+X so that's not so good we wanted to get
+
+1476
+00:37:04,349 --> 00:37:04,359
+X so that's not so good we wanted to get
+ 
+
+1477
+00:37:04,359 --> 00:37:06,870
+X so that's not so good we wanted to get
+log X we didn't want to get 1 plus log
+
+1478
+00:37:06,870 --> 00:37:06,880
+log X we didn't want to get 1 plus log
+ 
+
+1479
+00:37:06,880 --> 00:37:11,150
+log X we didn't want to get 1 plus log
+X okay but all we have to do now is to
+
+1480
+00:37:11,150 --> 00:37:11,160
+X okay but all we have to do now is to
+ 
+
+1481
+00:37:11,160 --> 00:37:14,069
+X okay but all we have to do now is to
+subtract something from this whose
+
+1482
+00:37:14,069 --> 00:37:14,079
+subtract something from this whose
+ 
+
+1483
+00:37:14,079 --> 00:37:15,829
+subtract something from this whose
+derivative is
+
+1484
+00:37:15,829 --> 00:37:15,839
+derivative is
+ 
+
+1485
+00:37:15,839 --> 00:37:20,750
+derivative is
+one which is
+
+1486
+00:37:20,750 --> 00:37:20,760
+
+ 
+
+1487
+00:37:20,760 --> 00:37:25,790
+
+X that my friends is the integral of log
+
+1488
+00:37:25,790 --> 00:37:25,800
+X that my friends is the integral of log
+ 
+
+1489
+00:37:25,800 --> 00:37:29,790
+X that my friends is the integral of log
+X X log X x - x differentiate it you'll
+
+1490
+00:37:29,790 --> 00:37:29,800
+X X log X x - x differentiate it you'll
+ 
+
+1491
+00:37:29,800 --> 00:37:33,430
+X X log X x - x differentiate it you'll
+get X sorry you'll get log X so we now
+
+1492
+00:37:33,430 --> 00:37:33,440
+get X sorry you'll get log X so we now
+ 
+
+1493
+00:37:33,440 --> 00:37:35,630
+get X sorry you'll get log X so we now
+know that this oh this integral goes
+
+1494
+00:37:35,630 --> 00:37:35,640
+know that this oh this integral goes
+ 
+
+1495
+00:37:35,640 --> 00:37:37,150
+know that this oh this integral goes
+from 1 to
+
+1496
+00:37:37,150 --> 00:37:37,160
+from 1 to
+ 
+
+1497
+00:37:37,160 --> 00:37:40,270
+from 1 to
+n and the answer
+
+1498
+00:37:40,270 --> 00:37:40,280
+n and the answer
+ 
+
+1499
+00:37:40,280 --> 00:37:44,309
+n and the answer
+is n log
+
+1500
+00:37:44,309 --> 00:37:44,319
+
+ 
+
+1501
+00:37:44,319 --> 00:37:46,510
+
+n minus
+
+1502
+00:37:46,510 --> 00:37:46,520
+n minus
+ 
+
+1503
+00:37:46,520 --> 00:37:50,870
+n minus
+n I've just substituted for x I've just
+
+1504
+00:37:50,870 --> 00:37:50,880
+n I've just substituted for x I've just
+ 
+
+1505
+00:37:50,880 --> 00:37:54,069
+n I've just substituted for x I've just
+integral from 1 to n one end point just
+
+1506
+00:37:54,069 --> 00:37:54,079
+integral from 1 to n one end point just
+ 
+
+1507
+00:37:54,079 --> 00:37:56,510
+integral from 1 to n one end point just
+gives zero the other end point gives n
+
+1508
+00:37:56,510 --> 00:37:56,520
+gives zero the other end point gives n
+ 
+
+1509
+00:37:56,520 --> 00:37:58,710
+gives zero the other end point gives n
+log n minus n
+
+1510
+00:37:58,710 --> 00:37:58,720
+log n minus n
+ 
+
+1511
+00:37:58,720 --> 00:38:02,270
+log n minus n
+this is Sterling's approximation for the
+
+1512
+00:38:02,270 --> 00:38:02,280
+this is Sterling's approximation for the
+ 
+
+1513
+00:38:02,280 --> 00:38:05,309
+this is Sterling's approximation for the
+logarithm of n
+
+1514
+00:38:05,309 --> 00:38:05,319
+logarithm of n
+ 
+
+1515
+00:38:05,319 --> 00:38:07,430
+logarithm of n
+factorial and actually this is the way
+
+1516
+00:38:07,430 --> 00:38:07,440
+factorial and actually this is the way
+ 
+
+1517
+00:38:07,440 --> 00:38:10,030
+factorial and actually this is the way
+we're going to wind up using it n log n
+
+1518
+00:38:10,030 --> 00:38:10,040
+we're going to wind up using it n log n
+ 
+
+1519
+00:38:10,040 --> 00:38:12,550
+we're going to wind up using it n log n
+minus n because we're generally going to
+
+1520
+00:38:12,550 --> 00:38:12,560
+minus n because we're generally going to
+ 
+
+1521
+00:38:12,560 --> 00:38:14,710
+minus n because we're generally going to
+be interested in the logarithm of n
+
+1522
+00:38:14,710 --> 00:38:14,720
+be interested in the logarithm of n
+ 
+
+1523
+00:38:14,720 --> 00:38:22,190
+be interested in the logarithm of n
+factorial but just
+
+1524
+00:38:22,190 --> 00:38:22,200
+
+ 
+
+1525
+00:38:22,200 --> 00:38:25,950
+
+to just to uh I know what's going on
+
+1526
+00:38:25,950 --> 00:38:25,960
+to just to uh I know what's going on
+ 
+
+1527
+00:38:25,960 --> 00:38:27,950
+to just to uh I know what's going on
+just to complete the calculation
+
+1528
+00:38:27,950 --> 00:38:27,960
+just to complete the calculation
+ 
+
+1529
+00:38:27,960 --> 00:38:30,910
+just to complete the calculation
+we now want to exponentiate it all right
+
+1530
+00:38:30,910 --> 00:38:30,920
+we now want to exponentiate it all right
+ 
+
+1531
+00:38:30,920 --> 00:38:36,190
+we now want to exponentiate it all right
+so we want to take e to the N log
+
+1532
+00:38:36,190 --> 00:38:36,200
+
+ 
+
+1533
+00:38:36,200 --> 00:38:40,470
+
+in e to the minus n we have the sum or
+
+1534
+00:38:40,470 --> 00:38:40,480
+in e to the minus n we have the sum or
+ 
+
+1535
+00:38:40,480 --> 00:38:42,630
+in e to the minus n we have the sum or
+the difference of two terms when I
+
+1536
+00:38:42,630 --> 00:38:42,640
+the difference of two terms when I
+ 
+
+1537
+00:38:42,640 --> 00:38:44,589
+the difference of two terms when I
+exponentiate it I will
+
+1538
+00:38:44,589 --> 00:38:44,599
+exponentiate it I will
+ 
+
+1539
+00:38:44,599 --> 00:38:48,030
+exponentiate it I will
+get e to the N log n that's e to what's
+
+1540
+00:38:48,030 --> 00:38:48,040
+get e to the N log n that's e to what's
+ 
+
+1541
+00:38:48,040 --> 00:38:50,870
+get e to the N log n that's e to what's
+what's e to the N log
+
+1542
+00:38:50,870 --> 00:38:50,880
+what's e to the N log
+ 
+
+1543
+00:38:50,880 --> 00:38:55,990
+what's e to the N log
+n that's n to the N same as n to the
+
+1544
+00:38:55,990 --> 00:38:56,000
+n that's n to the N same as n to the
+ 
+
+1545
+00:38:56,000 --> 00:38:58,910
+n that's n to the N same as n to the
+n n to the n is the same as e to the N
+
+1546
+00:38:58,910 --> 00:38:58,920
+n n to the n is the same as e to the N
+ 
+
+1547
+00:38:58,920 --> 00:39:02,470
+n n to the n is the same as e to the N
+log n * eus
+
+1548
+00:39:02,470 --> 00:39:02,480
+log n * eus
+ 
+
+1549
+00:39:02,480 --> 00:39:07,790
+log n * eus
+n this is Sterling's
+
+1550
+00:39:07,790 --> 00:39:07,800
+
+ 
+
+1551
+00:39:07,800 --> 00:39:10,430
+
+approximation Sterling Sterling's
+
+1552
+00:39:10,430 --> 00:39:10,440
+approximation Sterling Sterling's
+ 
+
+1553
+00:39:10,440 --> 00:39:13,150
+approximation Sterling Sterling's
+approximation to the factorial function
+
+1554
+00:39:13,150 --> 00:39:13,160
+approximation to the factorial function
+ 
+
+1555
+00:39:13,160 --> 00:39:16,270
+approximation to the factorial function
+it grows very fast n to the N grows very
+
+1556
+00:39:16,270 --> 00:39:16,280
+it grows very fast n to the N grows very
+ 
+
+1557
+00:39:16,280 --> 00:39:18,870
+it grows very fast n to the N grows very
+rapidly but not quite as rapidly as n to
+
+1558
+00:39:18,870 --> 00:39:18,880
+rapidly but not quite as rapidly as n to
+ 
+
+1559
+00:39:18,880 --> 00:39:21,790
+rapidly but not quite as rapidly as n to
+the N it's modulated by a decreasing
+
+1560
+00:39:21,790 --> 00:39:21,800
+the N it's modulated by a decreasing
+ 
+
+1561
+00:39:21,800 --> 00:39:24,990
+the N it's modulated by a decreasing
+function e to the minus n okay so that's
+
+1562
+00:39:24,990 --> 00:39:25,000
+function e to the minus n okay so that's
+ 
+
+1563
+00:39:25,000 --> 00:39:30,150
+function e to the minus n okay so that's
+a second little Lemma or theorem that
+
+1564
+00:39:30,150 --> 00:39:30,160
+a second little Lemma or theorem that
+ 
+
+1565
+00:39:30,160 --> 00:39:32,750
+a second little Lemma or theorem that
+you must know in order to
+
+1566
+00:39:32,750 --> 00:39:32,760
+you must know in order to
+ 
+
+1567
+00:39:32,760 --> 00:39:35,109
+you must know in order to
+do statistical
+
+1568
+00:39:35,109 --> 00:39:35,119
+do statistical
+ 
+
+1569
+00:39:35,119 --> 00:39:37,510
+do statistical
+mechanics and the third
+
+1570
+00:39:37,510 --> 00:39:37,520
+mechanics and the third
+ 
+
+1571
+00:39:37,520 --> 00:39:41,270
+mechanics and the third
+one is a combinatoric fact simple
+
+1572
+00:39:41,270 --> 00:39:41,280
+one is a combinatoric fact simple
+ 
+
+1573
+00:39:41,280 --> 00:39:44,030
+one is a combinatoric fact simple
+combinatoric fact but one and once we do
+
+1574
+00:39:44,030 --> 00:39:44,040
+combinatoric fact but one and once we do
+ 
+
+1575
+00:39:44,040 --> 00:39:47,230
+combinatoric fact but one and once we do
+it we won't do it again or we won't uh
+
+1576
+00:39:47,230 --> 00:39:47,240
+it we won't do it again or we won't uh
+ 
+
+1577
+00:39:47,240 --> 00:39:49,550
+it we won't do it again or we won't uh
+we won't explain it again but let's do
+
+1578
+00:39:49,550 --> 00:39:49,560
+we won't explain it again but let's do
+ 
+
+1579
+00:39:49,560 --> 00:39:51,750
+we won't explain it again but let's do
+it
+
+1580
+00:39:51,750 --> 00:39:51,760
+
+ 
+
+1581
+00:39:51,760 --> 00:39:54,910
+
+anyway um I'll tell you what the problem
+
+1582
+00:39:54,910 --> 00:39:54,920
+anyway um I'll tell you what the problem
+ 
+
+1583
+00:39:54,920 --> 00:39:58,069
+anyway um I'll tell you what the problem
+that we're really interested in
+
+1584
+00:39:58,069 --> 00:39:58,079
+that we're really interested in
+ 
+
+1585
+00:39:58,079 --> 00:39:59,910
+that we're really interested in
+supposing I
+
+1586
+00:39:59,910 --> 00:39:59,920
+supposing I
+ 
+
+1587
+00:39:59,920 --> 00:40:02,750
+supposing I
+have n
+
+1588
+00:40:02,750 --> 00:40:02,760
+have n
+ 
+
+1589
+00:40:02,760 --> 00:40:06,230
+have n
+copies of the same system now you can
+
+1590
+00:40:06,230 --> 00:40:06,240
+copies of the same system now you can
+ 
+
+1591
+00:40:06,240 --> 00:40:08,150
+copies of the same system now you can
+just think of this as n
+
+1592
+00:40:08,150 --> 00:40:08,160
+just think of this as n
+ 
+
+1593
+00:40:08,160 --> 00:40:11,109
+just think of this as n
+boxes n
+
+1594
+00:40:11,109 --> 00:40:11,119
+boxes n
+ 
+
+1595
+00:40:11,119 --> 00:40:16,150
+boxes n
+boxes and each box can be in a state the
+
+1596
+00:40:16,150 --> 00:40:16,160
+boxes and each box can be in a state the
+ 
+
+1597
+00:40:16,160 --> 00:40:19,030
+boxes and each box can be in a state the
+states of a single box I'll label them
+
+1598
+00:40:19,030 --> 00:40:19,040
+states of a single box I'll label them
+ 
+
+1599
+00:40:19,040 --> 00:40:21,630
+states of a single box I'll label them
+over here they actually correspond to
+
+1600
+00:40:21,630 --> 00:40:21,640
+over here they actually correspond to
+ 
+
+1601
+00:40:21,640 --> 00:40:25,230
+over here they actually correspond to
+the energy states of the
+
+1602
+00:40:25,230 --> 00:40:25,240
+
+ 
+
+1603
+00:40:25,240 --> 00:40:30,030
+
+system but here they are vertically is
+
+1604
+00:40:30,030 --> 00:40:30,040
+system but here they are vertically is
+ 
+
+1605
+00:40:30,040 --> 00:40:36,390
+system but here they are vertically is
+energy this is the I State over
+
+1606
+00:40:36,390 --> 00:40:36,400
+
+ 
+
+1607
+00:40:36,400 --> 00:40:40,470
+
+here and each one of these boxes can be
+
+1608
+00:40:40,470 --> 00:40:40,480
+here and each one of these boxes can be
+ 
+
+1609
+00:40:40,480 --> 00:40:42,829
+here and each one of these boxes can be
+identified with a state in here in other
+
+1610
+00:40:42,829 --> 00:40:42,839
+identified with a state in here in other
+ 
+
+1611
+00:40:42,839 --> 00:40:46,630
+identified with a state in here in other
+words each box is in a state or has a
+
+1612
+00:40:46,630 --> 00:40:46,640
+words each box is in a state or has a
+ 
+
+1613
+00:40:46,640 --> 00:40:49,190
+words each box is in a state or has a
+particular State labeled by one of these
+
+1614
+00:40:49,190 --> 00:40:49,200
+particular State labeled by one of these
+ 
+
+1615
+00:40:49,200 --> 00:40:52,109
+particular State labeled by one of these
+eyes we could draw a picture or we could
+
+1616
+00:40:52,109 --> 00:40:52,119
+eyes we could draw a picture or we could
+ 
+
+1617
+00:40:52,119 --> 00:40:53,510
+eyes we could draw a picture or we could
+draw a
+
+1618
+00:40:53,510 --> 00:40:53,520
+draw a
+ 
+
+1619
+00:40:53,520 --> 00:40:58,309
+draw a
+figure if the first box happens to be in
+
+1620
+00:40:58,309 --> 00:40:58,319
+figure if the first box happens to be in
+ 
+
+1621
+00:40:58,319 --> 00:41:00,150
+figure if the first box happens to be in
+this state over here I'll put a line
+
+1622
+00:41:00,150 --> 00:41:00,160
+this state over here I'll put a line
+ 
+
+1623
+00:41:00,160 --> 00:41:02,670
+this state over here I'll put a line
+over there like that if the second box
+
+1624
+00:41:02,670 --> 00:41:02,680
+over there like that if the second box
+ 
+
+1625
+00:41:02,680 --> 00:41:04,990
+over there like that if the second box
+happens to be in the same state I'll put
+
+1626
+00:41:04,990 --> 00:41:05,000
+happens to be in the same state I'll put
+ 
+
+1627
+00:41:05,000 --> 00:41:06,670
+happens to be in the same state I'll put
+another line over
+
+1628
+00:41:06,670 --> 00:41:06,680
+another line over
+ 
+
+1629
+00:41:06,680 --> 00:41:09,309
+another line over
+here supposing the third box is in a
+
+1630
+00:41:09,309 --> 00:41:09,319
+here supposing the third box is in a
+ 
+
+1631
+00:41:09,319 --> 00:41:11,670
+here supposing the third box is in a
+different state over here and the fourth
+
+1632
+00:41:11,670 --> 00:41:11,680
+different state over here and the fourth
+ 
+
+1633
+00:41:11,680 --> 00:41:14,510
+different state over here and the fourth
+box is in yet a different one over here
+
+1634
+00:41:14,510 --> 00:41:14,520
+box is in yet a different one over here
+ 
+
+1635
+00:41:14,520 --> 00:41:16,589
+box is in yet a different one over here
+and the fifth box let's put a fifth box
+
+1636
+00:41:16,589 --> 00:41:16,599
+and the fifth box let's put a fifth box
+ 
+
+1637
+00:41:16,599 --> 00:41:20,670
+and the fifth box let's put a fifth box
+in just uh to add one more just happens
+
+1638
+00:41:20,670 --> 00:41:20,680
+in just uh to add one more just happens
+ 
+
+1639
+00:41:20,680 --> 00:41:24,230
+in just uh to add one more just happens
+to be in the same state as this one over
+
+1640
+00:41:24,230 --> 00:41:24,240
+to be in the same state as this one over
+ 
+
+1641
+00:41:24,240 --> 00:41:28,270
+to be in the same state as this one over
+here all right so a diagram like this
+
+1642
+00:41:28,270 --> 00:41:28,280
+here all right so a diagram like this
+ 
+
+1643
+00:41:28,280 --> 00:41:32,150
+here all right so a diagram like this
+is a description of the states of in
+
+1644
+00:41:32,150 --> 00:41:32,160
+is a description of the states of in
+ 
+
+1645
+00:41:32,160 --> 00:41:35,430
+is a description of the states of in
+copies there are in copies here of a
+
+1646
+00:41:35,430 --> 00:41:35,440
+copies there are in copies here of a
+ 
+
+1647
+00:41:35,440 --> 00:41:41,390
+copies there are in copies here of a
+system and copies each with its own
+
+1648
+00:41:41,390 --> 00:41:41,400
+
+ 
+
+1649
+00:41:41,400 --> 00:41:43,230
+
+State
+
+1650
+00:41:43,230 --> 00:41:43,240
+State
+ 
+
+1651
+00:41:43,240 --> 00:41:45,870
+State
+now here's an interesting
+
+1652
+00:41:45,870 --> 00:41:45,880
+now here's an interesting
+ 
+
+1653
+00:41:45,880 --> 00:41:49,630
+now here's an interesting
+quantity oh what should we label yes we
+
+1654
+00:41:49,630 --> 00:41:49,640
+quantity oh what should we label yes we
+ 
+
+1655
+00:41:49,640 --> 00:41:52,870
+quantity oh what should we label yes we
+labeled the states I notice that I does
+
+1656
+00:41:52,870 --> 00:41:52,880
+labeled the states I notice that I does
+ 
+
+1657
+00:41:52,880 --> 00:41:54,550
+labeled the states I notice that I does
+not stand for which box we're talking
+
+1658
+00:41:54,550 --> 00:41:54,560
+not stand for which box we're talking
+ 
+
+1659
+00:41:54,560 --> 00:41:57,630
+not stand for which box we're talking
+about it stands for the possible state
+
+1660
+00:41:57,630 --> 00:41:57,640
+about it stands for the possible state
+ 
+
+1661
+00:41:57,640 --> 00:42:00,270
+about it stands for the possible state
+within a box the possible configuration
+
+1662
+00:42:00,270 --> 00:42:00,280
+within a box the possible configuration
+ 
+
+1663
+00:42:00,280 --> 00:42:02,390
+within a box the possible configuration
+within a
+
+1664
+00:42:02,390 --> 00:42:02,400
+within a
+ 
+
+1665
+00:42:02,400 --> 00:42:04,990
+within a
+box and I'm taking them to be
+
+1666
+00:42:04,990 --> 00:42:05,000
+box and I'm taking them to be
+ 
+
+1667
+00:42:05,000 --> 00:42:07,829
+box and I'm taking them to be
+discreet all right I can ask how many
+
+1668
+00:42:07,829 --> 00:42:07,839
+discreet all right I can ask how many
+ 
+
+1669
+00:42:07,839 --> 00:42:09,270
+discreet all right I can ask how many
+boxes are
+
+1670
+00:42:09,270 --> 00:42:09,280
+boxes are
+ 
+
+1671
+00:42:09,280 --> 00:42:11,670
+boxes are
+there in the first state this is I
+
+1672
+00:42:11,670 --> 00:42:11,680
+there in the first state this is I
+ 
+
+1673
+00:42:11,680 --> 00:42:14,990
+there in the first state this is I
+equals 1 how many boxes are there well
+
+1674
+00:42:14,990 --> 00:42:15,000
+equals 1 how many boxes are there well
+ 
+
+1675
+00:42:15,000 --> 00:42:16,870
+equals 1 how many boxes are there well
+in this case there are no boxes with I
+
+1676
+00:42:16,870 --> 00:42:16,880
+in this case there are no boxes with I
+ 
+
+1677
+00:42:16,880 --> 00:42:19,349
+in this case there are no boxes with I
+equals 1 but in general the answer will
+
+1678
+00:42:19,349 --> 00:42:19,359
+equals 1 but in general the answer will
+ 
+
+1679
+00:42:19,359 --> 00:42:24,390
+equals 1 but in general the answer will
+be an integer N Sub one that's the
+
+1680
+00:42:24,390 --> 00:42:24,400
+be an integer N Sub one that's the
+ 
+
+1681
+00:42:24,400 --> 00:42:27,510
+be an integer N Sub one that's the
+number of boxes in state number number
+
+1682
+00:42:27,510 --> 00:42:27,520
+number of boxes in state number number
+ 
+
+1683
+00:42:27,520 --> 00:42:31,630
+number of boxes in state number number
+one the number of Bo the number of boxes
+
+1684
+00:42:31,630 --> 00:42:31,640
+one the number of Bo the number of boxes
+ 
+
+1685
+00:42:31,640 --> 00:42:36,069
+one the number of Bo the number of boxes
+in state number two is N Sub 2 N Sub
+
+1686
+00:42:36,069 --> 00:42:36,079
+in state number two is N Sub 2 N Sub
+ 
+
+1687
+00:42:36,079 --> 00:42:38,109
+in state number two is N Sub 2 N Sub
+three and so
+
+1688
+00:42:38,109 --> 00:42:38,119
+three and so
+ 
+
+1689
+00:42:38,119 --> 00:42:48,230
+three and so
+forth what do these NS have to add up
+
+1690
+00:42:48,230 --> 00:42:48,240
+
+ 
+
+1691
+00:42:48,240 --> 00:42:50,390
+
+to I wonder if the lecture is supposed
+
+1692
+00:42:50,390 --> 00:42:50,400
+to I wonder if the lecture is supposed
+ 
+
+1693
+00:42:50,400 --> 00:42:52,670
+to I wonder if the lecture is supposed
+to be in here
+
+1694
+00:42:52,670 --> 00:42:52,680
+to be in here
+ 
+
+1695
+00:42:52,680 --> 00:42:54,349
+to be in here
+tonight it's supposed to be in the other
+
+1696
+00:42:54,349 --> 00:42:54,359
+tonight it's supposed to be in the other
+ 
+
+1697
+00:42:54,359 --> 00:42:59,870
+tonight it's supposed to be in the other
+room no yeah okay uh
+
+1698
+00:42:59,870 --> 00:42:59,880
+
+ 
+
+1699
+00:42:59,880 --> 00:43:03,309
+
+okay what must these ends add up to
+
+1700
+00:43:03,309 --> 00:43:03,319
+okay what must these ends add up to
+ 
+
+1701
+00:43:03,319 --> 00:43:06,710
+okay what must these ends add up to
+begin the number of boxes in the first
+
+1702
+00:43:06,710 --> 00:43:06,720
+begin the number of boxes in the first
+ 
+
+1703
+00:43:06,720 --> 00:43:08,230
+begin the number of boxes in the first
+state plus the number of boxes in the
+
+1704
+00:43:08,230 --> 00:43:08,240
+state plus the number of boxes in the
+ 
+
+1705
+00:43:08,240 --> 00:43:09,790
+state plus the number of boxes in the
+second state plus the number of boxes in
+
+1706
+00:43:09,790 --> 00:43:09,800
+second state plus the number of boxes in
+ 
+
+1707
+00:43:09,800 --> 00:43:11,589
+second state plus the number of boxes in
+the third state and so forth have to add
+
+1708
+00:43:11,589 --> 00:43:11,599
+the third state and so forth have to add
+ 
+
+1709
+00:43:11,599 --> 00:43:14,309
+the third state and so forth have to add
+up to end but the question I want to ask
+
+1710
+00:43:14,309 --> 00:43:14,319
+up to end but the question I want to ask
+ 
+
+1711
+00:43:14,319 --> 00:43:20,270
+up to end but the question I want to ask
+is how many ways are there of choosing a
+
+1712
+00:43:20,270 --> 00:43:20,280
+is how many ways are there of choosing a
+ 
+
+1713
+00:43:20,280 --> 00:43:25,349
+is how many ways are there of choosing a
+state for each box such that there are
+
+1714
+00:43:25,349 --> 00:43:25,359
+state for each box such that there are
+ 
+
+1715
+00:43:25,359 --> 00:43:30,109
+state for each box such that there are
+N1 boxes in the state one N2 boxes in
+
+1716
+00:43:30,109 --> 00:43:30,119
+N1 boxes in the state one N2 boxes in
+ 
+
+1717
+00:43:30,119 --> 00:43:32,510
+N1 boxes in the state one N2 boxes in
+the state two n three boxes in the state
+
+1718
+00:43:32,510 --> 00:43:32,520
+the state two n three boxes in the state
+ 
+
+1719
+00:43:32,520 --> 00:43:35,470
+the state two n three boxes in the state
+three and so forth how many ways are
+
+1720
+00:43:35,470 --> 00:43:35,480
+three and so forth how many ways are
+ 
+
+1721
+00:43:35,480 --> 00:43:39,829
+three and so forth how many ways are
+there of getting a given set of
+
+1722
+00:43:39,829 --> 00:43:39,839
+there of getting a given set of
+ 
+
+1723
+00:43:39,839 --> 00:43:42,910
+there of getting a given set of
+NS okay anybody know the
+
+1724
+00:43:42,910 --> 00:43:42,920
+NS okay anybody know the
+ 
+
+1725
+00:43:42,920 --> 00:43:45,589
+NS okay anybody know the
+answer oh I wrote The Answer down in the
+
+1726
+00:43:45,589 --> 00:43:45,599
+answer oh I wrote The Answer down in the
+ 
+
+1727
+00:43:45,599 --> 00:43:47,430
+answer oh I wrote The Answer down in the
+yeah the answer was written in the notes
+
+1728
+00:43:47,430 --> 00:43:47,440
+yeah the answer was written in the notes
+ 
+
+1729
+00:43:47,440 --> 00:43:49,230
+yeah the answer was written in the notes
+so you do know the answer I
+
+1730
+00:43:49,230 --> 00:43:49,240
+so you do know the answer I
+ 
+
+1731
+00:43:49,240 --> 00:43:52,109
+so you do know the answer I
+presume okay uh let me write the answer
+
+1732
+00:43:52,109 --> 00:43:52,119
+presume okay uh let me write the answer
+ 
+
+1733
+00:43:52,119 --> 00:43:55,790
+presume okay uh let me write the answer
+down and then if we have time I'll try
+
+1734
+00:43:55,790 --> 00:43:55,800
+down and then if we have time I'll try
+ 
+
+1735
+00:43:55,800 --> 00:43:59,190
+down and then if we have time I'll try
+to explain why it's the
+
+1736
+00:43:59,190 --> 00:43:59,200
+to explain why it's the
+ 
+
+1737
+00:43:59,200 --> 00:44:01,670
+to explain why it's the
+answer the answer involves a bunch of
+
+1738
+00:44:01,670 --> 00:44:01,680
+answer the answer involves a bunch of
+ 
+
+1739
+00:44:01,680 --> 00:44:05,990
+answer the answer involves a bunch of
+factorials and is the primary reason why
+
+1740
+00:44:05,990 --> 00:44:06,000
+factorials and is the primary reason why
+ 
+
+1741
+00:44:06,000 --> 00:44:08,150
+factorials and is the primary reason why
+uh why I
+
+1742
+00:44:08,150 --> 00:44:08,160
+uh why I
+ 
+
+1743
+00:44:08,160 --> 00:44:11,309
+uh why I
+bothered giving you an approximation for
+
+1744
+00:44:11,309 --> 00:44:11,319
+bothered giving you an approximation for
+ 
+
+1745
+00:44:11,319 --> 00:44:13,470
+bothered giving you an approximation for
+the factorial function all right the
+
+1746
+00:44:13,470 --> 00:44:13,480
+the factorial function all right the
+ 
+
+1747
+00:44:13,480 --> 00:44:16,630
+the factorial function all right the
+answer is very simple it's simple but uh
+
+1748
+00:44:16,630 --> 00:44:16,640
+answer is very simple it's simple but uh
+ 
+
+1749
+00:44:16,640 --> 00:44:19,710
+answer is very simple it's simple but uh
+but subtle it's capital N
+
+1750
+00:44:19,710 --> 00:44:19,720
+but subtle it's capital N
+ 
+
+1751
+00:44:19,720 --> 00:44:22,870
+but subtle it's capital N
+factorial what should we call this thing
+
+1752
+00:44:22,870 --> 00:44:22,880
+factorial what should we call this thing
+ 
+
+1753
+00:44:22,880 --> 00:44:24,910
+factorial what should we call this thing
+um I think I just called it I don't
+
+1754
+00:44:24,910 --> 00:44:24,920
+um I think I just called it I don't
+ 
+
+1755
+00:44:24,920 --> 00:44:26,270
+um I think I just called it I don't
+remember did I give it a name in the
+
+1756
+00:44:26,270 --> 00:44:26,280
+remember did I give it a name in the
+ 
+
+1757
+00:44:26,280 --> 00:44:30,589
+remember did I give it a name in the
+notes the number of ways of Distributing
+
+1758
+00:44:30,589 --> 00:44:30,599
+notes the number of ways of Distributing
+ 
+
+1759
+00:44:30,599 --> 00:44:32,990
+notes the number of ways of Distributing
+a state to each
+
+1760
+00:44:32,990 --> 00:44:33,000
+a state to each
+ 
+
+1761
+00:44:33,000 --> 00:44:37,510
+a state to each
+box such that there are N1 boxes in
+
+1762
+00:44:37,510 --> 00:44:37,520
+box such that there are N1 boxes in
+ 
+
+1763
+00:44:37,520 --> 00:44:40,790
+box such that there are N1 boxes in
+state number one N2 boxes in state
+
+1764
+00:44:40,790 --> 00:44:40,800
+state number one N2 boxes in state
+ 
+
+1765
+00:44:40,800 --> 00:44:44,230
+state number one N2 boxes in state
+number two and so forth and so on uh
+
+1766
+00:44:44,230 --> 00:44:44,240
+number two and so forth and so on uh
+ 
+
+1767
+00:44:44,240 --> 00:44:45,630
+number two and so forth and so on uh
+I'll just call it
+
+1768
+00:44:45,630 --> 00:44:45,640
+I'll just call it
+ 
+
+1769
+00:44:45,640 --> 00:44:46,930
+I'll just call it
+number
+
+1770
+00:44:46,930 --> 00:44:46,940
+number
+ 
+
+1771
+00:44:46,940 --> 00:44:48,390
+number
+[Music]
+
+1772
+00:44:48,390 --> 00:44:48,400
+[Music]
+ 
+
+1773
+00:44:48,400 --> 00:44:50,910
+[Music]
+number it is
+
+1774
+00:44:50,910 --> 00:44:50,920
+number it is
+ 
+
+1775
+00:44:50,920 --> 00:44:54,470
+number it is
+equal the capital N
+
+1776
+00:44:54,470 --> 00:44:54,480
+equal the capital N
+ 
+
+1777
+00:44:54,480 --> 00:44:58,670
+equal the capital N
+factorial divided by a product and the
+
+1778
+00:44:58,670 --> 00:44:58,680
+factorial divided by a product and the
+ 
+
+1779
+00:44:58,680 --> 00:45:05,990
+factorial divided by a product and the
+product is N1 factorial N2 factorial n 3
+
+1780
+00:45:05,990 --> 00:45:06,000
+product is N1 factorial N2 factorial n 3
+ 
+
+1781
+00:45:06,000 --> 00:45:09,630
+product is N1 factorial N2 factorial n 3
+factorial dot dot
+
+1782
+00:45:09,630 --> 00:45:09,640
+factorial dot dot
+ 
+
+1783
+00:45:09,640 --> 00:45:13,829
+factorial dot dot
+dot what happens if some of the states
+
+1784
+00:45:13,829 --> 00:45:13,839
+dot what happens if some of the states
+ 
+
+1785
+00:45:13,839 --> 00:45:16,270
+dot what happens if some of the states
+are unoccupied altogether for example
+
+1786
+00:45:16,270 --> 00:45:16,280
+are unoccupied altogether for example
+ 
+
+1787
+00:45:16,280 --> 00:45:19,230
+are unoccupied altogether for example
+this state over here doesn't appear in
+
+1788
+00:45:19,230 --> 00:45:19,240
+this state over here doesn't appear in
+ 
+
+1789
+00:45:19,240 --> 00:45:22,030
+this state over here doesn't appear in
+any of these boxes let's call this the
+
+1790
+00:45:22,030 --> 00:45:22,040
+any of these boxes let's call this the
+ 
+
+1791
+00:45:22,040 --> 00:45:28,270
+any of these boxes let's call this the
+42nd State over here what is N Sub 48
+
+1792
+00:45:28,270 --> 00:45:28,280
+42nd State over here what is N Sub 48
+ 
+
+1793
+00:45:28,280 --> 00:45:31,190
+42nd State over here what is N Sub 48
+zero that looks a little odd a zero
+
+1794
+00:45:31,190 --> 00:45:31,200
+zero that looks a little odd a zero
+ 
+
+1795
+00:45:31,200 --> 00:45:33,670
+zero that looks a little odd a zero
+factorial downstairs but what's zero
+
+1796
+00:45:33,670 --> 00:45:33,680
+factorial downstairs but what's zero
+ 
+
+1797
+00:45:33,680 --> 00:45:36,670
+factorial downstairs but what's zero
+factorial one that's a definition of a
+
+1798
+00:45:36,670 --> 00:45:36,680
+factorial one that's a definition of a
+ 
+
+1799
+00:45:36,680 --> 00:45:37,829
+factorial one that's a definition of a
+factorial
+
+1800
+00:45:37,829 --> 00:45:37,839
+factorial
+ 
+
+1801
+00:45:37,839 --> 00:45:43,109
+factorial
+function uh so all of the unoccupied
+
+1802
+00:45:43,109 --> 00:45:43,119
+function uh so all of the unoccupied
+ 
+
+1803
+00:45:43,119 --> 00:45:46,829
+function uh so all of the unoccupied
+States just give a bunch of ones 1 * 1 *
+
+1804
+00:45:46,829 --> 00:45:46,839
+States just give a bunch of ones 1 * 1 *
+ 
+
+1805
+00:45:46,839 --> 00:45:49,309
+States just give a bunch of ones 1 * 1 *
+1 * 1 is just one so you only get
+
+1806
+00:45:49,309 --> 00:45:49,319
+1 * 1 is just one so you only get
+ 
+
+1807
+00:45:49,319 --> 00:45:51,750
+1 * 1 is just one so you only get
+something interesting from the states
+
+1808
+00:45:51,750 --> 00:45:51,760
+something interesting from the states
+ 
+
+1809
+00:45:51,760 --> 00:45:54,510
+something interesting from the states
+which are actually filled and if there
+
+1810
+00:45:54,510 --> 00:45:54,520
+which are actually filled and if there
+ 
+
+1811
+00:45:54,520 --> 00:45:56,670
+which are actually filled and if there
+if there are three boxes in the first
+
+1812
+00:45:56,670 --> 00:45:56,680
+if there are three boxes in the first
+ 
+
+1813
+00:45:56,680 --> 00:45:58,829
+if there are three boxes in the first
+state then there's a three factorial
+
+1814
+00:45:58,829 --> 00:45:58,839
+state then there's a three factorial
+ 
+
+1815
+00:45:58,839 --> 00:46:00,510
+state then there's a three factorial
+four boxes in the second state then
+
+1816
+00:46:00,510 --> 00:46:00,520
+four boxes in the second state then
+ 
+
+1817
+00:46:00,520 --> 00:46:03,190
+four boxes in the second state then
+there's a four factorial and so forth
+
+1818
+00:46:03,190 --> 00:46:03,200
+there's a four factorial and so forth
+ 
+
+1819
+00:46:03,200 --> 00:46:05,630
+there's a four factorial and so forth
+all right this is the answer to the
+
+1820
+00:46:05,630 --> 00:46:05,640
+all right this is the answer to the
+ 
+
+1821
+00:46:05,640 --> 00:46:08,710
+all right this is the answer to the
+question of how many ways there are of
+
+1822
+00:46:08,710 --> 00:46:08,720
+question of how many ways there are of
+ 
+
+1823
+00:46:08,720 --> 00:46:11,589
+question of how many ways there are of
+making a configuration where there's a
+
+1824
+00:46:11,589 --> 00:46:11,599
+making a configuration where there's a
+ 
+
+1825
+00:46:11,599 --> 00:46:14,430
+making a configuration where there's a
+given number of boxes in each state
+
+1826
+00:46:14,430 --> 00:46:14,440
+given number of boxes in each state
+ 
+
+1827
+00:46:14,440 --> 00:46:16,710
+given number of boxes in each state
+let's see if we can uh let's uh see if
+
+1828
+00:46:16,710 --> 00:46:16,720
+let's see if we can uh let's uh see if
+ 
+
+1829
+00:46:16,720 --> 00:46:24,549
+let's see if we can uh let's uh see if
+we can at least motivate the
+
+1830
+00:46:24,549 --> 00:46:24,559
+
+ 
+
+1831
+00:46:24,559 --> 00:46:26,630
+
+answer I wonder if we should just go in
+
+1832
+00:46:26,630 --> 00:46:26,640
+answer I wonder if we should just go in
+ 
+
+1833
+00:46:26,640 --> 00:46:29,430
+answer I wonder if we should just go in
+there and get some seats yeah yeah I
+
+1834
+00:46:29,430 --> 00:46:29,440
+there and get some seats yeah yeah I
+ 
+
+1835
+00:46:29,440 --> 00:46:32,150
+there and get some seats yeah yeah I
+think that's the thing to do
+
+1836
+00:46:32,150 --> 00:46:32,160
+think that's the thing to do
+ 
+
+1837
+00:46:32,160 --> 00:46:34,670
+think that's the thing to do
+um if we come in a little early next
+
+1838
+00:46:34,670 --> 00:46:34,680
+um if we come in a little early next
+ 
+
+1839
+00:46:34,680 --> 00:46:36,510
+um if we come in a little early next
+time I'll finish up the derivation of
+
+1840
+00:46:36,510 --> 00:46:36,520
+time I'll finish up the derivation of
+ 
+
+1841
+00:46:36,520 --> 00:46:38,270
+time I'll finish up the derivation of
+this 10 minutes
+
+1842
+00:46:38,270 --> 00:46:38,280
+this 10 minutes
+ 
+
+1843
+00:46:38,280 --> 00:46:41,470
+this 10 minutes
+early uh but you can also look it up
+
+1844
+00:46:41,470 --> 00:46:41,480
+early uh but you can also look it up
+ 
+
+1845
+00:46:41,480 --> 00:46:43,030
+early uh but you can also look it up
+again
+
+1846
+00:46:43,030 --> 00:46:43,040
+again
+ 
+
+1847
+00:46:43,040 --> 00:46:45,790
+again
+Wikipedia for more please visit us at
+
+1848
+00:46:45,790 --> 00:46:45,800
+Wikipedia for more please visit us at
+ 
+
+1849
+00:46:45,800 --> 00:46:48,800
+Wikipedia for more please visit us at
+stanford.edu
+
