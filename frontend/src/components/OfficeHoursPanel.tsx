@@ -4,6 +4,7 @@ import {
   Box,
   Button,
   Checkbox,
+  Chip,
   CircularProgress,
   FormControl,
   FormControlLabel,
@@ -49,6 +50,18 @@ type OfficeHoursPanelProps = {
   theme: Theme;
 };
 
+const OH_SESSION_STORAGE_KEY = 'office_hours_session_key';
+
+function getOrCreateOfficeHoursSessionId(): string {
+  if (typeof sessionStorage === 'undefined') return '';
+  let id = sessionStorage.getItem(OH_SESSION_STORAGE_KEY);
+  if (!id) {
+    id = crypto.randomUUID();
+    sessionStorage.setItem(OH_SESSION_STORAGE_KEY, id);
+  }
+  return id;
+}
+
 function getSpeechRecognitionCtor(): (new () => LegacySpeechRecognition) | null {
   const w = window as unknown as {
     SpeechRecognition?: new () => LegacySpeechRecognition;
@@ -62,6 +75,8 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
   const [videosLoading, setVideosLoading] = useState(true);
   const [lectureKey, setLectureKey] = useState<string>('__all__');
   const [includeBooks, setIncludeBooks] = useState(true);
+  const [sessionKey, setSessionKey] = useState<string>(() => getOrCreateOfficeHoursSessionId());
+  const [sessionHistoryReady, setSessionHistoryReady] = useState(false);
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
@@ -89,6 +104,36 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
       cancelled = true;
     };
   }, []);
+
+  useEffect(() => {
+    if (!sessionKey) {
+      setSessionHistoryReady(true);
+      return;
+    }
+    let cancelled = false;
+    fetch(`/api/office-hours/session/${encodeURIComponent(sessionKey)}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data: { turns?: { role: string; content: string }[] } | null) => {
+        if (cancelled) return;
+        if (data === null) return;
+        if (!data.turns?.length) {
+          setTurns([]);
+          return;
+        }
+        setTurns(
+          data.turns.map((t) => ({
+            role: t.role === 'assistant' ? 'assistant' : 'user',
+            content: t.content,
+          })),
+        );
+      })
+      .finally(() => {
+        if (!cancelled) setSessionHistoryReady(true);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [sessionKey]);
 
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -157,6 +202,24 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
     }
   }, [listening, loading]);
 
+  const startNewSession = useCallback(async () => {
+    stopProfessorSpeech();
+    const old = sessionKey;
+    if (old) {
+      try {
+        await fetch(`/api/office-hours/session/${encodeURIComponent(old)}`, { method: 'DELETE' });
+      } catch {
+        /* ignore network errors */
+      }
+    }
+    const sk = crypto.randomUUID();
+    sessionStorage.setItem(OH_SESSION_STORAGE_KEY, sk);
+    setSessionKey(sk);
+    setTurns([]);
+    setDraft('');
+    setError(null);
+  }, [sessionKey]);
+
   const sendMessage = async () => {
     const text = draft.trim();
     if (!text || loading) return;
@@ -174,6 +237,7 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: payloadMessages,
+          session_key: sessionKey || undefined,
           video_id,
           video_ids,
           include_books: includeBooks,
@@ -225,8 +289,19 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Pick a lecture scope, ask questions by voice or text, and get grounded explanations that can cite
-        transcript timestamps and textbook pages.
+        transcript timestamps and textbook pages. Conversation for this browser tab is saved on the server so the
+        professor can recall themes and follow-ups after you refresh.
       </Typography>
+
+      {sessionKey ? (
+        <Chip
+          size="small"
+          label={sessionHistoryReady ? 'Session memory on (Postgres)' : 'Loading session…'}
+          color="primary"
+          variant="outlined"
+          sx={{ mb: 2 }}
+        />
+      ) : null}
 
       <Paper elevation={0} sx={{ ...paperSx, mb: 2 }}>
         <FormControl fullWidth size="small" sx={{ mb: 2 }} disabled={videosLoading}>
@@ -351,14 +426,10 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
         <Button
           variant="text"
           color="inherit"
-          onClick={() => {
-            setTurns([]);
-            setError(null);
-            stopProfessorSpeech();
-          }}
-          disabled={loading || turns.length === 0}
+          onClick={() => void startNewSession()}
+          disabled={loading}
         >
-          Clear chat
+          New session
         </Button>
       </Box>
 

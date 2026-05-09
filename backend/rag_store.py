@@ -160,6 +160,68 @@ def init_schema(conn: psycopg.Connection, embedding_dim: int) -> None:
             ON prompt_traces (kind)
             """
         )
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS office_hours_turns (
+                id BIGSERIAL PRIMARY KEY,
+                session_key TEXT NOT NULL,
+                role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+                content TEXT NOT NULL,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+            )
+            """
+        )
+        cur.execute(
+            """
+            CREATE INDEX IF NOT EXISTS office_hours_turns_session_idx
+            ON office_hours_turns (session_key, id)
+            """
+        )
+
+
+def append_office_hours_turn(conn: psycopg.Connection, session_key: str, role: str, content: str) -> None:
+    sk = session_key.strip()
+    if not sk or role not in ("user", "assistant"):
+        return
+    body = (content or "").strip()
+    if not body:
+        return
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO office_hours_turns (session_key, role, content)
+            VALUES (%s, %s, %s)
+            """,
+            (sk, role, body),
+        )
+
+
+def list_office_hours_turns(conn: psycopg.Connection, session_key: str, *, limit: int = 500) -> list[dict[str, Any]]:
+    lim = max(1, min(int(limit), 500))
+    sk = session_key.strip()
+    if not sk:
+        return []
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT role, content, created_at
+            FROM office_hours_turns
+            WHERE session_key = %s
+            ORDER BY id ASC
+            LIMIT %s
+            """,
+            (sk, lim),
+        )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def delete_office_hours_session(conn: psycopg.Connection, session_key: str) -> int:
+    sk = session_key.strip()
+    if not sk:
+        return 0
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM office_hours_turns WHERE session_key = %s", (sk,))
+        return cur.rowcount
 
 
 def upsert_video_title(conn: psycopg.Connection, video_id: str, title: str) -> None:

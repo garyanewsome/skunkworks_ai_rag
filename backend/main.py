@@ -1,25 +1,28 @@
 import os
-import uuid
 from difflib import SequenceMatcher
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Literal
+from uuid import UUID
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 from embeddings import encode_texts, embedding_dim
 from rag_store import (
     PROMPT_TRACE_KINDS,
+    append_office_hours_turn,
+    delete_office_hours_session,
     get_connection,
     get_prompt_trace,
     init_schema,
     insert_prompt_trace,
     list_books,
+    list_office_hours_turns,
     list_prompt_traces,
     list_prompt_traces_for_similarity_match,
     list_videos,
@@ -230,6 +233,56 @@ def _save_prompt_trace(
         pass
 
 
+def _office_hours_normalize_dialogue_text(s: str) -> str:
+    return "\n".join(
+        line.strip() for line in s.replace("\r\n", "\n").split("\n") if line.strip()
+    )
+
+
+def _office_hours_lines_from_message_pairs(pairs: list[tuple[str, str]]) -> str:
+    lines: list[str] = []
+    for role, content in pairs:
+        label = "Student" if role == "user" else "Professor"
+        lines.append(f"{label}: {content.strip()}")
+    return "\n".join(lines)
+
+
+def _office_hours_prior_from_messages(msgs: list[dict[str, str]]) -> str:
+    if len(msgs) < 2:
+        return ""
+    pairs = [(m["role"], m["content"]) for m in msgs[:-1]]
+    return _office_hours_lines_from_message_pairs(pairs)
+
+
+def _office_hours_build_recap(db_turns: list[dict[str, Any]], *, max_chars: int = 7000) -> str:
+    pairs: list[tuple[str, str]] = []
+    for t in db_turns:
+        role = str(t.get("role") or "")
+        if role not in ("user", "assistant"):
+            continue
+        pairs.append((role, str(t.get("content") or "")))
+    text = _office_hours_lines_from_message_pairs(pairs)
+    if len(text) <= max_chars:
+        return text
+    head = 2400
+    tail = max_chars - head - 40
+    tail = max(tail, 800)
+    return text[:head] + "\n…\n" + text[-tail:]
+
+
+def _office_hours_recap_if_needed(
+    db_turns: list[dict[str, Any]],
+    msgs: list[dict[str, str]],
+) -> str | None:
+    if not db_turns:
+        return None
+    recap = _office_hours_build_recap(db_turns)
+    prior = _office_hours_prior_from_messages(msgs)
+    if _office_hours_normalize_dialogue_text(recap) == _office_hours_normalize_dialogue_text(prior):
+        return None
+    return recap
+
+
 class RagAnswerBody(BaseModel):
     query: str = Field(..., min_length=1)
     video_id: str | None = Field(
@@ -271,6 +324,10 @@ class OfficeHoursMessage(BaseModel):
 
 class OfficeHoursBody(BaseModel):
     messages: list[OfficeHoursMessage] = Field(..., min_length=1, max_length=48)
+    session_key: str | None = Field(
+        default=None,
+        description="UUID v4 client session; prior turns are loaded for continuity when out of sync.",
+    )
     video_id: str | None = Field(
         default=None,
         description="Single lecture YouTube id; omit with video_ids or for all lectures.",
@@ -286,9 +343,33 @@ class OfficeHoursBody(BaseModel):
     lecture_top_k: int = Field(10, ge=1, le=40)
     book_top_k: int = Field(8, ge=0, le=24)
 
+    @field_validator("session_key")
+    @classmethod
+    def validate_session_key(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        s = v.strip()
+        if not s:
+            return None
+        try:
+            UUID(s)
+        except ValueError as e:
+            raise ValueError("session_key must be a valid UUID") from e
+        return s
+
 
 class OfficeHoursResponse(BaseModel):
     reply: str
+
+
+class OfficeHoursTurnOut(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str
+    created_at: datetime | None = None
+
+
+class OfficeHoursSessionResponse(BaseModel):
+    turns: list[OfficeHoursTurnOut]
 
 
 class RagAnswerResponse(BaseModel):
@@ -355,7 +436,7 @@ def _parse_optional_book_id(raw: str | None) -> str | None:
     if not s:
         return None
     try:
-        uuid.UUID(s)
+        UUID(s)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=f"Invalid book_id (expected UUID): {s}") from e
     return s
@@ -950,6 +1031,37 @@ async def rag_query(body: RagQuery):
         raise
 
 
+@app.get("/api/office-hours/session/{session_key}", response_model=OfficeHoursSessionResponse)
+def get_office_hours_session(session_key: str):
+    try:
+        UUID(session_key.strip())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="session_key must be a valid UUID") from None
+    with get_connection() as conn:
+        rows = list_office_hours_turns(conn, session_key.strip())
+    turns = [
+        OfficeHoursTurnOut(
+            role=str(r["role"]),
+            content=str(r["content"]),
+            created_at=r.get("created_at"),
+        )
+        for r in rows
+        if str(r.get("role") or "") in ("user", "assistant")
+    ]
+    return OfficeHoursSessionResponse(turns=turns)
+
+
+@app.delete("/api/office-hours/session/{session_key}")
+def delete_office_hours_session_route(session_key: str):
+    try:
+        UUID(session_key.strip())
+    except ValueError:
+        raise HTTPException(status_code=400, detail="session_key must be a valid UUID") from None
+    with get_connection() as conn:
+        deleted = delete_office_hours_session(conn, session_key.strip())
+    return {"deleted_turns": deleted}
+
+
 @app.post("/api/office-hours/chat", response_model=OfficeHoursResponse)
 def office_hours_chat(body: OfficeHoursBody):
     """Multi-turn professor persona with lecture (+ optional book) RAG per student message."""
@@ -981,6 +1093,13 @@ def office_hours_chat(body: OfficeHoursBody):
         model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
         from office_hours_agent import run_office_hours_turn
 
+        session_recap: str | None = None
+        sk: str | None = body.session_key
+        if sk:
+            with get_connection() as conn:
+                db_turns = list_office_hours_turns(conn, sk)
+            session_recap = _office_hours_recap_if_needed(db_turns, msgs)
+
         reply = run_office_hours_turn(
             msgs,
             video_id=vid,
@@ -990,9 +1109,14 @@ def office_hours_chat(body: OfficeHoursBody):
             book_top_k=body.book_top_k,
             model=model,
             max_tokens=4096,
+            session_recap=session_recap,
         )
         resp = OfficeHoursResponse(reply=reply)
         _save_prompt_trace("office_hours", req, resp.model_dump(mode="json"), None)
+        if sk:
+            with get_connection() as conn:
+                append_office_hours_turn(conn, sk, "user", msgs[-1]["content"])
+                append_office_hours_turn(conn, sk, "assistant", reply)
         return resp
     except ValueError as e:
         _save_prompt_trace("office_hours", req, None, str(e))
