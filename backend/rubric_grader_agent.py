@@ -230,16 +230,15 @@ def run_rubric_grader(
     ).strip()
 
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-    msg = client.messages.create(
+    with client.messages.stream(
         model=model,
         max_tokens=max_tokens,
         system=system,
         messages=[{"role": "user", "content": user_content}],
-    )
-    text_parts: list[str] = []
-    for block in msg.content:
-        if block.type == "text":
-            text_parts.append(block.text)
+    ) as stream:
+        text_parts: list[str] = []
+        for text in stream.text_stream:
+            text_parts.append(text)
     raw = "".join(text_parts).strip()
     if not raw:
         raise RuntimeError("Empty model response.")

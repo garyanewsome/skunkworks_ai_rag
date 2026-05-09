@@ -27,6 +27,9 @@ export type SceneShape = {
   scale?: number | null;
   points?: string | null;
   path_d?: string | null;
+  /** Raster reference (Wikimedia HTTPS only). */
+  src?: string | null;
+  href?: string | null;
   /** Some payloads use SVG-style `d` instead of `path_d`. */
   d?: string | null;
 };
@@ -47,6 +50,26 @@ function sanitizePathD(d: string | null | undefined): string | null {
   if (d == null || typeof d !== 'string') return null;
   const s = d.trim().slice(0, 1800);
   return PATH_D_RE.test(s) ? s : null;
+}
+
+const ALLOWED_IMAGE_HOSTS = new Set(['upload.wikimedia.org', 'commons.wikimedia.org']);
+
+function sanitizeImageSrc(raw: string | null | undefined): string | null {
+  if (raw == null || typeof raw !== 'string') return null;
+  let s = raw.trim().slice(0, 800);
+  if (!s.startsWith('https://')) return null;
+  try {
+    const u = new URL(s);
+    if (u.protocol !== 'https:') return null;
+    if (!ALLOWED_IMAGE_HOSTS.has(u.hostname.toLowerCase())) return null;
+    for (const k of [...u.searchParams.keys()]) {
+      if (k.toLowerCase().startsWith('utm_')) u.searchParams.delete(k);
+    }
+    const out = u.toString();
+    return out.length > 800 ? out.slice(0, 800) : out;
+  } catch {
+    return null;
+  }
 }
 
 function parsePolygonPoints(s: string | null | undefined): [number, number][] | null {
@@ -216,6 +239,36 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
               <rect x={x} y={y} width={w} height={h} fill={fill} stroke={stroke} strokeWidth={sw} rx={4} />
               {raw.label ? (
                 <text x={cx} y={cy + 5} textAnchor="middle" fill={theme.palette.text.primary} fontSize={13} fontWeight={600}>
+                  {raw.label}
+                </text>
+              ) : null}
+            </g>
+          );
+        }
+
+        if (t === 'image') {
+          const src = sanitizeImageSrc(raw.src ?? raw.href);
+          if (!src) return null;
+          const x = num(raw.x, 0);
+          const y = num(raw.y, 0);
+          const w = num(raw.w, 400);
+          const h = num(raw.h, 300);
+          const rot = num(raw.rotation, 0);
+          const mx = x + w / 2;
+          const tf = rot !== 0 ? `rotate(${rot}, ${mx}, ${y + h / 2})` : undefined;
+          return (
+            <g key={raw.id} transform={tf}>
+              <image href={src} x={x} y={y} width={w} height={h} preserveAspectRatio="xMidYMid meet" />
+              {raw.label ? (
+                <text
+                  x={mx}
+                  y={y + h + 18}
+                  textAnchor="middle"
+                  fill={theme.palette.text.primary}
+                  fontSize={12}
+                  fontWeight={600}
+                  style={{ textShadow: '0 0 6px rgba(0,0,0,0.75)' }}
+                >
                   {raw.label}
                 </text>
               ) : null}

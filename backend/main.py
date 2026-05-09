@@ -1,4 +1,5 @@
 import os
+import uuid
 from contextlib import asynccontextmanager
 from pathlib import Path
 
@@ -11,8 +12,10 @@ from embeddings import encode_texts, embedding_dim
 from rag_store import (
     get_connection,
     init_schema,
+    list_books,
     list_videos,
     search_similar,
+    search_similar_books,
     search_similar_global,
     search_similar_multi,
     widen_retrieval_query_for_multi_video,
@@ -209,6 +212,104 @@ class RagAnswerResponse(BaseModel):
     used_llm: bool
 
 
+class BookItem(BaseModel):
+    id: str
+    slug: str
+    title: str
+    page_count: int | None = None
+    chunk_count: int = 0
+
+
+class BooksListResponse(BaseModel):
+    books: list[BookItem]
+
+
+class BookHit(BaseModel):
+    book_id: str
+    slug: str
+    book_title: str
+    chunk_index: int
+    content: str
+    start_page: int
+    end_page: int
+    distance: float
+    similarity: float
+
+
+class BookAnswerBody(BaseModel):
+    query: str = Field(..., min_length=1)
+    book_id: str | None = Field(
+        default=None,
+        description="UUID of one ingested book; omit to search all books.",
+    )
+    top_k: int = Field(10, ge=1, le=50)
+
+
+class BookAnswerResponse(BaseModel):
+    summary: str
+    filter_book_id: str | None = Field(
+        default=None,
+        description="Echo when search was scoped to one book.",
+    )
+    hits: list[BookHit]
+    used_llm: bool
+
+
+def _parse_optional_book_id(raw: str | None) -> str | None:
+    if raw is None:
+        return None
+    s = raw.strip()
+    if not s:
+        return None
+    try:
+        uuid.UUID(s)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=f"Invalid book_id (expected UUID): {s}") from e
+    return s
+
+
+def _rows_to_book_hits(raw: list[dict]) -> list[BookHit]:
+    out: list[BookHit] = []
+    for row in raw:
+        d = float(row["distance"])
+        out.append(
+            BookHit(
+                book_id=str(row["book_id"]),
+                slug=str(row["slug"]),
+                book_title=str(row["book_title"]),
+                chunk_index=int(row["chunk_index"]),
+                content=row["content"],
+                start_page=int(row["start_page"]),
+                end_page=int(row["end_page"]),
+                distance=d,
+                similarity=float(1.0 - d),
+            )
+        )
+    return out
+
+
+def _fallback_book_summary(raw: list[dict]) -> str:
+    if not raw:
+        return (
+            "No matching book chunks found. "
+            "Ingest PDFs with: python ingest_book_pdf.py path/to/book.pdf"
+        )
+    lines = [
+        "AI summary needs ANTHROPIC_API_KEY. Closest PDF excerpts:",
+    ]
+    for i, row in enumerate(raw[:5]):
+        d = float(row["distance"])
+        sim = 1.0 - d
+        title = str(row.get("book_title") or row.get("slug"))
+        sp, ep = int(row["start_page"]), int(row["end_page"])
+        pages = f"p. {sp}" if sp == ep else f"pp. {sp}–{ep}"
+        body = str(row["content"]).strip()
+        if len(body) > 500:
+            body = body[:500] + "…"
+        lines.append(f"\n--- Match {i + 1} · {title} · {pages} (similarity {sim:.2f}) ---\n{body}")
+    return "\n".join(lines)
+
+
 def _normalize_video_ids(raw: list[str] | None) -> list[str] | None:
     if not raw:
         return None
@@ -293,6 +394,76 @@ def rag_answer(body: RagAnswerBody):
     )
 
 
+@app.get("/api/books", response_model=BooksListResponse)
+def get_books():
+    """List ingested PDF books (see ingest_book_pdf.py)."""
+    with get_connection() as conn:
+        rows = list_books(conn)
+    books = [
+        BookItem(
+            id=str(r["id"]),
+            slug=str(r["slug"]),
+            title=str(r["title"]),
+            page_count=r.get("page_count"),
+            chunk_count=int(r.get("chunk_count") or 0),
+        )
+        for r in rows
+    ]
+    return BooksListResponse(books=books)
+
+
+@app.post("/api/books/answer", response_model=BookAnswerResponse)
+def books_answer(body: BookAnswerBody):
+    """Retrieve PDF-derived book chunks (page-aware) and answer with Claude if configured."""
+    q = body.query.strip()
+    if not q:
+        raise HTTPException(status_code=400, detail="query is empty")
+
+    bid = _parse_optional_book_id(body.book_id)
+    qvec = encode_texts([q])[0]
+    with get_connection() as conn:
+        raw = search_similar_books(conn, bid, qvec, top_k=body.top_k)
+
+    if not raw:
+        raise HTTPException(
+            status_code=404,
+            detail=(
+                f"No book chunks for book_id={bid!r}. Run ingest_book_pdf.py first."
+                if bid
+                else "No book chunks in the database. Run ingest_book_pdf.py on your PDFs first."
+            ),
+        )
+
+    used_llm = bool(os.environ.get("ANTHROPIC_API_KEY"))
+    if used_llm:
+        try:
+            from book_rag_agent import run_book_rag_agent
+
+            model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+            summary, hits_raw = run_book_rag_agent(
+                q,
+                book_id=bid,
+                top_k=body.top_k,
+                model=model,
+                max_tokens=4096,
+            )
+        except Exception as e:
+            raise HTTPException(
+                status_code=502,
+                detail=f"LLM answer failed: {e!s}",
+            ) from e
+    else:
+        summary = _fallback_book_summary(raw)
+        hits_raw = raw
+
+    return BookAnswerResponse(
+        summary=summary,
+        filter_book_id=bid,
+        hits=_rows_to_book_hits(hits_raw),
+        used_llm=used_llm,
+    )
+
+
 class VisualizeSceneRequest(BaseModel):
     prompt: str = Field(..., min_length=1, max_length=8000)
     domain_hint: str | None = Field(
@@ -308,7 +479,10 @@ class VisualizeSceneRequest(BaseModel):
 
 @app.post("/api/visualize/scene")
 def visualize_scene(body: VisualizeSceneRequest):
-    """Generate interactive canvas scene (nodes + bonds) from a natural-language prompt."""
+    """Generate interactive canvas scene (nodes + bonds) from a natural-language prompt.
+
+    Model resolution: ``ANTHROPIC_MODEL_VISUALIZE`` if set, else ``ANTHROPIC_MODEL``, else ``claude-sonnet-4-6``.
+    """
     if not os.environ.get("ANTHROPIC_API_KEY"):
         raise HTTPException(
             status_code=503,
@@ -317,8 +491,11 @@ def visualize_scene(body: VisualizeSceneRequest):
     try:
         from visualize_agent import AnimatedVisualizeScene, run_visualize_scene
 
-        model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
-        max_tok = 8192 if body.animation else 4096
+        model = os.environ.get(
+            "ANTHROPIC_MODEL_VISUALIZE",
+            os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6"),
+        )
+        max_tok = 8192 * 10
         scene = run_visualize_scene(
             prompt=body.prompt,
             domain_hint=body.domain_hint,

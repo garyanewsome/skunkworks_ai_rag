@@ -23,10 +23,12 @@ import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import FactCheckIcon from '@mui/icons-material/FactCheck';
 import BiotechIcon from '@mui/icons-material/Biotech';
+import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
 import { LectureRagPanel } from './components/LectureRagPanel';
 import { GraderPanel } from './components/GraderPanel';
 import { VisualizePanel } from './components/VisualizePanel';
+import { SourceOfTruthPanel } from './components/SourceOfTruthPanel';
 
 const drawerWidth = 260;
 
@@ -81,7 +83,7 @@ const theme = createTheme({
   },
 });
 
-type AppView = 'prompt' | 'grader' | 'visualize';
+type AppView = 'prompt' | 'grader' | 'visualize' | 'source';
 
 function App() {
   const [backendOk, setBackendOk] = useState<boolean | null>(null);
@@ -159,12 +161,25 @@ function App() {
             setView('visualize');
             setMobileNavOpen(false);
           }}
-          sx={{ borderRadius: 2 }}
+          sx={{ borderRadius: 2, mb: 0.5 }}
         >
           <ListItemIcon sx={{ minWidth: 40 }}>
             <BiotechIcon color={view === 'visualize' ? 'primary' : 'inherit'} />
           </ListItemIcon>
           <ListItemText primary="Visualize" secondary="Interactive canvas" />
+        </ListItemButton>
+        <ListItemButton
+          selected={view === 'source'}
+          onClick={() => {
+            setView('source');
+            setMobileNavOpen(false);
+          }}
+          sx={{ borderRadius: 2 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <MenuBookIcon color={view === 'source' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="Source of truth" secondary="PDF books & pages" />
         </ListItemButton>
       </List>
     </Box>
@@ -328,7 +343,9 @@ function App() {
                         ? 'Ask ingested lecture transcripts; browse matching clips.'
                         : view === 'grader'
                           ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
-                          : 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'}
+                          : view === 'visualize'
+                            ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
+                            : 'Search OCR-backed PDF chunks with page citations.'}
                     </Typography>
                   </Box>
                 </Box>
@@ -351,17 +368,25 @@ function App() {
                   ? 'Ask ingested lecture transcripts; browse matching clips.'
                   : view === 'grader'
                     ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
-                    : 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'}
+                    : view === 'visualize'
+                      ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
+                      : 'Search OCR-backed PDF chunks with page citations.'}
               </Typography>
             )}
 
-            {view === 'prompt' ? (
+            {/* Keep all panels mounted so local state (queries, canvas, uploads) survives sidebar switches */}
+            <Box sx={{ display: view === 'prompt' ? 'block' : 'none' }} aria-hidden={view !== 'prompt'}>
               <LectureRagPanel theme={theme} />
-            ) : view === 'grader' ? (
+            </Box>
+            <Box sx={{ display: view === 'grader' ? 'block' : 'none' }} aria-hidden={view !== 'grader'}>
               <GraderPanel theme={theme} />
-            ) : (
+            </Box>
+            <Box sx={{ display: view === 'visualize' ? 'block' : 'none' }} aria-hidden={view !== 'visualize'}>
               <VisualizePanel theme={theme} />
-            )}
+            </Box>
+            <Box sx={{ display: view === 'source' ? 'block' : 'none' }} aria-hidden={view !== 'source'}>
+              <SourceOfTruthPanel theme={theme} />
+            </Box>
           </Container>
         </Box>
       </Box>

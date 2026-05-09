@@ -100,6 +100,40 @@ def init_schema(conn: psycopg.Connection, embedding_dim: int) -> None:
             )
             """
         )
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS book_documents (
+                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+                slug TEXT NOT NULL UNIQUE,
+                title TEXT NOT NULL,
+                source_path TEXT NOT NULL,
+                page_count INT,
+                created_at TIMESTAMPTZ DEFAULT now(),
+                updated_at TIMESTAMPTZ DEFAULT now()
+            )
+            """
+        )
+        cur.execute(
+            f"""
+            CREATE TABLE IF NOT EXISTS book_chunks (
+                id BIGSERIAL PRIMARY KEY,
+                book_id UUID NOT NULL REFERENCES book_documents(id) ON DELETE CASCADE,
+                chunk_index INT NOT NULL,
+                content TEXT NOT NULL,
+                start_page INT NOT NULL,
+                end_page INT NOT NULL,
+                embedding vector({embedding_dim}) NOT NULL,
+                created_at TIMESTAMPTZ DEFAULT now(),
+                CONSTRAINT uq_book_chunk UNIQUE (book_id, chunk_index)
+            )
+            """
+        )
+        cur.execute(
+            """
+            CREATE INDEX IF NOT EXISTS book_chunks_embedding_hnsw
+            ON book_chunks USING hnsw (embedding vector_cosine_ops)
+            """
+        )
 
 
 def upsert_video_title(conn: psycopg.Connection, video_id: str, title: str) -> None:
@@ -314,4 +348,140 @@ def list_videos(conn: psycopg.Connection) -> list[dict[str, Any]]:
             ORDER BY vc.video_id
             """
         )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def upsert_book_document(
+    conn: psycopg.Connection,
+    *,
+    slug: str,
+    title: str,
+    source_path: str,
+    page_count: int,
+) -> str:
+    """Insert or update book metadata by slug. Returns book id as string."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO book_documents (slug, title, source_path, page_count, updated_at)
+            VALUES (%s, %s, %s, %s, now())
+            ON CONFLICT (slug) DO UPDATE SET
+                title = EXCLUDED.title,
+                source_path = EXCLUDED.source_path,
+                page_count = EXCLUDED.page_count,
+                updated_at = now()
+            RETURNING id::text
+            """,
+            (slug, title, source_path, page_count),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise RuntimeError("upsert_book_document: no row returned")
+        return str(row[0])
+
+
+def delete_book_chunks(conn: psycopg.Connection, book_id: str) -> None:
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM book_chunks WHERE book_id = %s::uuid", (book_id,))
+
+
+def insert_book_chunks(
+    conn: psycopg.Connection,
+    book_id: str,
+    rows: Sequence[dict[str, Any]],
+    embeddings: np.ndarray,
+) -> int:
+    assert len(rows) == len(embeddings)
+    with conn.cursor() as cur:
+        for i, (row, vec) in enumerate(zip(rows, embeddings)):
+            cur.execute(
+                """
+                INSERT INTO book_chunks
+                    (book_id, chunk_index, content, start_page, end_page, embedding)
+                VALUES (%s::uuid, %s, %s, %s, %s, %s)
+                ON CONFLICT (book_id, chunk_index) DO UPDATE SET
+                    content = EXCLUDED.content,
+                    start_page = EXCLUDED.start_page,
+                    end_page = EXCLUDED.end_page,
+                    embedding = EXCLUDED.embedding,
+                    created_at = now()
+                """,
+                (
+                    book_id,
+                    i,
+                    row["content"],
+                    int(row["start_page"]),
+                    int(row["end_page"]),
+                    vec,
+                ),
+            )
+    return len(rows)
+
+
+def list_books(conn: psycopg.Connection) -> list[dict[str, Any]]:
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT
+                bd.id::text AS id,
+                bd.slug,
+                bd.title,
+                bd.page_count,
+                COUNT(bc.id)::bigint AS chunk_count
+            FROM book_documents bd
+            LEFT JOIN book_chunks bc ON bc.book_id = bd.id
+            GROUP BY bd.id, bd.slug, bd.title, bd.page_count
+            ORDER BY bd.title
+            """
+        )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def search_similar_books(
+    conn: psycopg.Connection,
+    book_id: str | None,
+    query_embedding: np.ndarray,
+    top_k: int = 8,
+) -> list[dict[str, Any]]:
+    q = np.asarray(query_embedding, dtype=np.float32).reshape(-1)
+    with conn.cursor(row_factory=dict_row) as cur:
+        if book_id:
+            cur.execute(
+                """
+                SELECT
+                    bd.id::text AS book_id,
+                    bd.slug,
+                    bd.title AS book_title,
+                    bc.chunk_index,
+                    bc.content,
+                    bc.start_page,
+                    bc.end_page,
+                    (bc.embedding <=> %s::vector) AS distance
+                FROM book_chunks bc
+                JOIN book_documents bd ON bd.id = bc.book_id
+                WHERE bc.book_id = %s::uuid
+                ORDER BY bc.embedding <=> %s::vector
+                LIMIT %s
+                """,
+                (q, book_id, q, top_k),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT
+                    bd.id::text AS book_id,
+                    bd.slug,
+                    bd.title AS book_title,
+                    bc.chunk_index,
+                    bc.content,
+                    bc.start_page,
+                    bc.end_page,
+                    (bc.embedding <=> %s::vector) AS distance
+                FROM book_chunks bc
+                JOIN book_documents bd ON bd.id = bc.book_id
+                ORDER BY bc.embedding <=> %s::vector
+                LIMIT %s
+                """,
+                (q, q, top_k),
+            )
         return [dict(r) for r in cur.fetchall()]
