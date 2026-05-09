@@ -12,6 +12,7 @@ import {
   FormHelperText,
   FormLabel,
   IconButton,
+  LinearProgress,
   MenuItem,
   Paper,
   Radio,
@@ -533,10 +534,35 @@ export function LectureRagPanel({ theme }: LectureRagPanelProps) {
         onClick={ask}
         disabled={askDisabled}
         fullWidth
-        sx={{ py: 1.5, mb: 3 }}
+        sx={{ py: 1.5, mb: loading ? 1 : 3 }}
       >
         {loading ? <CircularProgress size={26} color="inherit" /> : 'Ask'}
       </Button>
+
+      {loading && (
+        <Paper
+          elevation={0}
+          sx={{
+            overflow: 'hidden',
+            mb: 3,
+            bgcolor: alpha(theme.palette.primary.main, 0.08),
+            border: `1px solid ${alpha(theme.palette.primary.main, 0.22)}`,
+          }}
+        >
+          <LinearProgress color="primary" sx={{ height: 4 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, py: 2 }}>
+            <CircularProgress size={22} thickness={5} />
+            <Box>
+              <Typography variant="body2" fontWeight={600}>
+                Finding review lectures…
+              </Typography>
+              <Typography variant="caption" color="text.secondary">
+                Searching transcripts for the best-matching clips, then drafting an answer.
+              </Typography>
+            </Box>
+          </Box>
+        </Paper>
+      )}
 
       {error && (
         <Paper

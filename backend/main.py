@@ -174,6 +174,27 @@ class RagAnswerBody(BaseModel):
     top_k: int = Field(12, ge=1, le=50)
 
 
+class GraderRequest(BaseModel):
+    assignment_questions: str = Field(..., min_length=1)
+    student_submission: str = Field(..., min_length=1)
+    subject_context: str | None = Field(
+        default=None,
+        description="Optional course name, discipline, or level (e.g. 'Junior Thermodynamics').",
+    )
+    rubric_or_instructions: str | None = Field(
+        default=None,
+        description="Optional rubric, point breakdown, or grading notes from the instructor.",
+    )
+
+
+class GraderResponse(BaseModel):
+    numeric_score: float
+    letter_grade: str
+    summary_line: str
+    detailed_feedback: str
+    used_llm: bool
+
+
 class RagAnswerResponse(BaseModel):
     summary: str
     filter_video_id: str | None = Field(
@@ -269,6 +290,108 @@ def rag_answer(body: RagAnswerBody):
         filter_video_ids=ids,
         hits=_rows_to_hits(hits_raw),
         used_llm=used_llm,
+    )
+
+
+class VisualizeSceneRequest(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=8000)
+    domain_hint: str | None = Field(
+        default=None,
+        max_length=500,
+        description="Optional subject e.g. organic chemistry, mechanics.",
+    )
+    animation: bool = Field(
+        False,
+        description="If true, return multi-frame mechanism data for timeline playback.",
+    )
+
+
+@app.post("/api/visualize/scene")
+def visualize_scene(body: VisualizeSceneRequest):
+    """Generate interactive canvas scene (nodes + bonds) from a natural-language prompt."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="Visualization requires ANTHROPIC_API_KEY.",
+        )
+    try:
+        from visualize_agent import AnimatedVisualizeScene, run_visualize_scene
+
+        model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+        max_tok = 8192 if body.animation else 4096
+        scene = run_visualize_scene(
+            prompt=body.prompt,
+            domain_hint=body.domain_hint,
+            model=model,
+            max_tokens=max_tok,
+            animation=body.animation,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Visualization failed: {e!s}") from e
+
+    if isinstance(scene, AnimatedVisualizeScene):
+        return {
+            "title": scene.title,
+            "caption": scene.caption,
+            "nodes": None,
+            "edges": None,
+            "frames": [
+                {
+                    "step_label": fr.step_label,
+                    "step_detail": fr.step_detail,
+                    "nodes": [n.model_dump() for n in fr.nodes],
+                    "edges": [e.model_dump() for e in fr.edges],
+                    "shapes": [s.model_dump() for s in fr.shapes],
+                }
+                for fr in scene.frames
+            ],
+            "used_llm": True,
+        }
+
+    return {
+        "title": scene.title,
+        "caption": scene.caption,
+        "nodes": [n.model_dump() for n in scene.nodes],
+        "edges": [e.model_dump() for e in scene.edges],
+        "shapes": [s.model_dump() for s in scene.shapes],
+        "frames": None,
+        "used_llm": True,
+    }
+
+
+@app.post("/api/grader/grade", response_model=GraderResponse)
+def grade_homework(body: GraderRequest):
+    """Grade homework using Claude with a generic university rubric (A–F / 0–100)."""
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="Grading requires ANTHROPIC_API_KEY (same as lecture answers).",
+        )
+    try:
+        from rubric_grader_agent import run_rubric_grader
+
+        model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+        result = run_rubric_grader(
+            assignment_questions=body.assignment_questions,
+            student_submission=body.student_submission,
+            subject_context=body.subject_context,
+            rubric_or_instructions=body.rubric_or_instructions,
+            model=model,
+            max_tokens=8192,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Grading failed: {e!s}") from e
+
+    return GraderResponse(
+        numeric_score=result.numeric_score,
+        letter_grade=result.letter_grade,
+        summary_line=result.summary_line,
+        detailed_feedback=result.detailed_feedback,
+        used_llm=True,
     )
 
 
