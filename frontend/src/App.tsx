@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   Box,
   Container,
@@ -26,11 +26,13 @@ import BiotechIcon from '@mui/icons-material/Biotech';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
 import QuizIcon from '@mui/icons-material/Quiz';
+import HistoryIcon from '@mui/icons-material/History';
 import { LectureRagPanel } from './components/LectureRagPanel';
 import { GraderPanel } from './components/GraderPanel';
 import { VisualizePanel } from './components/VisualizePanel';
 import { SourceOfTruthPanel } from './components/SourceOfTruthPanel';
 import { QuizzPanel } from './components/QuizzPanel';
+import { HistoryPanel } from './components/HistoryPanel';
 
 const drawerWidth = 260;
 
@@ -85,13 +87,76 @@ const theme = createTheme({
   },
 });
 
-type AppView = 'prompt' | 'grader' | 'visualize' | 'source' | 'quizz';
+type AppView = 'prompt' | 'grader' | 'visualize' | 'source' | 'quizz' | 'history';
+
+type HistoryReplayState = {
+  key: number;
+  targetView: AppView;
+  kind: string;
+  request: Record<string, unknown>;
+  response: unknown;
+  error: string | null;
+} | null;
+
+const VIEW_BY_TRACE_KIND: Record<string, AppView> = {
+  lecture_rag: 'prompt',
+  rag_query: 'prompt',
+  visualize: 'visualize',
+  book_rag: 'source',
+  grader: 'grader',
+};
 
 function App() {
   const [backendOk, setBackendOk] = useState<boolean | null>(null);
   const [view, setView] = useState<AppView>('prompt');
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
+  const [historyReplay, setHistoryReplay] = useState<HistoryReplayState>(null);
   const isMdUp = useMediaQuery(theme.breakpoints.up('md'));
+
+  const clearHistoryReplay = useCallback(() => setHistoryReplay(null), []);
+
+  const handleRestoreFromHistory = useCallback(async (traceId: number) => {
+    const res = await fetch(`/api/history/${traceId}`);
+    const data = (await res.json()) as {
+      kind?: string;
+      request?: Record<string, unknown>;
+      response?: unknown;
+      error?: string | null;
+      detail?: unknown;
+    };
+    if (!res.ok) {
+      const d = data.detail;
+      const msg =
+        typeof d === 'string'
+          ? d
+          : Array.isArray(d)
+            ? d.map((x: { msg?: string }) => x.msg ?? '').join(' ')
+            : `HTTP ${res.status}`;
+      console.error(msg || 'Failed to load trace');
+      return;
+    }
+    const kind = data.kind ?? '';
+    const request =
+      data.request && typeof data.request === 'object' && !Array.isArray(data.request)
+        ? data.request
+        : {};
+    const target = VIEW_BY_TRACE_KIND[kind];
+    if (!target) return;
+    const err =
+      data.error != null && data.error !== ''
+        ? String(data.error)
+        : null;
+    setHistoryReplay({
+      key: Date.now(),
+      targetView: target,
+      kind,
+      request,
+      response: data.response ?? null,
+      error: err,
+    });
+    setView(target);
+    setMobileNavOpen(false);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -189,12 +254,25 @@ function App() {
             setView('quizz');
             setMobileNavOpen(false);
           }}
-          sx={{ borderRadius: 2 }}
+          sx={{ borderRadius: 2, mb: 0.5 }}
         >
           <ListItemIcon sx={{ minWidth: 40 }}>
             <QuizIcon color={view === 'quizz' ? 'primary' : 'inherit'} />
           </ListItemIcon>
           <ListItemText primary="Quizz" secondary="Recall & spaced review" />
+        </ListItemButton>
+        <ListItemButton
+          selected={view === 'history'}
+          onClick={() => {
+            setView('history');
+            setMobileNavOpen(false);
+          }}
+          sx={{ borderRadius: 2 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <HistoryIcon color={view === 'history' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="History" secondary="Prompt & response log" />
         </ListItemButton>
       </List>
     </Box>
@@ -362,7 +440,9 @@ function App() {
                             ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
                             : view === 'source'
                               ? 'Search OCR-backed PDF chunks with page citations.'
-                              : 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'}
+                              : view === 'quizz'
+                                ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
+                                : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
                     </Typography>
                   </Box>
                 </Box>
@@ -389,25 +469,91 @@ function App() {
                       ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
                       : view === 'source'
                         ? 'Search OCR-backed PDF chunks with page citations.'
-                        : 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'}
+                        : view === 'quizz'
+                          ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
+                          : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
               </Typography>
             )}
 
             {/* Keep all panels mounted so local state (queries, canvas, uploads) survives sidebar switches */}
             <Box sx={{ display: view === 'prompt' ? 'block' : 'none' }} aria-hidden={view !== 'prompt'}>
-              <LectureRagPanel theme={theme} />
+              <LectureRagPanel
+                theme={theme}
+                historyReplay={
+                  view === 'prompt' &&
+                  historyReplay?.targetView === 'prompt' &&
+                  (historyReplay.kind === 'lecture_rag' || historyReplay.kind === 'rag_query')
+                    ? {
+                        key: historyReplay.key,
+                        kind: historyReplay.kind as 'lecture_rag' | 'rag_query',
+                        request: historyReplay.request,
+                        response: historyReplay.response,
+                        error: historyReplay.error,
+                      }
+                    : null
+                }
+                onHistoryReplayDone={clearHistoryReplay}
+              />
             </Box>
             <Box sx={{ display: view === 'grader' ? 'block' : 'none' }} aria-hidden={view !== 'grader'}>
-              <GraderPanel theme={theme} />
+              <GraderPanel
+                theme={theme}
+                historyReplay={
+                  view === 'grader' &&
+                  historyReplay?.targetView === 'grader' &&
+                  historyReplay.kind === 'grader'
+                    ? {
+                        key: historyReplay.key,
+                        request: historyReplay.request,
+                        response: historyReplay.response,
+                        error: historyReplay.error,
+                      }
+                    : null
+                }
+                onHistoryReplayDone={clearHistoryReplay}
+              />
             </Box>
             <Box sx={{ display: view === 'visualize' ? 'block' : 'none' }} aria-hidden={view !== 'visualize'}>
-              <VisualizePanel theme={theme} />
+              <VisualizePanel
+                theme={theme}
+                historyReplay={
+                  view === 'visualize' &&
+                  historyReplay?.targetView === 'visualize' &&
+                  historyReplay.kind === 'visualize'
+                    ? {
+                        key: historyReplay.key,
+                        request: historyReplay.request,
+                        response: historyReplay.response,
+                        error: historyReplay.error,
+                      }
+                    : null
+                }
+                onHistoryReplayDone={clearHistoryReplay}
+              />
             </Box>
             <Box sx={{ display: view === 'source' ? 'block' : 'none' }} aria-hidden={view !== 'source'}>
-              <SourceOfTruthPanel theme={theme} />
+              <SourceOfTruthPanel
+                theme={theme}
+                historyReplay={
+                  view === 'source' &&
+                  historyReplay?.targetView === 'source' &&
+                  historyReplay.kind === 'book_rag'
+                    ? {
+                        key: historyReplay.key,
+                        request: historyReplay.request,
+                        response: historyReplay.response,
+                        error: historyReplay.error,
+                      }
+                    : null
+                }
+                onHistoryReplayDone={clearHistoryReplay}
+              />
             </Box>
             <Box sx={{ display: view === 'quizz' ? 'block' : 'none' }} aria-hidden={view !== 'quizz'}>
               <QuizzPanel theme={theme} />
+            </Box>
+            <Box sx={{ display: view === 'history' ? 'block' : 'none' }} aria-hidden={view !== 'history'}>
+              <HistoryPanel theme={theme} onRestoreFromHistory={handleRestoreFromHistory} />
             </Box>
           </Container>
         </Box>

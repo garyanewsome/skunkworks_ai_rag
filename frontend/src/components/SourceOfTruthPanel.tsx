@@ -48,13 +48,20 @@ type BookAnswerResponse = {
 
 type SourceOfTruthPanelProps = {
   theme: Theme;
+  historyReplay?: {
+    key: number;
+    request: Record<string, unknown>;
+    response: unknown;
+    error: string | null;
+  } | null;
+  onHistoryReplayDone?: () => void;
 };
 
 function pageLabel(sp: number, ep: number): string {
   return sp === ep ? `p. ${sp}` : `pp. ${sp}–${ep}`;
 }
 
-export function SourceOfTruthPanel({ theme }: SourceOfTruthPanelProps) {
+export function SourceOfTruthPanel({ theme, historyReplay, onHistoryReplayDone }: SourceOfTruthPanelProps) {
   const [books, setBooks] = useState<BookItem[]>([]);
   const [booksError, setBooksError] = useState<string | null>(null);
   const [bookId, setBookId] = useState<string>('');
@@ -112,6 +119,39 @@ export function SourceOfTruthPanel({ theme }: SourceOfTruthPanelProps) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!historyReplay) return;
+    const request = historyReplay.request;
+    const q = String(request.query ?? '').trim();
+    const bid = typeof request.book_id === 'string' ? request.book_id : '';
+    setBookId(bid);
+    setQuery(q);
+    setLoading(false);
+
+    if (historyReplay.error) {
+      setError(historyReplay.error);
+      setResult(null);
+      onHistoryReplayDone?.();
+      return;
+    }
+
+    setError(null);
+    const raw = historyReplay.response;
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      const o = raw as Record<string, unknown>;
+      if (typeof o.summary === 'string' && Array.isArray(o.hits)) {
+        setResult(raw as BookAnswerResponse);
+        onHistoryReplayDone?.();
+        return;
+      }
+    }
+    if (q) {
+      setError('No saved book answer in history for this entry.');
+    }
+    setResult(null);
+    onHistoryReplayDone?.();
+  }, [historyReplay?.key, historyReplay?.request, historyReplay?.response, historyReplay?.error, onHistoryReplayDone]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>

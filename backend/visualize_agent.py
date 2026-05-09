@@ -262,10 +262,14 @@ def effective_photoreal_images_only(
     user_prompt: str,
     topic_hint: str | None,
     *,
-    realism: bool = False,
+    visual_mode: str = "default",
 ) -> bool:
-    """True when the client enables Realism or the prompt reads like a photoreal request."""
-    return bool(realism) or wants_photoreal_image_only(user_prompt, topic_hint)
+    """True when the client chose realism or (in default mode) the prompt reads like a photoreal request."""
+    if visual_mode == "polygon_only":
+        return False
+    if visual_mode == "realism":
+        return True
+    return wants_photoreal_image_only(user_prompt, topic_hint)
 
 
 # Minimal valid upload URL so Pydantic accepts scenes before clamp replaces shapes with encyclopedia images.
@@ -1240,6 +1244,7 @@ def finalize_visual_shapes(
     *,
     prefer_commons_thumbnail: bool = True,
     images_only: bool = False,
+    polygon_only: bool = False,
 ) -> list[SceneShape]:
     if images_only:
         merged = _collect_distinct_reference_urls(user_prompt, topic_hint, max_urls=4)
@@ -1251,6 +1256,9 @@ def finalize_visual_shapes(
         if not layout:
             layout = _layout_photoreal_image_shapes([_PHOTOREAL_VALIDATE_PLACEHOLDER_SRC])
         return rewrite_commons_image_sources(layout)
+
+    if polygon_only:
+        return [s for s in shapes if (s.type or "").lower() == "polygon"]
 
     s = shapes
     if prefer_commons_thumbnail:
@@ -1357,6 +1365,7 @@ def _clamp_scene(
     topic_hint: str,
     user_prompt: str,
     photoreal: bool,
+    polygon_only: bool,
 ) -> VisualizeScene:
     nodes, edges = clamp_nodes_edges(scene.nodes, scene.edges)
     if photoreal:
@@ -1367,8 +1376,9 @@ def _clamp_scene(
             scene.shapes,
             th,
             user_prompt,
-            prefer_commons_thumbnail=not photoreal,
+            prefer_commons_thumbnail=not photoreal and not polygon_only,
             images_only=photoreal,
+            polygon_only=polygon_only,
         )
     )
     return VisualizeScene(title=scene.title, caption=scene.caption, nodes=nodes, edges=edges, shapes=shapes)
@@ -1380,6 +1390,7 @@ def _clamp_animated(
     topic_hint: str,
     user_prompt: str,
     photoreal: bool,
+    polygon_only: bool,
 ) -> AnimatedVisualizeScene:
     frames: list[SceneFrame] = []
     for idx, fr in enumerate(scene.frames):
@@ -1388,7 +1399,7 @@ def _clamp_animated(
             nodes, edges = [], []
         th = f"{scene.title} {fr.step_label} {topic_hint}".strip()
         frame_prompt = f"{user_prompt} {fr.step_label}".strip()
-        inject_thumb = idx == 0 and not photoreal
+        inject_thumb = idx == 0 and not photoreal and not polygon_only
         shapes = clamp_shapes(
             finalize_visual_shapes(
                 fr.shapes,
@@ -1396,6 +1407,7 @@ def _clamp_animated(
                 frame_prompt if photoreal else user_prompt,
                 prefer_commons_thumbnail=inject_thumb if not photoreal else False,
                 images_only=photoreal,
+                polygon_only=polygon_only,
             )
         )
         frames.append(
@@ -1417,7 +1429,7 @@ def run_visualize_scene(
     model: str,
     max_tokens: int,
     animation: bool,
-    realism: bool = False,
+    visual_mode: str = "default",
 ) -> VisualizeResult:
     q = prompt.strip()
     if not q:
@@ -1425,7 +1437,11 @@ def run_visualize_scene(
 
     hint = (domain_hint or "").strip() or "Infer domain from the user prompt."
 
-    photoreal = effective_photoreal_images_only(q, hint, realism=realism)
+    vm = (visual_mode or "default").strip().lower()
+    if vm not in ("default", "realism", "polygon_only"):
+        vm = "default"
+    polygon_only = vm == "polygon_only"
+    photoreal = effective_photoreal_images_only(q, hint, visual_mode=vm)
     photoreal_system_prefix = (
         dedent(
             """
@@ -1445,6 +1461,24 @@ def run_visualize_scene(
         ).strip()
         + "\n\n"
         if photoreal
+        else ""
+    )
+
+    polygon_only_system_prefix = (
+        dedent(
+            """
+            **Polygon-only mode:** The user selected **polygon-only** drawing.
+
+            - **`shapes`:** Emit **only** `"type":"polygon"` entries for geometry (filled regions, silhouettes, arrows as thin triangles,
+              coarse circles/ellipses as many-sided polygons). Do **not** use `rect`, `ellipse`, `circle`, `path`, `line`,
+              `arrow`, `icon`, `image`, or `ground`.
+            - **`nodes`** and **`edges`:** Allowed for labels and conceptual links.
+            - **Animated:** Every frame obeys the same polygon-only rule.
+
+            """
+        ).strip()
+        + "\n\n"
+        if polygon_only and not photoreal
         else ""
     )
 
@@ -1522,7 +1556,7 @@ def run_visualize_scene(
             Chemistry frames may use `"shapes": []`. Every `edges[].from_id` / `to_id` must exist in that frame's `nodes`.
             """
         ).strip()
-        system = photoreal_system_prefix + system
+        system = photoreal_system_prefix + polygon_only_system_prefix + system
     else:
         system = dedent(
             """
@@ -1580,7 +1614,7 @@ def run_visualize_scene(
             At least one **node** OR one **shape** is required. Avoid unescaped double quotes in strings.
             """
         ).strip()
-        system = photoreal_system_prefix + system
+        system = photoreal_system_prefix + polygon_only_system_prefix + system
 
     user_content = dedent(
         f"""
@@ -1619,9 +1653,11 @@ def run_visualize_scene(
                 _normalize_legacy_edges(fr.get("edges"))
                 _normalize_shapes_in_frame_or_scene(fr)
         ani = AnimatedVisualizeScene.model_validate(data)
-        return _clamp_animated(ani, topic_hint=hint, user_prompt=q, photoreal=photoreal)
+        return _clamp_animated(
+            ani, topic_hint=hint, user_prompt=q, photoreal=photoreal, polygon_only=polygon_only
+        )
 
     _normalize_legacy_edges(data.get("edges"))
     _normalize_shapes_in_frame_or_scene(data)
     scene = VisualizeScene.model_validate(data)
-    return _clamp_scene(scene, topic_hint=hint, user_prompt=q, photoreal=photoreal)
+    return _clamp_scene(scene, topic_hint=hint, user_prompt=q, photoreal=photoreal, polygon_only=polygon_only)

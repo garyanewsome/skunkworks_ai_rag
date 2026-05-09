@@ -1,3 +1,4 @@
+import { fetchHistoryMatch } from '../historyPreflight';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Theme } from '@mui/material/styles';
 import {
@@ -68,6 +69,15 @@ function youtubeEmbedSrc(videoId: string, startMs: number | null): string {
 
 type LectureRagPanelProps = {
   theme: Theme;
+  /** Hydrate from History: fills fields and applies saved response (no API / LLM). */
+  historyReplay?: {
+    key: number;
+    kind: 'lecture_rag' | 'rag_query';
+    request: Record<string, unknown>;
+    response: unknown;
+    error: string | null;
+  } | null;
+  onHistoryReplayDone?: () => void;
 };
 
 type SearchScope = 'all' | 'single';
@@ -137,7 +147,105 @@ type LectureGroup = {
   videos: VideoItem[];
 };
 
-export function LectureRagPanel({ theme }: LectureRagPanelProps) {
+/** Restore lecture scope from a saved `/api/rag/*` request body. */
+function resolveScopeFromStoredRequest(
+  request: Record<string, unknown>,
+  groupByKey: Record<string, LectureGroup>,
+): { searchScope: SearchScope; groupKey: string; part: 'all' | string } {
+  const videoId = typeof request.video_id === 'string' ? request.video_id.trim() || null : null;
+  const rawIds = request.video_ids;
+  const videoIds = Array.isArray(rawIds)
+    ? rawIds.filter((x): x is string => typeof x === 'string' && x.trim().length > 0)
+    : [];
+
+  if (!videoId && videoIds.length === 0) {
+    return { searchScope: 'all', groupKey: '', part: 'all' };
+  }
+
+  const ids = videoIds.length ? videoIds : videoId ? [videoId] : [];
+
+  for (const [, g] of Object.entries(groupByKey)) {
+    const gv = new Set(g.videos.map((v) => v.video_id));
+    if (ids.length > 1) {
+      const allIn = ids.every((id) => gv.has(id));
+      if (allIn && ids.length === g.videos.length) {
+        return { searchScope: 'single', groupKey: g.groupKey, part: 'all' };
+      }
+      if (allIn) {
+        return { searchScope: 'single', groupKey: g.groupKey, part: 'all' };
+      }
+    } else if (ids.length === 1) {
+      const id = ids[0];
+      if (gv.has(id)) {
+        return {
+          searchScope: 'single',
+          groupKey: g.groupKey,
+          part: g.videos.length === 1 ? g.videos[0].video_id : id,
+        };
+      }
+    }
+  }
+
+  return { searchScope: 'all', groupKey: '', part: 'all' };
+}
+
+type RagQueryResponse = {
+  filter_video_id: string | null;
+  filter_video_ids: string[] | null;
+  hits: RagHit[];
+};
+
+function coerceRagHit(raw: unknown): RagHit | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  if (typeof o.video_id !== 'string') return null;
+  if (typeof o.chunk_index !== 'number') return null;
+  if (typeof o.content !== 'string') return null;
+  const distance = typeof o.distance === 'number' ? o.distance : 0;
+  const similarity = typeof o.similarity === 'number' ? o.similarity : 1 - distance;
+  return {
+    video_id: o.video_id,
+    chunk_index: o.chunk_index,
+    content: o.content,
+    start_ms: typeof o.start_ms === 'number' ? o.start_ms : null,
+    end_ms: typeof o.end_ms === 'number' ? o.end_ms : null,
+    distance,
+    similarity,
+  };
+}
+
+function parseRagAnswerFromHistory(raw: unknown): RagAnswerResponse | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  if (typeof o.summary !== 'string') return null;
+  if (!Array.isArray(o.hits)) return null;
+  const hits = o.hits.map(coerceRagHit).filter((x): x is RagHit => x != null);
+  return {
+    summary: o.summary,
+    filter_video_id: typeof o.filter_video_id === 'string' ? o.filter_video_id : null,
+    filter_video_ids: Array.isArray(o.filter_video_ids)
+      ? o.filter_video_ids.filter((x): x is string => typeof x === 'string')
+      : null,
+    hits,
+    used_llm: Boolean(o.used_llm),
+  };
+}
+
+function parseRagQueryFromHistory(raw: unknown): RagQueryResponse | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  if (!Array.isArray(o.hits)) return null;
+  const hits = o.hits.map(coerceRagHit).filter((x): x is RagHit => x != null);
+  return {
+    filter_video_id: typeof o.filter_video_id === 'string' ? o.filter_video_id : null,
+    filter_video_ids: Array.isArray(o.filter_video_ids)
+      ? o.filter_video_ids.filter((x): x is string => typeof x === 'string')
+      : null,
+    hits,
+  };
+}
+
+export function LectureRagPanel({ theme, historyReplay, onHistoryReplayDone }: LectureRagPanelProps) {
   const [prompt, setPrompt] = useState('');
   const [searchScope, setSearchScope] = useState<SearchScope>('all');
   const [videos, setVideos] = useState<VideoItem[]>([]);
@@ -327,6 +435,19 @@ export function LectureRagPanel({ theme }: LectureRagPanelProps) {
         body.video_ids = null;
       }
 
+      const cached = await fetchHistoryMatch('lecture_rag', body as Record<string, unknown>);
+      if (cached?.hit && cached.response != null && typeof cached.response === 'object') {
+        const ok = cached.response as RagAnswerResponse;
+        if (typeof ok.summary === 'string' && Array.isArray(ok.hits)) {
+          setSummary(ok.summary);
+          setUsedLlm(Boolean(ok.used_llm));
+          setHits(ok.hits);
+          setFilterVideoId(ok.filter_video_id ?? null);
+          setFilterVideoIds(ok.filter_video_ids ?? null);
+          return;
+        }
+      }
+
       const res = await fetch('/api/rag/answer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -358,6 +479,107 @@ export function LectureRagPanel({ theme }: LectureRagPanelProps) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!historyReplay || videosLoading) return;
+    const { kind, request, response, error } = historyReplay;
+    const q = String(request.query ?? '').trim();
+    if (!q) {
+      onHistoryReplayDone?.();
+      return;
+    }
+
+    let scope = resolveScopeFromStoredRequest(request, groupByKey);
+    if (scope.searchScope === 'single' && (!scope.groupKey || !groupByKey[scope.groupKey])) {
+      scope = { searchScope: 'all', groupKey: '', part: 'all' };
+    }
+
+    setPrompt(q);
+    setSearchScope(scope.searchScope);
+    if (scope.searchScope === 'single' && scope.groupKey) {
+      setSelectedGroupKey(scope.groupKey);
+      setSelectedPart(scope.part);
+    }
+
+    setSlideIdx(0);
+    setLoading(false);
+    setLastPrompt(q);
+
+    if (scope.searchScope === 'single') {
+      const g = groupByKey[scope.groupKey];
+      if (g?.videos.length > 1 && scope.part === 'all') {
+        setScopeLabel(`All parts · ${g.topicLabel} (${g.videos.length} videos)`);
+      } else if (g) {
+        const vid = g.videos.length === 1 ? g.videos[0].video_id : scope.part;
+        if (vid && vid !== 'all') setScopeLabel(titleByVideoId[vid] ?? vid);
+        else setScopeLabel(null);
+      } else {
+        setScopeLabel(null);
+      }
+    } else {
+      setScopeLabel(null);
+    }
+
+    if (error) {
+      setError(error);
+      setSummary(null);
+      setHits([]);
+      setUsedLlm(null);
+      setFilterVideoId(null);
+      setFilterVideoIds(null);
+      onHistoryReplayDone?.();
+      return;
+    }
+
+    if (kind === 'rag_query') {
+      const ok = parseRagQueryFromHistory(response);
+      if (!ok) {
+        setError('Could not read saved chunk search from history.');
+        setSummary(null);
+        setHits([]);
+        setUsedLlm(null);
+        setFilterVideoId(null);
+        setFilterVideoIds(null);
+      } else {
+        setError(null);
+        setSummary(null);
+        setUsedLlm(null);
+        setHits(ok.hits);
+        setFilterVideoId(ok.filter_video_id);
+        setFilterVideoIds(ok.filter_video_ids ?? null);
+      }
+      onHistoryReplayDone?.();
+      return;
+    }
+
+    const ok = parseRagAnswerFromHistory(response);
+    if (!ok) {
+      setError('Could not read saved lecture answer from history.');
+      setSummary(null);
+      setHits([]);
+      setUsedLlm(null);
+      setFilterVideoId(null);
+      setFilterVideoIds(null);
+    } else {
+      setError(null);
+      setSummary(ok.summary);
+      setUsedLlm(ok.used_llm);
+      setHits(ok.hits);
+      setFilterVideoId(ok.filter_video_id);
+      setFilterVideoIds(ok.filter_video_ids ?? null);
+    }
+    onHistoryReplayDone?.();
+  }, [
+    historyReplay?.key,
+    historyReplay?.kind,
+    historyReplay?.request,
+    historyReplay?.response,
+    historyReplay?.error,
+    videosLoading,
+    groupByKey,
+    titleByVideoId,
+    onHistoryReplayDone,
+  ]);
 
   const onScopeChange = (_: React.ChangeEvent<HTMLInputElement>, value: string) => {
     if (value === 'all' || value === 'single') setSearchScope(value);

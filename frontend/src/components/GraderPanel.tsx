@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Theme } from '@mui/material/styles';
 import {
   Box,
@@ -42,6 +42,13 @@ type RagAnswerResponse = {
 
 type GraderPanelProps = {
   theme: Theme;
+  historyReplay?: {
+    key: number;
+    request: Record<string, unknown>;
+    response: unknown;
+    error: string | null;
+  } | null;
+  onHistoryReplayDone?: () => void;
 };
 
 function gradeChipColor(letter: string): 'success' | 'primary' | 'warning' | 'error' | 'default' {
@@ -72,7 +79,7 @@ const youtubeWatchUrl = (videoId: string, startMs: number | null): string => {
   return `https://www.youtube.com/watch?v=${encodeURIComponent(videoId)}&t=${sec}s`;
 };
 
-export function GraderPanel({ theme }: GraderPanelProps) {
+export function GraderPanel({ theme, historyReplay, onHistoryReplayDone }: GraderPanelProps) {
   const [questions, setQuestions] = useState('');
   const [answers, setAnswers] = useState('');
   const [subject, setSubject] = useState('');
@@ -187,6 +194,49 @@ export function GraderPanel({ theme }: GraderPanelProps) {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!historyReplay) return;
+    const r = historyReplay.request;
+    const aq = String(r.assignment_questions ?? '');
+    const ss = String(r.student_submission ?? '');
+    setQuestions(aq);
+    setAnswers(ss);
+    setSubject(typeof r.subject_context === 'string' ? r.subject_context : '');
+    setRubric(typeof r.rubric_or_instructions === 'string' ? r.rubric_or_instructions : '');
+    setLoading(false);
+    setReviewError(null);
+    setReviewSummary(null);
+    setReviewHits([]);
+
+    if (historyReplay.error) {
+      setError(historyReplay.error);
+      setResult(null);
+      onHistoryReplayDone?.();
+      return;
+    }
+
+    setError(null);
+    const raw = historyReplay.response;
+    if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+      const o = raw as Record<string, unknown>;
+      if (
+        typeof o.numeric_score === 'number' &&
+        typeof o.letter_grade === 'string' &&
+        typeof o.summary_line === 'string' &&
+        typeof o.detailed_feedback === 'string'
+      ) {
+        setResult(raw as GraderApiResponse);
+        onHistoryReplayDone?.();
+        return;
+      }
+    }
+    if (aq.trim() && ss.trim()) {
+      setError('No saved grade in history for this entry.');
+    }
+    setResult(null);
+    onHistoryReplayDone?.();
+  }, [historyReplay?.key, historyReplay?.request, historyReplay?.response, historyReplay?.error, onHistoryReplayDone]);
 
   return (
     <Box sx={{ width: '100%', maxWidth: 960, mx: 'auto' }}>

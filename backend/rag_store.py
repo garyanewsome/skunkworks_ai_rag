@@ -10,6 +10,7 @@ import numpy as np
 import psycopg
 from pgvector.psycopg import register_vector
 from psycopg.rows import dict_row
+from psycopg.types.json import Json
 
 DEFAULT_DATABASE_URL = (
     "postgresql://dev_user:dev_password@127.0.0.1:5432/embedding_db"
@@ -132,6 +133,31 @@ def init_schema(conn: psycopg.Connection, embedding_dim: int) -> None:
             """
             CREATE INDEX IF NOT EXISTS book_chunks_embedding_hnsw
             ON book_chunks USING hnsw (embedding vector_cosine_ops)
+            """
+        )
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS prompt_traces (
+                id BIGSERIAL PRIMARY KEY,
+                kind TEXT NOT NULL,
+                preview TEXT NOT NULL DEFAULT '',
+                request_json JSONB NOT NULL,
+                response_json JSONB,
+                error_text TEXT,
+                created_at TIMESTAMPTZ DEFAULT now()
+            )
+            """
+        )
+        cur.execute(
+            """
+            CREATE INDEX IF NOT EXISTS prompt_traces_created_idx
+            ON prompt_traces (created_at DESC)
+            """
+        )
+        cur.execute(
+            """
+            CREATE INDEX IF NOT EXISTS prompt_traces_kind_idx
+            ON prompt_traces (kind)
             """
         )
 
@@ -485,3 +511,129 @@ def search_similar_books(
                 (q, q, top_k),
             )
         return [dict(r) for r in cur.fetchall()]
+
+
+PROMPT_TRACE_KINDS = frozenset(
+    {"lecture_rag", "book_rag", "visualize", "grader", "rag_query"}
+)
+
+
+def insert_prompt_trace(
+    conn: psycopg.Connection,
+    *,
+    kind: str,
+    preview: str,
+    request: dict[str, Any],
+    response: Any | None,
+    error: str | None,
+) -> int:
+    pv = (preview or "").strip()
+    if len(pv) > 2000:
+        pv = pv[:1997] + "…"
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO prompt_traces (kind, preview, request_json, response_json, error_text)
+            VALUES (%s, %s, %s, %s, %s)
+            RETURNING id
+            """,
+            (
+                kind,
+                pv,
+                Json(request),
+                Json(response) if response is not None else None,
+                error,
+            ),
+        )
+        row = cur.fetchone()
+        assert row is not None
+        return int(row[0])
+
+
+def list_prompt_traces(
+    conn: psycopg.Connection,
+    *,
+    kind: str | None = None,
+    limit: int = 50,
+    offset: int = 0,
+) -> list[dict[str, Any]]:
+    lim = max(1, min(int(limit), 200))
+    off = max(0, int(offset))
+    with conn.cursor(row_factory=dict_row) as cur:
+        if kind:
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    kind,
+                    preview,
+                    created_at,
+                    (error_text IS NOT NULL) AS has_error
+                FROM prompt_traces
+                WHERE kind = %s
+                ORDER BY created_at DESC
+                LIMIT %s OFFSET %s
+                """,
+                (kind, lim, off),
+            )
+        else:
+            cur.execute(
+                """
+                SELECT
+                    id,
+                    kind,
+                    preview,
+                    created_at,
+                    (error_text IS NOT NULL) AS has_error
+                FROM prompt_traces
+                ORDER BY created_at DESC
+                LIMIT %s OFFSET %s
+                """,
+                (lim, off),
+            )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def list_prompt_traces_for_similarity_match(
+    conn: psycopg.Connection,
+    *,
+    kind: str,
+    limit: int = 120,
+) -> list[dict[str, Any]]:
+    """Recent successful traces with full JSON for client-side / preflight cache matching."""
+    lim = max(1, min(int(limit), 300))
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT id, request_json, response_json, created_at
+            FROM prompt_traces
+            WHERE kind = %s
+              AND error_text IS NULL
+              AND response_json IS NOT NULL
+            ORDER BY created_at DESC
+            LIMIT %s
+            """,
+            (kind, lim),
+        )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def get_prompt_trace(conn: psycopg.Connection, trace_id: int) -> dict[str, Any] | None:
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT
+                id,
+                kind,
+                preview,
+                created_at,
+                request_json,
+                response_json,
+                error_text
+            FROM prompt_traces
+            WHERE id = %s
+            """,
+            (trace_id,),
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None

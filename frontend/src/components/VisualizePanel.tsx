@@ -1,3 +1,4 @@
+import { fetchHistoryMatch } from '../historyPreflight';
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import type { Theme } from '@mui/material/styles';
 import {
@@ -6,10 +7,14 @@ import {
   Checkbox,
   Chip,
   CircularProgress,
+  FormControl,
   FormControlLabel,
+  FormLabel,
   IconButton,
   MenuItem,
   Paper,
+  Radio,
+  RadioGroup,
   Select,
   Slider,
   TextField,
@@ -75,6 +80,8 @@ type SceneApiResponse = {
   frames: ApiFrame[] | null;
   used_llm: boolean;
 };
+
+type VisualMode = 'default' | 'realism' | 'polygon_only';
 
 function positionsFromNodes(nodes: SceneNode[]): Record<string, { x: number; y: number }> {
   const pos: Record<string, { x: number; y: number }> = {};
@@ -249,9 +256,70 @@ function applyFramesToReactState(
   setters.setSelected([]);
 }
 
+/** Apply a `/api/visualize/scene` JSON body into canvas state (used by Generate and History restore). */
+function ingestSceneApiResponse(
+  ok: SceneApiResponse,
+  setters: {
+    setPlan: (p: string | null) => void;
+    setTitle: (t: string | null) => void;
+    setCaption: (c: string | null) => void;
+    setFrames: (f: FrameSnapshot[]) => void;
+    setFrameIndex: (i: number) => void;
+    setSelected: (s: string[]) => void;
+    layoutSnapshots: MutableRefObject<FrameSnapshot[]>;
+  },
+): void {
+  let nextFrames: FrameSnapshot[];
+  if (ok.frames && ok.frames.length >= 2) {
+    nextFrames = apiFramesToSnapshots(ok.frames);
+  } else if (
+    (ok.nodes && ok.nodes.length > 0) ||
+    (ok.shapes && ok.shapes.length > 0)
+  ) {
+    nextFrames = [
+      snapshotFromNodesEdges(
+        ok.nodes || [],
+        Array.isArray(ok.edges) ? ok.edges : [],
+        'Scene',
+        null,
+        Array.isArray(ok.shapes) ? ok.shapes : [],
+      ),
+    ];
+  } else {
+    throw new Error('Saved scene has no drawable frames, nodes, or shapes.');
+  }
+  applyFramesToReactState(
+    nextFrames,
+    { ...setters, setPlan: setters.setPlan },
+    ok.plan ?? null,
+    ok.title,
+    ok.caption ?? null,
+  );
+}
+
+function coerceSceneApiResponse(raw: unknown): SceneApiResponse | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  const title = typeof o.title === 'string' ? o.title : '(untitled)';
+  return { ...o, title } as SceneApiResponse;
+}
+
 type VisualizePanelProps = {
   theme: Theme;
+  historyReplay?: {
+    key: number;
+    request: Record<string, unknown>;
+    response: unknown;
+    error: string | null;
+  } | null;
+  onHistoryReplayDone?: () => void;
 };
+
+function parseVisualMode(raw: unknown): VisualMode {
+  const s = String(raw ?? '').toLowerCase();
+  if (s === 'realism' || s === 'polygon_only' || s === 'default') return s;
+  return 'default';
+}
 
 function clamp(v: number, lo: number, hi: number): number {
   return Math.min(hi, Math.max(lo, v));
@@ -299,14 +367,14 @@ function edgeStyle(kind: string): { strokeWidth: number; strokeDasharray?: strin
   return { strokeWidth: 3.2, opacity: 0.92 };
 }
 
-export function VisualizePanel({ theme }: VisualizePanelProps) {
+export function VisualizePanel({ theme, historyReplay, onHistoryReplayDone }: VisualizePanelProps) {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const layoutSnapshots = useRef<FrameSnapshot[]>([]);
 
   const [prompt, setPrompt] = useState('');
   const [domainHint, setDomainHint] = useState('');
   const [preferAnimation, setPreferAnimation] = useState(true);
-  const [realism, setRealism] = useState(false);
+  const [visualMode, setVisualMode] = useState<VisualMode>('default');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [plan, setPlan] = useState<string | null>(null);
@@ -467,60 +535,72 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
 
   const clearSelection = useCallback(() => setSelected([]), []);
 
-  const generate = async () => {
-    const q = prompt.trim();
-    if (!q) {
-      setError('Describe what to visualize.');
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    setPlaying(false);
-    try {
-      const res = await fetch('/api/visualize/scene', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+  const generate = useCallback(
+    async (
+      overrides?: Partial<{
+        prompt: string;
+        domain_hint: string | null;
+        animation: boolean;
+        visual_mode: VisualMode;
+      }>,
+    ) => {
+      const q = (overrides?.prompt ?? prompt).trim();
+      if (!q) {
+        setError('Describe what to visualize.');
+        return;
+      }
+      const dhRaw = overrides?.domain_hint !== undefined ? overrides.domain_hint : domainHint.trim() || null;
+      const anim = overrides?.animation ?? preferAnimation;
+      const vm = overrides?.visual_mode ?? visualMode;
+      setLoading(true);
+      setError(null);
+      setPlaying(false);
+      try {
+        const reqPayload = {
           prompt: q,
-          domain_hint: domainHint.trim() || null,
-          animation: preferAnimation,
-          realism,
-        }),
-      });
-      const data = (await res.json()) as SceneApiResponse | { detail?: unknown };
-      if (!res.ok) {
-        const detail = (data as { detail?: unknown }).detail;
-        const msg =
-          typeof detail === 'string'
-            ? detail
-            : Array.isArray(detail)
-              ? detail.map((d: { msg?: string }) => d.msg ?? '').join(' ')
-              : 'Request failed.';
-        throw new Error(msg || `HTTP ${res.status}`);
-      }
-      const ok = data as SceneApiResponse;
-      let nextFrames: FrameSnapshot[];
-      if (ok.frames && ok.frames.length >= 2) {
-        nextFrames = apiFramesToSnapshots(ok.frames);
-      } else if (
-        (ok.nodes && ok.nodes.length > 0) ||
-        (ok.shapes && ok.shapes.length > 0)
-      ) {
-        nextFrames = [
-          snapshotFromNodesEdges(
-            ok.nodes || [],
-            Array.isArray(ok.edges) ? ok.edges : [],
-            'Scene',
-            null,
-            Array.isArray(ok.shapes) ? ok.shapes : [],
-          ),
-        ];
-      } else {
-        throw new Error('API returned no drawable frames, nodes, or shapes.');
-      }
-      applyFramesToReactState(
-        nextFrames,
-        {
+          domain_hint: dhRaw,
+          animation: anim,
+          visual_mode: vm,
+        };
+        const cached = await fetchHistoryMatch('visualize', reqPayload);
+        if (cached?.hit && cached.response != null) {
+          const coerced = coerceSceneApiResponse(cached.response);
+          if (coerced) {
+            try {
+              ingestSceneApiResponse(coerced, {
+                setPlan,
+                setTitle,
+                setCaption,
+                setFrames,
+                setFrameIndex,
+                setSelected,
+                layoutSnapshots,
+              });
+              return;
+            } catch {
+              /* bad cache payload — request fresh scene */
+            }
+          }
+        }
+
+        const res = await fetch('/api/visualize/scene', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(reqPayload),
+        });
+        const data = (await res.json()) as SceneApiResponse | { detail?: unknown };
+        if (!res.ok) {
+          const detail = (data as { detail?: unknown }).detail;
+          const msg =
+            typeof detail === 'string'
+              ? detail
+              : Array.isArray(detail)
+                ? detail.map((d: { msg?: string }) => d.msg ?? '').join(' ')
+                : 'Request failed.';
+          throw new Error(msg || `HTTP ${res.status}`);
+        }
+        const ok = data as SceneApiResponse;
+        ingestSceneApiResponse(ok, {
           setPlan,
           setTitle,
           setCaption,
@@ -528,22 +608,86 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
           setFrameIndex,
           setSelected,
           layoutSnapshots,
-        },
-        ok.plan ?? null,
-        ok.title,
-        ok.caption ?? null,
-      );
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Visualization failed.');
+        });
+      } catch (e) {
+        setError(e instanceof Error ? e.message : 'Visualization failed.');
+        setFrames([]);
+        setFrameIndex(0);
+        setPlan(null);
+        setTitle(null);
+        setCaption(null);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [prompt, domainHint, preferAnimation, visualMode],
+  );
+
+  useEffect(() => {
+    if (!historyReplay) return;
+    const r = historyReplay.request;
+    const p = String(r.prompt ?? '').trim();
+    const dh = r.domain_hint != null ? String(r.domain_hint) : '';
+    const anim = Boolean(r.animation);
+    const vm = parseVisualMode(r.visual_mode);
+    setPrompt(p);
+    setDomainHint(dh);
+    setPreferAnimation(anim);
+    setVisualMode(vm);
+    setPlaying(false);
+    setLoading(false);
+    setError(null);
+
+    if (historyReplay.error) {
+      setError(historyReplay.error);
       setFrames([]);
       setFrameIndex(0);
       setPlan(null);
       setTitle(null);
       setCaption(null);
-    } finally {
-      setLoading(false);
+      onHistoryReplayDone?.();
+      return;
     }
-  };
+
+    const coerced = coerceSceneApiResponse(historyReplay.response);
+    if (!coerced) {
+      setError(p ? 'No saved canvas found in history for this entry.' : 'Nothing to restore.');
+      setFrames([]);
+      setFrameIndex(0);
+      setPlan(null);
+      setTitle(null);
+      setCaption(null);
+      onHistoryReplayDone?.();
+      return;
+    }
+
+    try {
+      ingestSceneApiResponse(coerced, {
+        setPlan,
+        setTitle,
+        setCaption,
+        setFrames,
+        setFrameIndex,
+        setSelected,
+        layoutSnapshots,
+      });
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Could not load saved canvas.');
+      setFrames([]);
+      setFrameIndex(0);
+      setPlan(null);
+      setTitle(null);
+      setCaption(null);
+    }
+    onHistoryReplayDone?.();
+  }, [
+    historyReplay?.key,
+    historyReplay?.request,
+    historyReplay?.response,
+    historyReplay?.error,
+    onHistoryReplayDone,
+  ]);
 
   const reloadOfflineSample = () => {
     setPlaying(false);
@@ -680,7 +824,15 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
         static frame.
       </Typography>
 
-      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mb: 1.5 }}>
+      <Box
+        sx={{
+          display: 'flex',
+          gap: 2,
+          alignItems: 'flex-start',
+          mb: 1.5,
+          flexWrap: 'wrap',
+        }}
+      >
         <TextField
           label="What should we draw?"
           placeholder="e.g. Hydrogenation… / Show a car crash with momentum arrows / Apple falling under gravity with Fg."
@@ -691,20 +843,38 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
           fullWidth
           sx={{ flex: 1, minWidth: 0 }}
         />
-        <FormControlLabel
-          control={
-            <Checkbox checked={realism} onChange={(_, c) => setRealism(c)} color="primary" />
-          }
-          label="Realism"
-          title="Use encyclopedia image thumbnails only (no vector drawing)"
-          sx={{
-            flexShrink: 0,
-            mt: 1,
-            mr: 0,
-            alignItems: 'flex-start',
-            '& .MuiFormControlLabel-label': { fontSize: '0.875rem' },
-          }}
-        />
+        <FormControl sx={{ flexShrink: 0, mt: 0.5 }} component="fieldset">
+          <FormLabel component="legend" sx={{ fontSize: '0.75rem', color: 'text.secondary' }}>
+            Render style
+          </FormLabel>
+          <RadioGroup
+            row
+            name="visual-mode"
+            value={visualMode}
+            onChange={(e) => setVisualMode(e.target.value as VisualMode)}
+            sx={{ gap: 0.5 }}
+          >
+            <FormControlLabel
+              value="default"
+              control={<Radio size="small" color="primary" />}
+              label="Default"
+              sx={{ mr: 1 }}
+            />
+            <FormControlLabel
+              value="realism"
+              control={<Radio size="small" color="primary" />}
+              label="Realism"
+              title="Encyclopedia image thumbnails only (no vector drawing)"
+              sx={{ mr: 1 }}
+            />
+            <FormControlLabel
+              value="polygon_only"
+              control={<Radio size="small" color="primary" />}
+              label="Polygon only"
+              title="Vector geometry built only from polygon shapes (plus labels via nodes)"
+            />
+          </RadioGroup>
+        </FormControl>
       </Box>
       <TextField
         label="Domain hint (optional)"
@@ -728,7 +898,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
       />
 
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, mb: 2, alignItems: 'center' }}>
-        <Button variant="contained" onClick={generate} disabled={loading || !prompt.trim()}>
+        <Button variant="contained" onClick={() => void generate()} disabled={loading || !prompt.trim()}>
           {loading ? <CircularProgress size={22} color="inherit" /> : 'Generate canvas'}
         </Button>
         <Button variant="outlined" onClick={reloadOfflineSample}>
