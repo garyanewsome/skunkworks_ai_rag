@@ -514,7 +514,7 @@ def search_similar_books(
 
 
 PROMPT_TRACE_KINDS = frozenset(
-    {"lecture_rag", "book_rag", "visualize", "grader", "rag_query"}
+    {"lecture_rag", "book_rag", "visualize", "grader", "rag_query", "office_hours"}
 )
 
 

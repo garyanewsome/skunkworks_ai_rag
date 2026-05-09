@@ -198,6 +198,13 @@ def _preview_for_trace(kind: str, req: dict[str, Any]) -> str:
         aq = str(req.get("assignment_questions") or "").strip()
         ss = str(req.get("student_submission") or "").strip()
         q = f"{aq[:180]} · {ss[:180]}".strip(" ·")
+    elif kind == "office_hours":
+        msgs = req.get("messages")
+        if isinstance(msgs, list):
+            for m in reversed(msgs):
+                if isinstance(m, dict) and str(m.get("role")) == "user":
+                    q = str(m.get("content") or "")
+                    break
     q = q.replace("\n", " ").strip()
     return q[:400] if len(q) > 400 else q
 
@@ -255,6 +262,33 @@ class GraderResponse(BaseModel):
     summary_line: str
     detailed_feedback: str
     used_llm: bool
+
+
+class OfficeHoursMessage(BaseModel):
+    role: Literal["user", "assistant"]
+    content: str = Field(..., min_length=1, max_length=48000)
+
+
+class OfficeHoursBody(BaseModel):
+    messages: list[OfficeHoursMessage] = Field(..., min_length=1, max_length=48)
+    video_id: str | None = Field(
+        default=None,
+        description="Single lecture YouTube id; omit with video_ids or for all lectures.",
+    )
+    video_ids: list[str] | None = Field(
+        default=None,
+        description="Multiple ids (e.g. same topic); overrides single video_id when set.",
+    )
+    include_books: bool = Field(
+        True,
+        description="Also retrieve PDF book chunks for this turn (course textbooks).",
+    )
+    lecture_top_k: int = Field(10, ge=1, le=40)
+    book_top_k: int = Field(8, ge=0, le=24)
+
+
+class OfficeHoursResponse(BaseModel):
+    reply: str
 
 
 class RagAnswerResponse(BaseModel):
@@ -914,3 +948,58 @@ async def rag_query(body: RagQuery):
     except Exception as e:
         _save_prompt_trace("rag_query", req, None, str(e))
         raise
+
+
+@app.post("/api/office-hours/chat", response_model=OfficeHoursResponse)
+def office_hours_chat(body: OfficeHoursBody):
+    """Multi-turn professor persona with lecture (+ optional book) RAG per student message."""
+    req = body.model_dump(mode="json")
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        detail = "Office Hours requires ANTHROPIC_API_KEY."
+        _save_prompt_trace("office_hours", req, None, detail)
+        raise HTTPException(status_code=503, detail=detail)
+    try:
+        msgs = [{"role": m.role, "content": m.content.strip()} for m in body.messages]
+        if not msgs:
+            raise HTTPException(status_code=400, detail="messages is empty")
+        if msgs[0]["role"] != "user":
+            raise HTTPException(
+                status_code=400,
+                detail="Conversation must start with a user message.",
+            )
+        for i, m in enumerate(msgs):
+            expected: Literal["user", "assistant"] = "user" if i % 2 == 0 else "assistant"
+            if m["role"] != expected:
+                raise HTTPException(
+                    status_code=400,
+                    detail="messages must strictly alternate user and assistant.",
+                )
+        ids = _normalize_video_ids(body.video_ids)
+        vid = (body.video_id or "").strip() or None
+        if ids:
+            vid = None
+        model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+        from office_hours_agent import run_office_hours_turn
+
+        reply = run_office_hours_turn(
+            msgs,
+            video_id=vid,
+            video_ids=ids,
+            include_books=body.include_books,
+            lecture_top_k=body.lecture_top_k,
+            book_top_k=body.book_top_k,
+            model=model,
+            max_tokens=4096,
+        )
+        resp = OfficeHoursResponse(reply=reply)
+        _save_prompt_trace("office_hours", req, resp.model_dump(mode="json"), None)
+        return resp
+    except ValueError as e:
+        _save_prompt_trace("office_hours", req, None, str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except HTTPException as e:
+        _save_prompt_trace("office_hours", req, None, _http_exc_detail(e))
+        raise
+    except Exception as e:
+        _save_prompt_trace("office_hours", req, None, str(e))
+        raise HTTPException(status_code=502, detail=f"Office Hours failed: {e!s}") from e

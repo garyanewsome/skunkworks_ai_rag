@@ -30,6 +30,7 @@ type TraceKind =
   | 'visualize'
   | 'grader'
   | 'rag_query'
+  | 'office_hours'
   | '';
 
 type TraceListItem = {
@@ -52,6 +53,7 @@ const KIND_LABELS: Record<Exclude<TraceKind, ''>, string> = {
   visualize: 'Visualize',
   grader: 'Grader',
   rag_query: 'Chunk search',
+  office_hours: 'Office Hours',
 };
 
 const RESTORABLE_KINDS = new Set<string>([
@@ -161,7 +163,7 @@ export function HistoryPanel({ theme, onRestoreFromHistory }: HistoryPanelProps)
         Prompt & response log
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Each lecture answer, book answer, visualize run, grader submission, and transcript chunk search is stored in
+        Each lecture answer, book answer, visualize run, grader submission, Office Hours turn, and transcript chunk search is stored in
         Postgres when the API runs. Open a row for JSON, or use <strong>Restore</strong> to open the matching tab with
         the saved request and response (no new model call).
       </Typography>
@@ -213,7 +215,7 @@ export function HistoryPanel({ theme, onRestoreFromHistory }: HistoryPanelProps)
               <TableRow>
                 <TableCell colSpan={6}>
                   <Typography variant="body2" color="text.secondary">
-                    No traces yet — use Prompt, Source of truth, Visualize, Grader, or chunk search in the lecture panel.
+                    No traces yet — use Prompt, Office Hours, Source of truth, Visualize, Grader, or chunk search in the lecture panel.
                   </Typography>
                 </TableCell>
               </TableRow>

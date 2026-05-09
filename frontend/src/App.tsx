@@ -27,7 +27,9 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
 import QuizIcon from '@mui/icons-material/Quiz';
 import HistoryIcon from '@mui/icons-material/History';
+import HeadsetMicIcon from '@mui/icons-material/HeadsetMic';
 import { LectureRagPanel } from './components/LectureRagPanel';
+import { OfficeHoursPanel } from './components/OfficeHoursPanel';
 import { GraderPanel } from './components/GraderPanel';
 import { VisualizePanel } from './components/VisualizePanel';
 import { SourceOfTruthPanel } from './components/SourceOfTruthPanel';
@@ -87,7 +89,7 @@ const theme = createTheme({
   },
 });
 
-type AppView = 'prompt' | 'grader' | 'visualize' | 'source' | 'quizz' | 'history';
+type AppView = 'prompt' | 'office' | 'grader' | 'visualize' | 'source' | 'quizz' | 'history';
 
 type HistoryReplayState = {
   key: number;
@@ -208,6 +210,19 @@ function App() {
             <ChatBubbleOutlineIcon color={view === 'prompt' ? 'primary' : 'inherit'} />
           </ListItemIcon>
           <ListItemText primary="Prompt" secondary="Lecture transcripts" />
+        </ListItemButton>
+        <ListItemButton
+          selected={view === 'office'}
+          onClick={() => {
+            setView('office');
+            setMobileNavOpen(false);
+          }}
+          sx={{ borderRadius: 2, mb: 0.5 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <HeadsetMicIcon color={view === 'office' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="Office Hours" secondary="Voice & chat tutor" />
         </ListItemButton>
         <ListItemButton
           selected={view === 'grader'}
@@ -434,15 +449,17 @@ function App() {
                     <Typography variant="body2" color="text.secondary">
                       {view === 'prompt'
                         ? 'Ask ingested lecture transcripts; browse matching clips.'
-                        : view === 'grader'
-                          ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
-                          : view === 'visualize'
-                            ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
-                            : view === 'source'
-                              ? 'Search OCR-backed PDF chunks with page citations.'
-                              : view === 'quizz'
-                                ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
-                                : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
+                        : view === 'office'
+                          ? 'Chat or speak with a professor persona grounded in lectures and textbooks.'
+                          : view === 'grader'
+                            ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
+                            : view === 'visualize'
+                              ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
+                              : view === 'source'
+                                ? 'Search OCR-backed PDF chunks with page citations.'
+                                : view === 'quizz'
+                                  ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
+                                  : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
                     </Typography>
                   </Box>
                 </Box>
@@ -463,19 +480,24 @@ function App() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 {view === 'prompt'
                   ? 'Ask ingested lecture transcripts; browse matching clips.'
-                  : view === 'grader'
-                    ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
-                    : view === 'visualize'
-                      ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
-                      : view === 'source'
-                        ? 'Search OCR-backed PDF chunks with page citations.'
-                        : view === 'quizz'
-                          ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
-                          : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
+                  : view === 'office'
+                    ? 'Chat or speak with a professor persona grounded in lectures and textbooks.'
+                    : view === 'grader'
+                      ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
+                      : view === 'visualize'
+                        ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
+                        : view === 'source'
+                          ? 'Search OCR-backed PDF chunks with page citations.'
+                          : view === 'quizz'
+                            ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
+                            : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
               </Typography>
             )}
 
             {/* Keep all panels mounted so local state (queries, canvas, uploads) survives sidebar switches */}
+            <Box sx={{ display: view === 'office' ? 'block' : 'none' }} aria-hidden={view !== 'office'}>
+              <OfficeHoursPanel theme={theme} />
+            </Box>
             <Box sx={{ display: view === 'prompt' ? 'block' : 'none' }} aria-hidden={view !== 'prompt'}>
               <LectureRagPanel
                 theme={theme}
