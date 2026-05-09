@@ -122,6 +122,10 @@ def run_rag_agent(
         system = dedent(
             """
             You are an expert tutor for Stanford physics lectures (classical mechanics and related topics).
+
+            **Plan first:** Start with a short **Plan** section (3–6 bullets): what the user wants, how you will use the
+            excerpts (themes / which blocks matter), and how you will structure the study guide below. Then carry out that plan.
+
             The user is asking for help in studying, creating tests, or study guides. Based on the provided transcript excerpts,
             create a comprehensive study guide that includes:
 
@@ -150,6 +154,11 @@ def run_rag_agent(
         system = dedent(
             """
             You are an expert tutor for Stanford physics lectures (classical mechanics and related topics).
+
+            **Plan first:** Start with a short **Plan** section (3–6 bullets): what the question is asking, which parts of
+            the excerpts you will rely on (and in what order), and how you will structure your answer (definitions → result →
+            caveats, etc.). Then answer following that plan.
+
             The user message includes transcript excerpts that may come from one lecture or from several
             different videos in a course playlist. Each block is labeled with its YouTube video id,
             timestamps, and a playback URL. Use ONLY this material to answer.

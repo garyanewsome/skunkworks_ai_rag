@@ -6,10 +6,13 @@ forces, flowcharts, etc.). Supports single canvas or multi-frame mechanisms.
 
 from __future__ import annotations
 
+import functools
+import importlib.util
 import json
 import os
 import re
 import uuid
+from pathlib import Path
 from textwrap import dedent
 from typing import Union
 from urllib.parse import urlparse
@@ -58,25 +61,272 @@ _HEAVY_POLYGON_CHARS = 480
 _HEAVY_POLYGON_SHAPE_COUNT = 14
 _HEAVY_PATH_CHARS = 960
 
-_REFERENCE_VISUAL_INTENT_RE = re.compile(
-    r"(?is)\b("
-    r"exact|lifelike|life[-\s]like|realistic|photo[-\s]?real|photoreal|"
-    r"anatom(y|ical)|accurate|textbook|encyclop(?:aedic)?|"
-    r"true[-\s]to[-\s]life|real[-\s]world|actual (?:photo|image|picture)|"
-    r"how (?:it|things) (?:really|actually) (?:look|looks|appear)|"
-    r"faithful|verisimil|like (?:a )?real|not (?:a )?cartoon|"
-    r"medical illustration|cross[-\s]section|layers of|life[-\s]like drawing"
-    r")\b"
+_COMMONS_STOPWORDS = frozenset(
+    {
+        "a",
+        "an",
+        "the",
+        "and",
+        "or",
+        "but",
+        "nor",
+        "in",
+        "on",
+        "at",
+        "to",
+        "for",
+        "of",
+        "as",
+        "by",
+        "with",
+        "from",
+        "into",
+        "via",
+        "per",
+        "is",
+        "are",
+        "was",
+        "were",
+        "be",
+        "been",
+        "being",
+        "have",
+        "has",
+        "had",
+        "do",
+        "does",
+        "did",
+        "will",
+        "would",
+        "could",
+        "should",
+        "may",
+        "might",
+        "must",
+        "i",
+        "you",
+        "he",
+        "she",
+        "it",
+        "we",
+        "they",
+        "them",
+        "their",
+        "me",
+        "my",
+        "your",
+        "this",
+        "that",
+        "these",
+        "those",
+        "here",
+        "there",
+        "what",
+        "which",
+        "who",
+        "when",
+        "where",
+        "why",
+        "how",
+        "all",
+        "any",
+        "both",
+        "each",
+        "few",
+        "more",
+        "most",
+        "some",
+        "such",
+        "no",
+        "not",
+        "only",
+        "same",
+        "so",
+        "than",
+        "too",
+        "very",
+        "just",
+        "also",
+        "then",
+        "please",
+        "show",
+        "give",
+        "get",
+        "see",
+        "want",
+        "need",
+        "make",
+        "using",
+        "use",
+        "like",
+        "about",
+        "through",
+        "during",
+        "between",
+        "within",
+        "picture",
+        "photo",
+        "image",
+        "snapshot",
+        "something",
+        "anything",
+        "everything",
+        "tell",
+        "describe",
+        "explain",
+    }
+)
+_COMMONS_SHORT_SCI_TERMS = frozenset({"rna", "dna", "atp", "adp", "nad", "fad"})
+_COMMONS_QUERY_VIS_TERMS = frozenset(
+    {"diagram", "illustration", "chart", "schematic", "schematics", "drawing", "figure"}
 )
 
-_HUMAN_ANATOMY_CONTEXT_RE = re.compile(
-    r"(?is)\b("
-    r"human (?:body|anatomy|figure|torso)|full body|skeleton|skull|bones?|skeletal|"
-    r"nervous|nerve|neuron|neural|brain|spinal|"
-    r"veins?|venous|artery|arteries|circulatory|blood vessels?|vascular|"
-    r"muscular system|internal organs|organ systems?"
-    r")\b"
+# Normalized tokens for Wikimedia Commons search (common typos / variants).
+_COMMONS_KEYWORD_FIXES: dict[str, str] = {
+    "skelleton": "skeleton",
+    "skeletton": "skeleton",
+}
+
+
+@functools.lru_cache(maxsize=1)
+def _reference_image_module():
+    """Load reference_image from PYTHONPATH or from this package directory (Docker/cwd-safe)."""
+    try:
+        import reference_image as mod
+
+        return mod
+    except ImportError:
+        path = Path(__file__).resolve().parent / "reference_image.py"
+        if not path.is_file():
+            return None
+        spec = importlib.util.spec_from_file_location("_sk_reference_image", path)
+        if spec is None or spec.loader is None:
+            return None
+        mod = importlib.util.module_from_spec(spec)
+        try:
+            spec.loader.exec_module(mod)
+        except Exception:
+            return None
+        return mod
+
+
+def _commons_thumbnail_url(query: str) -> str | None:
+    """Resolve a thumbnail URL: English Wikipedia article search first, then Wikimedia Commons file search."""
+    mod = _reference_image_module()
+    if mod is None:
+        return None
+    fn = getattr(mod, "wikimedia_thumbnail_url", None)
+    if callable(fn):
+        return fn(query)
+    return mod.commons_thumbnail_url(query)
+
+
+def _src_blocked_by_safe_media_policy(src: str) -> bool:
+    """True when upload URL basename matches blocked NSFW / profanity heuristics."""
+    mod = _reference_image_module()
+    if mod is None:
+        return False
+    check = getattr(mod, "is_unsafe_wikimedia_upload_url", None)
+    if not callable(check):
+        return False
+    try:
+        return bool(check(src))
+    except Exception:
+        return False
+
+
+# Prompts that ask for photograph-like fidelity → image shapes only (no vector illustration).
+_PHOTOREAL_IMAGE_ONLY_RE = re.compile(
+    r"""
+    \b(?:photo[-\s]?real(?:istic)?|hyper[-\s]?real(?:istic)?|ultra[-\s]?real(?:istic)?)\b
+    |\b(?:life[-\s]?like|lifelike)\b
+    |\bspitting\s+image\b
+    |\btrue[-\s]?to[-\s]?life\b
+    |\bas\s+real\s+as\b
+    |\bindistinguishable\s+from\s+(?:real(?:ity)?|life|a\s+photo|the\s+real)\b
+    |\blooks\s+(?:exactly\s+)?(?:like\s+)?(?:real|a\s+photograph|the\s+real\s+thing)\b
+    |\b(?:high[-\s]?fidelity)\s+(?:photo|image|picture)\b
+    """,
+    re.I | re.VERBOSE | re.UNICODE,
 )
+
+
+def wants_photoreal_image_only(user_prompt: str, topic_hint: str | None = None) -> bool:
+    blob = f"{user_prompt or ''} {(topic_hint or '')}".strip().lower()
+    if not blob:
+        return False
+    return _PHOTOREAL_IMAGE_ONLY_RE.search(blob) is not None
+
+
+def effective_photoreal_images_only(
+    user_prompt: str,
+    topic_hint: str | None,
+    *,
+    realism: bool = False,
+) -> bool:
+    """True when the client enables Realism or the prompt reads like a photoreal request."""
+    return bool(realism) or wants_photoreal_image_only(user_prompt, topic_hint)
+
+
+# Minimal valid upload URL so Pydantic accepts scenes before clamp replaces shapes with encyclopedia images.
+_PHOTOREAL_VALIDATE_PLACEHOLDER_SRC = (
+    "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/PNG_transparency_demonstration_1.png/"
+    "320px-PNG_transparency_demonstration_1.png"
+)
+
+
+def _patch_photoreal_empty_drawables(data: dict, *, animation: bool) -> None:
+    """Ensure each scene/frame passes ``need_drawables``; photoreal clamp drops model shapes and fills real URLs."""
+    if animation:
+        frames = data.get("frames")
+        if not isinstance(frames, list):
+            return
+        placeholder = {
+            "type": "image",
+            "src": _PHOTOREAL_VALIDATE_PLACEHOLDER_SRC,
+            "x": 0.0,
+            "y": 0.0,
+            "w": 100.0,
+            "h": 100.0,
+        }
+        for fr in frames:
+            if not isinstance(fr, dict):
+                continue
+            if (fr.get("nodes") or []) or (fr.get("shapes") or []):
+                continue
+            fr["shapes"] = [placeholder.copy()]
+        return
+    if (data.get("nodes") or []) or (data.get("shapes") or []):
+        return
+    data["shapes"] = [
+        {
+            "type": "image",
+            "src": _PHOTOREAL_VALIDATE_PLACEHOLDER_SRC,
+            "x": 0.0,
+            "y": 0.0,
+            "w": 100.0,
+            "h": 100.0,
+        }
+    ]
+
+
+def _keywords_for_commons(text: str, *, max_take: int = 18) -> list[str]:
+    """Pull searchable tokens from user/model text; drop fillers so Commons queries hit real topics."""
+    words = re.findall(r"[a-zA-Z][a-zA-Z0-9_-]{0,}", (text or "").lower())
+    out: list[str] = []
+    seen: set[str] = set()
+    for w in words:
+        w = _COMMONS_KEYWORD_FIXES.get(w, w)
+        if w in _COMMONS_STOPWORDS:
+            continue
+        if len(w) <= 2 and w not in _COMMONS_SHORT_SCI_TERMS:
+            continue
+        if w not in seen:
+            seen.add(w)
+            out.append(w)
+        if len(out) >= max_take:
+            break
+    return out
 
 
 class SceneShape(BaseModel):
@@ -177,6 +427,8 @@ class SceneShape(BaseModel):
         host = (p.hostname or "").lower()
         if p.scheme != "https" or host not in _ALLOWED_IMAGE_HOSTS:
             return None
+        if _src_blocked_by_safe_media_policy(s):
+            return None
         return s
 
     @model_validator(mode="after")
@@ -213,6 +465,11 @@ class SceneFrame(BaseModel):
 
 
 class VisualizeScene(BaseModel):
+    plan: str | None = Field(
+        None,
+        max_length=2400,
+        description="Brief outline written before coordinates; optional but prompted by system instructions.",
+    )
     title: str = Field(..., max_length=200)
     caption: str | None = Field(None, max_length=500)
     nodes: list[SceneNode] = Field(default_factory=list, max_length=40)
@@ -227,6 +484,11 @@ class VisualizeScene(BaseModel):
 
 
 class AnimatedVisualizeScene(BaseModel):
+    plan: str | None = Field(
+        None,
+        max_length=2400,
+        description="Brief outline written before frames; optional but prompted by system instructions.",
+    )
     title: str = Field(..., max_length=200)
     caption: str | None = Field(None, max_length=500)
     frames: list[SceneFrame] = Field(..., min_length=2, max_length=14)
@@ -726,135 +988,223 @@ def clamp_shapes(shapes: list[SceneShape]) -> list[SceneShape]:
     return out
 
 
-def user_wants_reference_visuals(prompt: str) -> bool:
-    """True when the user asks for lifelike, anatomical, or accuracy that vectors rarely satisfy."""
-    p = (prompt or "").strip()
-    if not p:
-        return False
-    pl = p.lower()
-    if _REFERENCE_VISUAL_INTENT_RE.search(p):
-        return True
-    if _HUMAN_ANATOMY_CONTEXT_RE.search(p) and any(
-        w in pl for w in ("draw", "diagram", "label", "show", "illustrat", "depict", "sketch", "chart")
-    ):
-        return True
-    return False
+def _commons_search_queries(user_prompt: str, topic_hint: str) -> list[str]:
+    """
+    Build Commons search strings for **any** visualization prompt.
 
+    Long prompts often start with filler (“show me a picture of…”); those words yield useless searches if kept.
+    Avoid duplicating words like ``diagram`` when keywords already end with ``diagram``.
+    """
+    pk = _keywords_for_commons(user_prompt or "")
+    tk = _keywords_for_commons(topic_hint or "")
+    if not pk and tk:
+        pk = list(tk)
 
-def _reference_visual_search_queries(user_prompt: str, topic_hint: str) -> list[str]:
-    """Build 1–5 Commons search strings from the user request."""
-    p_raw = user_prompt or ""
-    p = p_raw.lower()
-    th = (topic_hint or "").strip()[:120]
+    def pack(ws: list[str], n: int) -> str:
+        return " ".join(ws[: min(n, len(ws))]).strip()
 
-    has_sk = bool(re.search(r"(?is)\b(skeleton|skull|bones?|skeletal)\b", p_raw))
-    has_ns = bool(re.search(r"(?is)\b(nervous|nerve|neuron|neural|brain|spinal cord)\b", p_raw))
-    has_cv = bool(
-        re.search(r"(?is)\b(veins?|venous|artery|arteries|circulatory|blood vessels?|vascular)\b", p_raw)
-    )
-    humanish = bool(re.search(r"(?is)\b(human|body|anatom)\b", p_raw))
+    def wants_diagram_suffix(ws: list[str]) -> bool:
+        return not ws or ws[-1].lower() not in _COMMONS_QUERY_VIS_TERMS
 
-    out: list[str] = []
-    if humanish or has_sk or has_ns or has_cv:
-        if has_sk:
-            out.append("human skeleton anatomical diagram lateral")
-        if has_ns:
-            out.append("human nervous system anatomical diagram")
-        if has_cv:
-            out.append("human circulatory system anatomical diagram veins")
+    english_first: list[str] = []
+    candidates: list[str] = []
+
+    def push_english_diagram(core: str, *, min_len: int = 3) -> None:
+        core = core.strip()
+        if len(core) < min_len:
+            return
+        english_first.append(f"{core} english diagram")
+        english_first.append(f"{core} english labeled diagram")
+
+    if pk:
+        joined = " ".join(pk).strip()
+        if len(joined) >= 4:
+            push_english_diagram(joined, min_len=4)
+            candidates.append(joined)
+        if wants_diagram_suffix(pk):
+            for n in (5, 8, 12):
+                core = pack(pk, n)
+                if len(core) >= 3:
+                    candidates.append(f"{core} diagram")
+                    push_english_diagram(core)
+            if len(pk) >= 5:
+                ld = f"{pack(pk, min(14, len(pk)))} labeled diagram"
+                candidates.append(ld)
+                push_english_diagram(ld.replace(" labeled diagram", "").strip())
+                candidates.append(f"{pack(pk, 7)} schematic")
+        else:
+            candidates.append(f"{joined} labeled")
+            push_english_diagram(f"{joined} labeled".replace(" labeled", "").strip() or joined)
+
+        jlow = joined.lower()
+        if "cell" in jlow:
+            if "animal" not in jlow:
+                candidates.append("animal cell labeled diagram")
+                english_first.insert(0, "animal cell labeled diagram english")
+            candidates.append("eukaryotic cell diagram")
+            english_first.insert(0, "eukaryotic cell diagram english")
+
+    if tk:
+        tjoined = " ".join(tk).strip()
+        pj = " ".join(pk).strip() if pk else ""
+        if len(tjoined) >= 4 and tjoined.lower() != pj.lower():
+            push_english_diagram(tjoined, min_len=4)
+            if wants_diagram_suffix(tk):
+                candidates.append(f"{tjoined} diagram")
+                candidates.append(f"{tjoined} labeled diagram")
+            else:
+                candidates.append(tjoined)
+
+    candidates = english_first + candidates
 
     seen: set[str] = set()
-    uniq: list[str] = []
-    for q in out:
-        q = q.strip()[:160]
-        if len(q) >= 6 and q not in seen:
-            seen.add(q)
-            uniq.append(q)
-
-    if uniq:
-        return uniq[:5]
-
-    words = re.findall(r"[a-zA-Z]{3,}", p_raw[:280])
-    phrase = " ".join(words[:8]).strip()
-    if phrase:
-        return [f"{phrase} anatomical educational diagram"[:160]]
-    if th:
-        return [f"{th} educational diagram illustration"[:160]]
-    return ["scientific anatomical diagram educational"[:160]]
+    out: list[str] = []
+    for q in candidates:
+        q = q.strip()[:280]
+        if len(q) < 6 or q in seen:
+            continue
+        seen.add(q)
+        out.append(q)
+    return out[:22]
 
 
-def _layout_reference_boxes(n: int) -> list[tuple[float, float, float, float]]:
-    """Compute (x, y, w, h) for each reference image; up to 3 per row, centered."""
-    if n <= 0:
+def _collect_distinct_reference_urls(
+    user_prompt: str,
+    topic_hint: str,
+    *,
+    max_urls: int = 4,
+) -> list[str]:
+    seen: set[str] = set()
+    out: list[str] = []
+    for q in _commons_search_queries(user_prompt, topic_hint):
+        if len(out) >= max_urls:
+            break
+        u = _commons_thumbnail_url(q)
+        if u and u not in seen:
+            seen.add(u)
+            out.append(u)
+    if out:
+        return out
+    kws = _keywords_for_commons(user_prompt)
+    if kws:
+        fallback = " ".join(kws[:8]).strip()
+        if len(fallback) >= 4:
+            u = _commons_thumbnail_url(f"{fallback} photograph")
+            if u:
+                return [u]
+    th = (topic_hint or "").strip()
+    if len(th) >= 4:
+        u = _commons_thumbnail_url(th[:220])
+        if u:
+            return [u]
+    return []
+
+
+def _model_wikimedia_image_urls(shapes: list[SceneShape]) -> list[str]:
+    seen: set[str] = set()
+    urls: list[str] = []
+    for s in shapes:
+        if (s.type or "").lower() != "image":
+            continue
+        src = (s.src or "").strip()
+        if not src.startswith("https://upload.wikimedia.org"):
+            continue
+        if src not in seen:
+            seen.add(src)
+            urls.append(src[:800])
+    return urls
+
+
+def _layout_photoreal_image_shapes(urls: list[str]) -> list[SceneShape]:
+    """Fill the canvas with 1–4 encyclopedia images (no vectors)."""
+    if not urls:
         return []
-    w_box, h_box = 300.0, 205.0
-    gap = 12.0
-    cols = min(3, n)
-    out: list[tuple[float, float, float, float]] = []
-    for i in range(n):
-        row = i // cols
-        idx_in_row = i % cols
-        n_this_row = min(cols, n - row * cols)
-        row_w = n_this_row * w_box + (n_this_row - 1) * gap
-        x0 = max(18.0, (1000.0 - row_w) / 2)
-        x = x0 + idx_in_row * (w_box + gap)
-        y = 58.0 + row * (h_box + gap)
-        out.append((x, y, w_box, h_box))
+    n = len(urls)
+    out: list[SceneShape] = []
+
+    def img(src: str, x: float, y: float, w: float, h: float, label: str) -> SceneShape:
+        return SceneShape(
+            type="image",
+            src=src,
+            x=x,
+            y=y,
+            w=w,
+            h=h,
+            label=label[:110],
+            id=f"s-{uuid.uuid4().hex[:12]}",
+        )
+
+    if n == 1:
+        return [img(urls[0], 0.0, 0.0, 1000.0, 700.0, "Reference")]
+
+    if n == 2:
+        return [
+            img(urls[0], 16.0, 48.0, 476.0, 604.0, "Reference A"),
+            img(urls[1], 508.0, 48.0, 476.0, 604.0, "Reference B"),
+        ]
+
+    # 3–4 tiles (2×2)
+    w_cell, h_cell = 476.0, 318.0
+    xs = (16.0, 508.0)
+    ys = (40.0, 366.0)
+    labels = ("Reference A", "Reference B", "Reference C", "Reference D")
+    for i in range(min(n, 4)):
+        row, col = divmod(i, 2)
+        out.append(img(urls[i], xs[col], ys[row], w_cell, h_cell, labels[i]))
     return out
 
 
-def inject_lifelike_reference_images(
+_COMMONS_HIDES_PHOTO_TYPES = frozenset(
+    {
+        "polygon",
+        "path",
+    }
+)
+
+
+def inject_commons_thumbnail_first(
     shapes: list[SceneShape],
     topic_hint: str,
     user_prompt: str,
 ) -> list[SceneShape]:
-    """Append Wikimedia thumbnails when the prompt asks for lifelike / anatomical accuracy."""
-    if not user_wants_reference_visuals(user_prompt):
-        return shapes
-    try:
-        from reference_image import commons_thumbnail_url
-    except ImportError:
-        return shapes
+    """
+    Try reference thumbnails before relying on model-drawn outlines.
 
-    queries = _reference_visual_search_queries(user_prompt, topic_hint)
-    pairs: list[tuple[str, str]] = []
-    for q in queries:
-        url = commons_thumbnail_url(q)
-        if url:
-            pairs.append((url, q))
-        if len(pairs) >= 5:
-            break
+    Lookup order per query string: **English Wikipedia** article thumbnails, then **Wikimedia Commons** file search.
 
-    if not pairs:
-        return shapes
+    SVG paint order follows `shapes` array order (later = on top). The reference **`image` is appended last**
+    so it is not covered by rectangles and lines the model still emits.
 
-    layouts = _layout_reference_boxes(len(pairs))
-    imgs: list[SceneShape] = []
-    for (url, q), box in zip(pairs, layouts):
-        x, y, w, h = box
-        imgs.append(
-            SceneShape(
-                type="image",
-                src=url,
-                x=x,
-                y=y,
-                w=w,
-                h=h,
-                label=q[:110],
-                id=f"s-{uuid.uuid4().hex[:12]}",
-            )
+    **`polygon`** and **`path`** are removed on success — models use both for organic cell/outlines; keeping them
+    would obscure or replace the thumbnail visually even when the URL loads fine.
+    """
+    for q in _commons_search_queries(user_prompt, topic_hint):
+        url = _commons_thumbnail_url(q)
+        if not url:
+            continue
+        kept = [s for s in shapes if (s.type or "").lower() not in _COMMONS_HIDES_PHOTO_TYPES]
+        img = SceneShape(
+            type="image",
+            src=url,
+            x=150.0,
+            y=72.0,
+            w=700.0,
+            h=520.0,
+            label=q[:110],
+            id=f"s-{uuid.uuid4().hex[:12]}",
         )
+        return kept + [img]
 
-    kept = [s for s in shapes if (s.type or "").lower() != "polygon"]
-    return kept + imgs
+    return shapes
 
 
 def rewrite_commons_image_sources(shapes: list[SceneShape]) -> list[SceneShape]:
     """Re-resolve upload.wikimedia.org URLs via Commons imageinfo (fixes stale thumbs / bad hashes)."""
-    try:
-        from reference_image import resolve_commons_upload_url, strip_commons_tracking_query
-    except ImportError:
+    mod = _reference_image_module()
+    if mod is None:
         return shapes
+    resolve_commons_upload_url = mod.resolve_commons_upload_url
+    strip_commons_tracking_query = mod.strip_commons_tracking_query
 
     out: list[SceneShape] = []
     for s in shapes:
@@ -865,12 +1215,18 @@ def rewrite_commons_image_sources(shapes: list[SceneShape]) -> list[SceneShape]:
         if not src.startswith("https://upload.wikimedia.org"):
             out.append(s)
             continue
+        if _src_blocked_by_safe_media_policy(src):
+            continue
         resolved = resolve_commons_upload_url(src)
         if resolved:
+            if _src_blocked_by_safe_media_policy(resolved):
+                continue
             out.append(s.model_copy(update={"src": resolved}))
             continue
         stripped = strip_commons_tracking_query(src[:800])
         if stripped != src:
+            if _src_blocked_by_safe_media_policy(stripped):
+                continue
             out.append(s.model_copy(update={"src": stripped}))
         else:
             out.append(s)
@@ -882,11 +1238,24 @@ def finalize_visual_shapes(
     topic_hint: str,
     user_prompt: str,
     *,
-    lifelike_refs: bool = True,
+    prefer_commons_thumbnail: bool = True,
+    images_only: bool = False,
 ) -> list[SceneShape]:
-    s = maybe_substitute_heavy_polygons(shapes, topic_hint)
-    if lifelike_refs:
-        s = inject_lifelike_reference_images(s, topic_hint, user_prompt)
+    if images_only:
+        merged = _collect_distinct_reference_urls(user_prompt, topic_hint, max_urls=4)
+        if not merged:
+            injected = inject_commons_thumbnail_first([], topic_hint, user_prompt)
+            merged = _model_wikimedia_image_urls(injected)
+        merged = merged[:4]
+        layout = _layout_photoreal_image_shapes(merged)
+        if not layout:
+            layout = _layout_photoreal_image_shapes([_PHOTOREAL_VALIDATE_PLACEHOLDER_SRC])
+        return rewrite_commons_image_sources(layout)
+
+    s = shapes
+    if prefer_commons_thumbnail:
+        s = inject_commons_thumbnail_first(s, topic_hint, user_prompt)
+    s = maybe_substitute_heavy_polygons(s, topic_hint)
     s = rewrite_commons_image_sources(s)
     return s
 
@@ -913,16 +1282,11 @@ def maybe_substitute_heavy_polygons(
     shapes: list[SceneShape],
     topic_hint: str,
 ) -> list[SceneShape]:
-    try:
-        from reference_image import commons_thumbnail_url
-    except ImportError:
-        return shapes
-
     hint_base = (topic_hint or "").strip()[:220] or "scientific illustration"
 
     polygons = [s for s in shapes if (s.type or "").lower() == "polygon"]
     if len(polygons) > _HEAVY_POLYGON_SHAPE_COUNT:
-        url = commons_thumbnail_url(hint_base)
+        url = _commons_thumbnail_url(hint_base)
         if url:
             kept = [s for s in shapes if (s.type or "").lower() != "polygon"]
             img = SceneShape(
@@ -935,7 +1299,7 @@ def maybe_substitute_heavy_polygons(
                 label="Reference (Commons)",
                 id=f"s-{uuid.uuid4().hex[:12]}",
             )
-            return [img] + kept
+            return kept + [img]
 
     out: list[SceneShape] = []
     for s in shapes:
@@ -946,7 +1310,7 @@ def maybe_substitute_heavy_polygons(
             heavy = pts_len > _HEAVY_POLYGON_CHARS or ntok > _HEAVY_POLYGON_VERTEX_TOKENS
             if heavy:
                 q = (s.label or s.icon or hint_base).strip()[:120]
-                url = commons_thumbnail_url(q)
+                url = _commons_thumbnail_url(q)
                 if url:
                     cx, cy = _polygon_centroid_xy(s.points)
                     w, h = 280.0, 210.0
@@ -965,7 +1329,7 @@ def maybe_substitute_heavy_polygons(
                     continue
         if t == "path" and (s.path_d or "") and len(s.path_d) > _HEAVY_PATH_CHARS:
             q = (s.label or hint_base).strip()[:120]
-            url = commons_thumbnail_url(q)
+            url = _commons_thumbnail_url(q)
             if url:
                 cx = float(s.cx) if s.cx is not None else 500.0
                 cy = float(s.cy) if s.cy is not None else 350.0
@@ -987,23 +1351,52 @@ def maybe_substitute_heavy_polygons(
     return out
 
 
-def _clamp_scene(scene: VisualizeScene, *, topic_hint: str, user_prompt: str) -> VisualizeScene:
+def _clamp_scene(
+    scene: VisualizeScene,
+    *,
+    topic_hint: str,
+    user_prompt: str,
+    photoreal: bool,
+) -> VisualizeScene:
     nodes, edges = clamp_nodes_edges(scene.nodes, scene.edges)
+    if photoreal:
+        nodes, edges = [], []
     th = f"{scene.title} {topic_hint}".strip()
-    shapes = clamp_shapes(finalize_visual_shapes(scene.shapes, th, user_prompt, lifelike_refs=True))
+    shapes = clamp_shapes(
+        finalize_visual_shapes(
+            scene.shapes,
+            th,
+            user_prompt,
+            prefer_commons_thumbnail=not photoreal,
+            images_only=photoreal,
+        )
+    )
     return VisualizeScene(title=scene.title, caption=scene.caption, nodes=nodes, edges=edges, shapes=shapes)
 
 
 def _clamp_animated(
-    scene: AnimatedVisualizeScene, *, topic_hint: str, user_prompt: str
+    scene: AnimatedVisualizeScene,
+    *,
+    topic_hint: str,
+    user_prompt: str,
+    photoreal: bool,
 ) -> AnimatedVisualizeScene:
     frames: list[SceneFrame] = []
     for idx, fr in enumerate(scene.frames):
         nodes, edges = clamp_nodes_edges(fr.nodes, fr.edges)
+        if photoreal:
+            nodes, edges = [], []
         th = f"{scene.title} {fr.step_label} {topic_hint}".strip()
-        inject_refs = idx == 0
+        frame_prompt = f"{user_prompt} {fr.step_label}".strip()
+        inject_thumb = idx == 0 and not photoreal
         shapes = clamp_shapes(
-            finalize_visual_shapes(fr.shapes, th, user_prompt, lifelike_refs=inject_refs)
+            finalize_visual_shapes(
+                fr.shapes,
+                th,
+                frame_prompt if photoreal else user_prompt,
+                prefer_commons_thumbnail=inject_thumb if not photoreal else False,
+                images_only=photoreal,
+            )
         )
         frames.append(
             SceneFrame(
@@ -1024,6 +1417,7 @@ def run_visualize_scene(
     model: str,
     max_tokens: int,
     animation: bool,
+    realism: bool = False,
 ) -> VisualizeResult:
     q = prompt.strip()
     if not q:
@@ -1031,12 +1425,44 @@ def run_visualize_scene(
 
     hint = (domain_hint or "").strip() or "Infer domain from the user prompt."
 
+    photoreal = effective_photoreal_images_only(q, hint, realism=realism)
+    photoreal_system_prefix = (
+        dedent(
+            """
+            **Photoreal / lifelike mode:** The user enabled **Realism** and/or asked for photograph-like fidelity (e.g.
+            lifelike, ultra-real, hyperrealistic, “spitting image”, true-to-life).
+
+            - **`shapes`:** Use **only** `"type":"image"` entries. Each needs **`src`** on **`upload.wikimedia.org`**
+              (encyclopedia thumbnails). Emit **1–4** images with `x`,`y`,`w`,`h` filling the **1000×700** canvas (full bleed
+              or a simple grid). Do **not** use `rect`, `ellipse`, `circle`, `polygon`, `path`, `line`, `arrow`, `icon`, or
+              `ground`.
+            - **`nodes`** and **`edges`:** Must be **empty arrays** `[]`.
+            - **Animated:** Every frame must repeat the same rule (only `image` shapes in each frame’s `shapes` array).
+            - The server replaces the canvas with curated encyclopedia thumbnails when needed; your JSON must still be
+              **image-only** (no vector illustration).
+
+            """
+        ).strip()
+        + "\n\n"
+        if photoreal
+        else ""
+    )
+
     if animation:
         system = dedent(
             """
             You design **multi-frame** interactive diagram data for a web canvas: chemistry mechanisms, physics, biology,
-            space, food, vehicles, **or any topic** the user names. Prefer vector primitives; **optional** reference photos:
-            use `type` **`image`** with **`src`** set to an **HTTPS** URL on **`upload.wikimedia.org`** only (Wikimedia Commons).
+            space, food, vehicles, **or any topic** the user names. The server **first** tries an **English Wikipedia**
+            article thumbnail for the topic, then **Wikimedia Commons** file search; **if neither matches**, the canvas
+            relies on your vectors. Use **`image`** + **`src`**
+            (**HTTPS** `upload.wikimedia.org` only) when you have a **known-good** Commons URL; otherwise **`rect` /
+            `ellipse` / `polygon` / `path` / `line`** are appropriate.
+
+            **Workflow — plan first:** Start your JSON with a **`plan`** field (single string, 3–8 short sentences or
+            newline-separated bullets using `\\n`). In `plan`, state: what story the frames tell, how many frames and what
+            changes per frame, what to draw with shapes vs node labels, whether an optional **`image`** fits, and paint-order
+            intent (background → foreground). **Then** fill `title`, `caption`, and **`frames`** so the geometry matches
+            that plan. Do not contradict `plan` in the data you emit.
 
             Reply with **only valid JSON** (no markdown fences, no prose). Use strict JSON: **double-quoted keys and
             strings**, **no trailing commas**, no `//` comments, no single-quoted strings. **Never put a real line break
@@ -1068,14 +1494,8 @@ def run_visualize_scene(
             - `image`: **`src`** required — HTTPS thumbnail on **`upload.wikimedia.org`** only; position with `x`,`y`,`w`,`h`.
               Use for a recognizable photo when vector detail would be excessive.
             - `icon`: optional **built-ins** `car_side`, `apple`, `tree_simple`, `impact_burst`, `barrier_wall` — OR any
-              other short noun (`helicopter`, `pizza`) for a **labeled schematic badge**. Prefer **polygon / path /
-              stacked rects+ellipses** when you want a recognizable drawing.
-
-            **Lifelike / anatomical / “exact” requests** (realistic human or animal, organ systems, medical accuracy):
-            **Do not** try to “sculpt” bodies with `polygon` blobs — they will look wrong. Prefer **one or more** `image`
-            shapes (Commons thumbnails) for each major layer or view, plus **`nodes`** (or `arrow` + `label` callouts) for
-            text. The server may add reference `image` shapes from Wikimedia; your JSON should still use **clear titles and
-            part labels** for callouts.
+              other short noun (`helicopter`, `pizza`) for a **labeled schematic badge**. Use **`nodes`** and **`arrow`**
+              for labels and small callouts.
 
             **Style:** Use saturated hex fills (`#1565c0`, `#e65100`, …), **complete** `#RRGGBB`/`#RGB` only (never cut off
             mid-color). Clear strokes; simple cartoon proportions (few primitives per object). Up to ~96 shapes per frame.
@@ -1087,6 +1507,7 @@ def run_visualize_scene(
 
             **Root JSON:**
             {
+              "plan": "Outline: frame roles, entities, vectors vs labels, optional Commons image rationale.",
               "title": "...",
               "caption": null,
               "frames": [
@@ -1101,12 +1522,21 @@ def run_visualize_scene(
             Chemistry frames may use `"shapes": []`. Every `edges[].from_id` / `to_id` must exist in that frame's `nodes`.
             """
         ).strip()
+        system = photoreal_system_prefix + system
     else:
         system = dedent(
             """
             You design interactive diagram data for a web canvas: chemistry, physics, biology, space, everyday objects,
-            food, vehicles, **anything** the user asks for. Prefer vectors; **optional** `image` shapes with **`src`** on
-            **`upload.wikimedia.org`** (HTTPS) for Commons thumbnails when a photo helps.
+            food, vehicles, **anything** the user asks for. The server **first** tries an **English Wikipedia** article
+            thumbnail, then **Wikimedia Commons** file search; **if those fail**, your **`polygon` / `path` / other primitives**
+            carry the drawing. Optional
+            **`image`** + **`src`** on **`upload.wikimedia.org`** when you cite a **correct** Commons thumbnail URL.
+
+            **Workflow — plan first:** Begin your JSON with a **`plan`** field (single string, 3–8 short sentences or
+            newline-separated bullets via `\\n`). Summarize: diagram goal, main entities and layout regions, what you draw
+            with **`shapes`** vs **`nodes`**/**`edges`**, whether an **`image`** is appropriate, and stacking order
+            (background first in `shapes`). **Then** set `title`, `caption`, `nodes`, `edges`, and `shapes` to implement that
+            plan. Keep `plan` consistent with what you output.
 
             Reply with **only valid JSON** (no markdown fences, no prose). Strict JSON: **double-quoted keys/strings**,
             **no trailing commas**, no comments. **Do not insert literal line breaks inside string values** (use `\\n` if
@@ -1132,19 +1562,14 @@ def run_visualize_scene(
             - `path`: `path_d` or `d` — SVG path using only `M L H V C Q Z` and numeric coords (no `<`)
             - `image`: **`src`** — HTTPS URL on **`upload.wikimedia.org`** only; box with `x`,`y`,`w`,`h`
             - `icon`: built-ins `car_side`, `apple`, `tree_simple`, `impact_burst`, `barrier_wall`; **or** any short noun
-              for a labeled schematic. For clear drawings of arbitrary subjects, **compose `polygon` + `rect` +
-              `ellipse` + `line`** (e.g. spaceship body + fins + window circles).
-
-            **Lifelike or anatomical accuracy:** If the user wants an **exact**, **realistic**, or **medical** depiction
-            (human body, organ systems, layers like skeleton / nerves / blood vessels), **do not** outline the body with
-            `polygon` — use **`image`** reference plates (or leave space for them) and use **`nodes`** and **`arrow`**
-            for labels. The backend may inject Commons `image` shapes; your job is **labels, layout, and titles** that
-            match the request.
+              for a labeled schematic. **Compose `polygon` + `rect` + `ellipse` + `line`** when vectors are the right tool
+              (e.g. schematic forces, abstract diagrams). **`nodes`** + **`arrow`** work well for labels.
 
             **Hex colors** encouraged (`#RRGGBB` or `#RGB`), always **complete** on one line — never truncate a color string.
 
             **JSON:**
             {
+              "plan": "Outline: goal, layout, primitives vs labels, optional image, paint order.",
               "title": "...",
               "caption": null,
               "nodes": [ ... ],
@@ -1155,6 +1580,7 @@ def run_visualize_scene(
             At least one **node** OR one **shape** is required. Avoid unescaped double quotes in strings.
             """
         ).strip()
+        system = photoreal_system_prefix + system
 
     user_content = dedent(
         f"""
@@ -1181,6 +1607,9 @@ def run_visualize_scene(
 
     data = _parse_scene_json(raw)
 
+    if photoreal:
+        _patch_photoreal_empty_drawables(data, animation=animation)
+
     if animation:
         frames_raw = data.get("frames")
         if not isinstance(frames_raw, list) or len(frames_raw) < 2:
@@ -1190,9 +1619,9 @@ def run_visualize_scene(
                 _normalize_legacy_edges(fr.get("edges"))
                 _normalize_shapes_in_frame_or_scene(fr)
         ani = AnimatedVisualizeScene.model_validate(data)
-        return _clamp_animated(ani, topic_hint=hint, user_prompt=q)
+        return _clamp_animated(ani, topic_hint=hint, user_prompt=q, photoreal=photoreal)
 
     _normalize_legacy_edges(data.get("edges"))
     _normalize_shapes_in_frame_or_scene(data)
     scene = VisualizeScene.model_validate(data)
-    return _clamp_scene(scene, topic_hint=hint, user_prompt=q)
+    return _clamp_scene(scene, topic_hint=hint, user_prompt=q, photoreal=photoreal)

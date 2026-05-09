@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import type { PointerEvent as ReactPointerEvent, ReactNode } from 'react';
 import type { Theme } from '@mui/material/styles';
 import { alpha } from '@mui/material';
 
@@ -37,6 +37,12 @@ export type SceneShape = {
 type VisualizeShapesLayerProps = {
   shapes: SceneShape[];
   theme: Theme;
+  shapeOffsets?: Record<string, { x: number; y: number }>;
+  interactive?: boolean;
+  selectedShapeId?: string | null;
+  onShapePointerDown?: (e: ReactPointerEvent<SVGGElement>, shape: SceneShape) => void;
+  onShapePointerMove?: (e: ReactPointerEvent<SVGGElement>, shapeId: string) => void;
+  onShapePointerUp?: (e: ReactPointerEvent<SVGGElement>, shapeId: string) => void;
 };
 
 function num(v: number | null | undefined, d: number): number {
@@ -96,6 +102,141 @@ function polygonCentroid(pts: [number, number][]): [number, number] {
     sy += y;
   }
   return [sx / pts.length, sy / pts.length];
+}
+
+/** Loose bounding box for selection outline & hit priority (shape-local coordinates). */
+export function shapeLocalBounds(raw: SceneShape): { x: number; y: number; w: number; h: number } | null {
+  const t = (raw.type || '').toLowerCase();
+  if (t === 'ground') {
+    const y = num(raw.y, 580);
+    return { x: 0, y: y - 30, w: 1000, h: 60 };
+  }
+  if (t === 'rect' || t === 'image') {
+    const x = num(raw.x, 0);
+    const y = num(raw.y, 0);
+    const w = num(raw.w, t === 'image' ? 400 : 80);
+    const h = num(raw.h, t === 'image' ? 300 : 40);
+    const pad = t === 'image' ? 6 : 10;
+    const lab = raw.label ? 28 : 0;
+    return { x: x - pad, y: y - pad, w: w + pad * 2, h: h + pad * 2 + lab };
+  }
+  if (t === 'ellipse') {
+    const cx = num(raw.cx, 500);
+    const cy = num(raw.cy, 350);
+    const rx = num(raw.rx, 40);
+    const ry = num(raw.ry, 25);
+    const p = 12;
+    return { x: cx - rx - p, y: cy - ry - p, w: 2 * (rx + p), h: 2 * (ry + p) };
+  }
+  if (t === 'circle') {
+    const cx = num(raw.cx, 500);
+    const cy = num(raw.cy, 350);
+    const r = num(raw.r, 28);
+    const p = 10;
+    return { x: cx - r - p, y: cy - r - p, w: 2 * (r + p), h: 2 * (r + p) };
+  }
+  if (t === 'line' || t === 'arrow') {
+    const x1 = num(raw.x1, 0);
+    const y1 = num(raw.y1, 0);
+    const x2 = num(raw.x2, 100);
+    const y2 = num(raw.y2, 100);
+    const mnx = Math.min(x1, x2);
+    const mxx = Math.max(x1, x2);
+    const mny = Math.min(y1, y2);
+    const mxy = Math.max(y1, y2);
+    const pad = 22;
+    return { x: mnx - pad, y: mny - pad, w: mxx - mnx + pad * 2, h: mxy - mny + pad * 2 };
+  }
+  if (t === 'polygon') {
+    const pts = parsePolygonPoints(raw.points);
+    if (!pts) return null;
+    let mnx = Infinity;
+    let mxx = -Infinity;
+    let mny = Infinity;
+    let mxy = -Infinity;
+    for (const [x, y] of pts) {
+      mnx = Math.min(mnx, x);
+      mxx = Math.max(mxx, x);
+      mny = Math.min(mny, y);
+      mxy = Math.max(mxy, y);
+    }
+    const pad = 12;
+    return { x: mnx - pad, y: mny - pad, w: mxx - mnx + pad * 2, h: mxy - mny + pad * 2 };
+  }
+  if (t === 'path') {
+    const d = sanitizePathD(raw.path_d ?? raw.d);
+    if (!d) return null;
+    const m = /^[Mm]\s*([\d.-]+)[,\s]+([\d.-]+)/.exec(d.trim());
+    if (m) {
+      const x0 = Number(m[1]);
+      const y0 = Number(m[2]);
+      if (Number.isFinite(x0) && Number.isFinite(y0)) {
+        return { x: x0 - 70, y: y0 - 70, w: 260, h: 260 };
+      }
+    }
+    return { x: 380, y: 260, w: 240, h: 240 };
+  }
+  if (t === 'icon') {
+    const cx = num(raw.cx, 500);
+    const cy = num(raw.cy, 350);
+    const sc = num(raw.scale, 1);
+    const br = 100 * sc;
+    return { x: cx - br, y: cy - br - 44 * sc, w: 2 * br, h: 2 * br + 52 * sc };
+  }
+  return null;
+}
+
+function ShapeInteractiveWrap({
+  raw,
+  dx,
+  dy,
+  interactive,
+  selected,
+  bounds,
+  accent,
+  children,
+  onShapePointerDown,
+  onShapePointerMove,
+  onShapePointerUp,
+}: {
+  raw: SceneShape;
+  dx: number;
+  dy: number;
+  interactive: boolean;
+  selected: boolean;
+  bounds: { x: number; y: number; w: number; h: number } | null;
+  accent: string;
+  children: ReactNode;
+  onShapePointerDown?: (e: ReactPointerEvent<SVGGElement>, shape: SceneShape) => void;
+  onShapePointerMove?: (e: ReactPointerEvent<SVGGElement>, shapeId: string) => void;
+  onShapePointerUp?: (e: ReactPointerEvent<SVGGElement>, shapeId: string) => void;
+}) {
+  return (
+    <g
+      transform={`translate(${dx},${dy})`}
+      style={{ cursor: interactive ? 'grab' : undefined }}
+      onPointerDown={interactive && onShapePointerDown ? (e) => onShapePointerDown(e, raw) : undefined}
+      onPointerMove={interactive && onShapePointerMove ? (e) => onShapePointerMove(e, raw.id) : undefined}
+      onPointerUp={interactive && onShapePointerUp ? (e) => onShapePointerUp(e, raw.id) : undefined}
+    >
+      {selected && bounds ? (
+        <rect
+          x={bounds.x}
+          y={bounds.y}
+          width={bounds.w}
+          height={bounds.h}
+          fill="none"
+          stroke={accent}
+          strokeWidth={2.5}
+          strokeDasharray="6 4"
+          rx={6}
+          opacity={0.95}
+          pointerEvents="none"
+        />
+      ) : null}
+      {children}
+    </g>
+  );
 }
 
 function IconCarSide({ scale, fill, stroke }: { scale: number; fill: string; stroke: string }) {
@@ -179,8 +320,8 @@ function IconGenericSchematic({
   return (
     <g>
       <rect
-        x={(-w / 2)}
-        y={(-h / 2)}
+        x={-w / 2}
+        y={-h / 2}
         width={w}
         height={h}
         rx={8 * s}
@@ -196,21 +337,36 @@ function IconGenericSchematic({
   );
 }
 
-export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProps) {
+export function VisualizeShapesLayer({
+  shapes,
+  theme,
+  shapeOffsets = {},
+  interactive = false,
+  selectedShapeId = null,
+  onShapePointerDown,
+  onShapePointerMove,
+  onShapePointerUp,
+}: VisualizeShapesLayerProps) {
   const accent = theme.palette.secondary.main;
   const fg = alpha(theme.palette.primary.light, 0.9);
 
   return (
-    <g aria-hidden pointerEvents="none">
+    <g aria-hidden={!interactive} style={{ pointerEvents: interactive ? 'auto' : 'none' }}>
       {shapes.map((raw) => {
         const t = (raw.type || '').toLowerCase();
         const stroke = raw.stroke || fg;
         const fill = raw.fill || alpha(theme.palette.background.paper, 0.85);
+        const dx = shapeOffsets[raw.id]?.x ?? 0;
+        const dy = shapeOffsets[raw.id]?.y ?? 0;
+        const sel = Boolean(selectedShapeId && raw.id === selectedShapeId);
+        const bounds = shapeLocalBounds(raw);
+
+        let inner: ReactNode = null;
 
         if (t === 'ground') {
           const y = num(raw.y, 580);
-          return (
-            <g key={raw.id}>
+          inner = (
+            <>
               <line x1={0} y1={y} x2={1000} y2={y} stroke={stroke} strokeWidth={num(raw.stroke_width, 6)} strokeLinecap="square" />
               <line
                 x1={0}
@@ -221,11 +377,9 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
                 strokeWidth={2}
                 strokeDasharray="12 10"
               />
-            </g>
+            </>
           );
-        }
-
-        if (t === 'rect') {
+        } else if (t === 'rect') {
           const x = num(raw.x, 0);
           const y = num(raw.y, 0);
           const w = num(raw.w, 80);
@@ -234,8 +388,8 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
           const cx = x + w / 2;
           const cy = y + h / 2;
           const sw = num(raw.stroke_width, 2);
-          return (
-            <g key={raw.id} transform={`rotate(${rot}, ${cx}, ${cy})`}>
+          inner = (
+            <g transform={`rotate(${rot}, ${cx}, ${cy})`}>
               <rect x={x} y={y} width={w} height={h} fill={fill} stroke={stroke} strokeWidth={sw} rx={4} />
               {raw.label ? (
                 <text x={cx} y={cy + 5} textAnchor="middle" fill={theme.palette.text.primary} fontSize={13} fontWeight={600}>
@@ -244,9 +398,7 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
               ) : null}
             </g>
           );
-        }
-
-        if (t === 'image') {
+        } else if (t === 'image') {
           const src = sanitizeImageSrc(raw.src ?? raw.href);
           if (!src) return null;
           const x = num(raw.x, 0);
@@ -256,8 +408,8 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
           const rot = num(raw.rotation, 0);
           const mx = x + w / 2;
           const tf = rot !== 0 ? `rotate(${rot}, ${mx}, ${y + h / 2})` : undefined;
-          return (
-            <g key={raw.id} transform={tf}>
+          inner = (
+            <g transform={tf}>
               <image href={src} x={x} y={y} width={w} height={h} preserveAspectRatio="xMidYMid meet" />
               {raw.label ? (
                 <text
@@ -274,34 +426,23 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
               ) : null}
             </g>
           );
-        }
-
-        if (t === 'ellipse') {
+        } else if (t === 'ellipse') {
           const cx = num(raw.cx, 500);
           const cy = num(raw.cy, 350);
           const rx = num(raw.rx, 40);
           const ry = num(raw.ry, 25);
           const sw = num(raw.stroke_width, 2);
-          return (
-            <ellipse key={raw.id} cx={cx} cy={cy} rx={rx} ry={ry} fill={fill} stroke={stroke} strokeWidth={sw} />
-          );
-        }
-
-        if (t === 'circle') {
+          inner = <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={fill} stroke={stroke} strokeWidth={sw} />;
+        } else if (t === 'circle') {
           const cx = num(raw.cx, 500);
           const cy = num(raw.cy, 350);
           const rad = num(raw.r, 28);
           const sw = num(raw.stroke_width, 2);
-          return (
-            <circle key={raw.id} cx={cx} cy={cy} r={rad} fill={fill} stroke={stroke} strokeWidth={sw} />
-          );
-        }
-
-        if (t === 'line') {
+          inner = <circle cx={cx} cy={cy} r={rad} fill={fill} stroke={stroke} strokeWidth={sw} />;
+        } else if (t === 'line') {
           const sw = num(raw.stroke_width, 2);
-          return (
+          inner = (
             <line
-              key={raw.id}
               x1={num(raw.x1, 0)}
               y1={num(raw.y1, 0)}
               x2={num(raw.x2, 100)}
@@ -311,17 +452,15 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
               strokeLinecap="round"
             />
           );
-        }
-
-        if (t === 'arrow') {
+        } else if (t === 'arrow') {
           const x1 = num(raw.x1, 100);
           const y1 = num(raw.y1, 100);
           const x2 = num(raw.x2, 200);
           const y2 = num(raw.y2, 100);
           const mx = (x1 + x2) / 2;
           const my = (y1 + y2) / 2;
-          return (
-            <g key={raw.id}>
+          inner = (
+            <g>
               <line
                 x1={x1}
                 y1={y1}
@@ -346,9 +485,7 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
               ) : null}
             </g>
           );
-        }
-
-        if (t === 'polygon') {
+        } else if (t === 'polygon') {
           const pts = parsePolygonPoints(raw.points);
           if (!pts) return null;
           const rot = num(raw.rotation, 0);
@@ -356,8 +493,8 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
           const pointsStr = pts.map(([x, y]) => `${x},${y}`).join(' ');
           const sw = num(raw.stroke_width, 2);
           const tf = rot !== 0 ? `rotate(${rot}, ${cx}, ${cy})` : undefined;
-          return (
-            <g key={raw.id} transform={tf}>
+          inner = (
+            <g transform={tf}>
               <polygon points={pointsStr} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" />
               {raw.label ? (
                 <text
@@ -374,38 +511,26 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
               ) : null}
             </g>
           );
-        }
-
-        if (t === 'path') {
+        } else if (t === 'path') {
           const d = sanitizePathD(raw.path_d ?? raw.d);
           if (!d) return null;
           const sw = num(raw.stroke_width, 2);
-          return (
-            <path
-              key={raw.id}
-              d={d}
-              fill={fill}
-              stroke={stroke}
-              strokeWidth={sw}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
+          inner = (
+            <path d={d} fill={fill} stroke={stroke} strokeWidth={sw} strokeLinejoin="round" strokeLinecap="round" />
           );
-        }
-
-        if (t === 'icon') {
+        } else if (t === 'icon') {
           const cx = num(raw.cx, 500);
           const cy = num(raw.cy, 350);
           const sc = num(raw.scale, 1);
           const name = (raw.icon || '').toLowerCase();
-          let inner: ReactNode = null;
-          if (name === 'car_side') inner = <IconCarSide scale={sc} fill={fill} stroke={stroke} />;
-          else if (name === 'apple') inner = <IconApple scale={sc} />;
-          else if (name === 'tree_simple') inner = <IconTreeSimple scale={sc} />;
-          else if (name === 'impact_burst') inner = <IconImpactBurst scale={sc} stroke={accent} />;
-          else if (name === 'barrier_wall') inner = <IconBarrierWall scale={sc} fill={fill} />;
+          let ic: ReactNode = null;
+          if (name === 'car_side') ic = <IconCarSide scale={sc} fill={fill} stroke={stroke} />;
+          else if (name === 'apple') ic = <IconApple scale={sc} />;
+          else if (name === 'tree_simple') ic = <IconTreeSimple scale={sc} />;
+          else if (name === 'impact_burst') ic = <IconImpactBurst scale={sc} stroke={accent} />;
+          else if (name === 'barrier_wall') ic = <IconBarrierWall scale={sc} fill={fill} />;
           else if ((raw.icon || '').trim())
-            inner = (
+            ic = (
               <IconGenericSchematic
                 scale={sc}
                 fill={fill}
@@ -414,11 +539,11 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
                 labelColor={theme.palette.text.primary}
               />
             );
-          else inner = <circle r={16 * sc} fill={fill} stroke={stroke} strokeWidth={2} />;
+          else ic = <circle r={16 * sc} fill={fill} stroke={stroke} strokeWidth={2} />;
           const rot = num(raw.rotation, 0);
-          return (
-            <g key={raw.id} transform={`translate(${cx}, ${cy}) rotate(${rot})`}>
-              {inner}
+          inner = (
+            <g transform={`translate(${cx}, ${cy}) rotate(${rot})`}>
+              {ic}
               {raw.label ? (
                 <text y={-40 * sc} textAnchor="middle" fill={theme.palette.text.secondary} fontSize={12}>
                   {raw.label}
@@ -428,7 +553,25 @@ export function VisualizeShapesLayer({ shapes, theme }: VisualizeShapesLayerProp
           );
         }
 
-        return null;
+        if (inner === null) return null;
+
+        return (
+          <ShapeInteractiveWrap
+            key={raw.id}
+            raw={raw}
+            dx={dx}
+            dy={dy}
+            interactive={Boolean(interactive)}
+            selected={sel}
+            bounds={bounds}
+            accent={accent}
+            onShapePointerDown={onShapePointerDown}
+            onShapePointerMove={onShapePointerMove}
+            onShapePointerUp={onShapePointerUp}
+          >
+            {inner}
+          </ShapeInteractiveWrap>
+        );
       })}
     </g>
   );

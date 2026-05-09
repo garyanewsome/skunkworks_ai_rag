@@ -475,6 +475,10 @@ class VisualizeSceneRequest(BaseModel):
         False,
         description="If true, return multi-frame mechanism data for timeline playback.",
     )
+    realism: bool = Field(
+        False,
+        description="If true, build the scene from encyclopedia image thumbnails only (no vector illustration).",
+    )
 
 
 @app.post("/api/visualize/scene")
@@ -502,6 +506,7 @@ def visualize_scene(body: VisualizeSceneRequest):
             model=model,
             max_tokens=max_tok,
             animation=body.animation,
+            realism=body.realism,
         )
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e)) from e
@@ -510,6 +515,7 @@ def visualize_scene(body: VisualizeSceneRequest):
 
     if isinstance(scene, AnimatedVisualizeScene):
         return {
+            "plan": scene.plan,
             "title": scene.title,
             "caption": scene.caption,
             "nodes": None,
@@ -528,6 +534,7 @@ def visualize_scene(body: VisualizeSceneRequest):
         }
 
     return {
+        "plan": scene.plan,
         "title": scene.title,
         "caption": scene.caption,
         "nodes": [n.model_dump() for n in scene.nodes],

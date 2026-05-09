@@ -25,10 +25,12 @@ import FactCheckIcon from '@mui/icons-material/FactCheck';
 import BiotechIcon from '@mui/icons-material/Biotech';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
+import QuizIcon from '@mui/icons-material/Quiz';
 import { LectureRagPanel } from './components/LectureRagPanel';
 import { GraderPanel } from './components/GraderPanel';
 import { VisualizePanel } from './components/VisualizePanel';
 import { SourceOfTruthPanel } from './components/SourceOfTruthPanel';
+import { QuizzPanel } from './components/QuizzPanel';
 
 const drawerWidth = 260;
 
@@ -83,7 +85,7 @@ const theme = createTheme({
   },
 });
 
-type AppView = 'prompt' | 'grader' | 'visualize' | 'source';
+type AppView = 'prompt' | 'grader' | 'visualize' | 'source' | 'quizz';
 
 function App() {
   const [backendOk, setBackendOk] = useState<boolean | null>(null);
@@ -174,12 +176,25 @@ function App() {
             setView('source');
             setMobileNavOpen(false);
           }}
-          sx={{ borderRadius: 2 }}
+          sx={{ borderRadius: 2, mb: 0.5 }}
         >
           <ListItemIcon sx={{ minWidth: 40 }}>
             <MenuBookIcon color={view === 'source' ? 'primary' : 'inherit'} />
           </ListItemIcon>
           <ListItemText primary="Source of truth" secondary="PDF books & pages" />
+        </ListItemButton>
+        <ListItemButton
+          selected={view === 'quizz'}
+          onClick={() => {
+            setView('quizz');
+            setMobileNavOpen(false);
+          }}
+          sx={{ borderRadius: 2 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <QuizIcon color={view === 'quizz' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="Quizz" secondary="Recall & spaced review" />
         </ListItemButton>
       </List>
     </Box>
@@ -306,11 +321,11 @@ function App() {
           }}
         >
           <Container
-            maxWidth={view === 'visualize' ? false : 'lg'}
+            maxWidth={view === 'visualize' || view === 'quizz' ? false : 'lg'}
             sx={{
-              py: view === 'visualize' ? { xs: 2, md: 3 } : { xs: 3, md: 5 },
+              py: view === 'visualize' || view === 'quizz' ? { xs: 2, md: 3 } : { xs: 3, md: 5 },
               flex: 1,
-              px: view === 'visualize' ? { xs: 1.5, sm: 2, md: 3 } : undefined,
+              px: view === 'visualize' || view === 'quizz' ? { xs: 1.5, sm: 2, md: 3 } : undefined,
             }}
           >
             {isMdUp ? (
@@ -345,7 +360,9 @@ function App() {
                           ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
                           : view === 'visualize'
                             ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
-                            : 'Search OCR-backed PDF chunks with page citations.'}
+                            : view === 'source'
+                              ? 'Search OCR-backed PDF chunks with page citations.'
+                              : 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'}
                     </Typography>
                   </Box>
                 </Box>
@@ -370,7 +387,9 @@ function App() {
                     ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
                     : view === 'visualize'
                       ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
-                      : 'Search OCR-backed PDF chunks with page citations.'}
+                      : view === 'source'
+                        ? 'Search OCR-backed PDF chunks with page citations.'
+                        : 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'}
               </Typography>
             )}
 
@@ -386,6 +405,9 @@ function App() {
             </Box>
             <Box sx={{ display: view === 'source' ? 'block' : 'none' }} aria-hidden={view !== 'source'}>
               <SourceOfTruthPanel theme={theme} />
+            </Box>
+            <Box sx={{ display: view === 'quizz' ? 'block' : 'none' }} aria-hidden={view !== 'quizz'}>
+              <QuizzPanel theme={theme} />
             </Box>
           </Container>
         </Box>

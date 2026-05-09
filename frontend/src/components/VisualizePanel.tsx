@@ -23,6 +23,8 @@ import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import type { SceneShape } from './VisualizeShapes';
 import { VisualizeShapesLayer } from './VisualizeShapes';
 
+const SHAPE_SEL_PREFIX = 'shape:';
+
 const VIEW_W = 1000;
 const VIEW_H = 700;
 const NODE_R = 34;
@@ -51,6 +53,8 @@ type FrameSnapshot = {
   positions: Record<string, { x: number; y: number }>;
   edges: SceneEdge[];
   shapes: SceneShape[];
+  /** User drag offsets for shapes (logical coords stay fixed for reset). */
+  shapeOffsets?: Record<string, { x: number; y: number }>;
 };
 
 type ApiFrame = {
@@ -62,6 +66,7 @@ type ApiFrame = {
 };
 
 type SceneApiResponse = {
+  plan?: string | null;
   title: string;
   caption?: string | null;
   nodes: SceneNode[] | null;
@@ -95,6 +100,7 @@ function snapshotFromNodesEdges(
     positions: positionsFromNodes(nodes),
     edges: normalizeEdges(edges),
     shapes: shapes.map((s) => ({ ...s })),
+    shapeOffsets: {},
   };
 }
 
@@ -219,6 +225,7 @@ function deepCloneFrames(f: FrameSnapshot[]): FrameSnapshot[] {
 function applyFramesToReactState(
   frames: FrameSnapshot[],
   setters: {
+    setPlan?: (p: string | null) => void;
     setTitle: (t: string | null) => void;
     setCaption: (c: string | null) => void;
     setFrames: (f: FrameSnapshot[]) => void;
@@ -226,10 +233,14 @@ function applyFramesToReactState(
     setSelected: (s: string[]) => void;
     layoutSnapshots: MutableRefObject<FrameSnapshot[]>;
   },
+  plan: string | null,
   title: string | null,
   caption: string | null,
 ) {
   const clone = deepCloneFrames(frames);
+  if (typeof setters.setPlan === 'function') {
+    setters.setPlan(plan);
+  }
   setters.setTitle(title);
   setters.setCaption(caption);
   setters.layoutSnapshots.current = deepCloneFrames(frames);
@@ -295,8 +306,10 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
   const [prompt, setPrompt] = useState('');
   const [domainHint, setDomainHint] = useState('');
   const [preferAnimation, setPreferAnimation] = useState(true);
+  const [realism, setRealism] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [plan, setPlan] = useState<string | null>(null);
   const [title, setTitle] = useState<string | null>(null);
   const [caption, setCaption] = useState<string | null>(null);
   const [frames, setFrames] = useState<FrameSnapshot[]>([]);
@@ -306,10 +319,19 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
   const [selected, setSelected] = useState<string[]>([]);
   const [isDragging, setIsDragging] = useState(false);
 
-  const dragRef = useRef<{
+  const nodeDragRef = useRef<{
     id: string;
     grabX: number;
     grabY: number;
+    cx: number;
+    cy: number;
+    moved: boolean;
+  } | null>(null);
+
+  const shapeDragRef = useRef<{
+    id: string;
+    startSvg: { x: number; y: number };
+    startOff: { x: number; y: number };
     cx: number;
     cy: number;
     moved: boolean;
@@ -319,6 +341,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
     applyFramesToReactState(
       SAMPLE_HYDROGENATION_FRAMES,
       {
+        setPlan,
         setTitle,
         setCaption,
         setFrames,
@@ -326,6 +349,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
         setSelected,
         layoutSnapshots,
       },
+      null,
       'Sample: catalytic hydrogenation (offline)',
       'Use the timeline to step frames. Generate canvas replaces this when the API succeeds.',
     );
@@ -334,7 +358,6 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
 
   useEffect(() => {
     setSelected([]);
-    setPlaying(false);
   }, [frameIndex]);
 
   useEffect(() => {
@@ -348,6 +371,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
   const current = frames[frameIndex];
   const nodes = current?.nodes ?? [];
   const shapes = current?.shapes ?? [];
+  const shapeOffsets = current?.shapeOffsets ?? {};
   const positions = current?.positions ?? {};
   const edges = current?.edges ?? [];
   const multiFrame = frames.length > 1;
@@ -355,10 +379,50 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
 
   const nodeList = useMemo(() => nodes.filter((n) => positions[n.id]), [nodes, positions]);
 
+  const selectedShapeId = useMemo(
+    () => selected.find((s) => s.startsWith(SHAPE_SEL_PREFIX))?.slice(SHAPE_SEL_PREFIX.length) ?? null,
+    [selected],
+  );
+
+  const selectedNodes = useMemo(
+    () => selected.filter((s) => !s.startsWith(SHAPE_SEL_PREFIX)),
+    [selected],
+  );
+
+  const shapesBack = useMemo(
+    () => shapes.filter((s) => s.id !== selectedShapeId),
+    [shapes, selectedShapeId],
+  );
+
+  const shapesFront = useMemo(
+    () => shapes.filter((s) => s.id === selectedShapeId),
+    [shapes, selectedShapeId],
+  );
+
+  const nodesBack = useMemo(
+    () => nodeList.filter((n) => !selectedNodes.includes(n.id)),
+    [nodeList, selectedNodes],
+  );
+
+  const nodesFront = useMemo(
+    () => nodeList.filter((n) => selectedNodes.includes(n.id)),
+    [nodeList, selectedNodes],
+  );
+
   const patchCurrentFrame = useCallback(
-    (patch: Partial<Pick<FrameSnapshot, 'positions' | 'edges' | 'shapes'>>) => {
+    (patch: Partial<Pick<FrameSnapshot, 'positions' | 'edges' | 'shapes' | 'shapeOffsets'>>) => {
       setFrames((prev) =>
-        prev.map((f, i) => (i === frameIndex ? { ...f, ...patch } : f)),
+        prev.map((f, i) => {
+          if (i !== frameIndex) return f;
+          const nf: FrameSnapshot = { ...f };
+          if (patch.positions !== undefined) nf.positions = patch.positions;
+          if (patch.edges !== undefined) nf.edges = patch.edges;
+          if (patch.shapes !== undefined) nf.shapes = patch.shapes;
+          if (patch.shapeOffsets !== undefined) {
+            nf.shapeOffsets = { ...(f.shapeOffsets ?? {}), ...patch.shapeOffsets };
+          }
+          return nf;
+        }),
       );
     },
     [frameIndex],
@@ -371,26 +435,28 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
       positions: structuredClone(snap.positions),
       edges: structuredClone(snap.edges),
       shapes: structuredClone(snap.shapes ?? []),
+      shapeOffsets: structuredClone(snap.shapeOffsets ?? {}),
     });
   }, [frameIndex, patchCurrentFrame]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelected((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= 2) return [prev[1], id];
-      return [...prev, id];
+      const base = prev.filter((x) => !x.startsWith(SHAPE_SEL_PREFIX));
+      if (base.includes(id)) return base.filter((x) => x !== id);
+      if (base.length >= 2) return [base[1], id];
+      return [...base, id];
     });
   }, []);
 
   const connectSelection = useCallback(() => {
-    if (selected.length !== 2) return;
-    const [a, b] = selected;
+    if (selectedNodes.length !== 2) return;
+    const [a, b] = selectedNodes;
     const pair = [a, b].sort().join('|');
     const exists = edges.some((e) => [e.from_id, e.to_id].sort().join('|') === pair);
     if (exists) return;
     const id = `user-${Date.now().toString(36)}`;
     patchCurrentFrame({ edges: [...edges, { id, from_id: a, to_id: b, kind: 'generic' }] });
-  }, [selected, edges, patchCurrentFrame]);
+  }, [selectedNodes, edges, patchCurrentFrame]);
 
   const removeEdge = useCallback(
     (edgeId: string) => {
@@ -418,6 +484,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
           prompt: q,
           domain_hint: domainHint.trim() || null,
           animation: preferAnimation,
+          realism,
         }),
       });
       const data = (await res.json()) as SceneApiResponse | { detail?: unknown };
@@ -454,6 +521,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
       applyFramesToReactState(
         nextFrames,
         {
+          setPlan,
           setTitle,
           setCaption,
           setFrames,
@@ -461,6 +529,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
           setSelected,
           layoutSnapshots,
         },
+        ok.plan ?? null,
         ok.title,
         ok.caption ?? null,
       );
@@ -468,6 +537,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
       setError(e instanceof Error ? e.message : 'Visualization failed.');
       setFrames([]);
       setFrameIndex(0);
+      setPlan(null);
       setTitle(null);
       setCaption(null);
     } finally {
@@ -480,6 +550,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
     applyFramesToReactState(
       SAMPLE_HYDROGENATION_FRAMES,
       {
+        setPlan,
         setTitle,
         setCaption,
         setFrames,
@@ -487,6 +558,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
         setSelected,
         layoutSnapshots,
       },
+      null,
       'Sample: catalytic hydrogenation (offline)',
       'Use the timeline to step frames. Generate canvas replaces this when the API succeeds.',
     );
@@ -500,7 +572,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
     const p = positions[id];
     if (!p) return;
     const { x, y } = svgPoint(svg, e.clientX, e.clientY);
-    dragRef.current = {
+    nodeDragRef.current = {
       id,
       grabX: x - p.x,
       grabY: y - p.y,
@@ -512,7 +584,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
   };
 
   const onNodePointerMove = (e: React.PointerEvent, id: string) => {
-    const d = dragRef.current;
+    const d = nodeDragRef.current;
     if (!d || d.id !== id) return;
     if (Math.hypot(e.clientX - d.cx, e.clientY - d.cy) > 5) {
       d.moved = true;
@@ -529,8 +601,8 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
   };
 
   const onNodePointerUp = (e: React.PointerEvent, id: string) => {
-    const d = dragRef.current;
-    dragRef.current = null;
+    const d = nodeDragRef.current;
+    nodeDragRef.current = null;
     setIsDragging(false);
     try {
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -538,6 +610,54 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
       /* ignore */
     }
     if (d && d.id === id && !d.moved) toggleSelect(id);
+  };
+
+  const onShapePointerDown = (e: React.PointerEvent<SVGGElement>, sh: SceneShape) => {
+    e.stopPropagation();
+    const svg = svgRef.current;
+    if (!svg) return;
+    const { x, y } = svgPoint(svg, e.clientX, e.clientY);
+    const off = shapeOffsets[sh.id] ?? { x: 0, y: 0 };
+    shapeDragRef.current = {
+      id: sh.id,
+      startSvg: { x, y },
+      startOff: { ...off },
+      cx: e.clientX,
+      cy: e.clientY,
+      moved: false,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onShapePointerMove = (e: React.PointerEvent<SVGGElement>, shapeId: string) => {
+    const d = shapeDragRef.current;
+    if (!d || d.id !== shapeId) return;
+    if (Math.hypot(e.clientX - d.cx, e.clientY - d.cy) > 5) {
+      d.moved = true;
+      setIsDragging(true);
+    }
+    const svg = svgRef.current;
+    if (!svg) return;
+    const { x, y } = svgPoint(svg, e.clientX, e.clientY);
+    const nx = d.startOff.x + (x - d.startSvg.x);
+    const ny = d.startOff.y + (y - d.startSvg.y);
+    patchCurrentFrame({
+      shapeOffsets: { [shapeId]: { x: nx, y: ny } },
+    });
+  };
+
+  const onShapePointerUp = (e: React.PointerEvent<SVGGElement>, shapeId: string) => {
+    const d = shapeDragRef.current;
+    shapeDragRef.current = null;
+    setIsDragging(false);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* ignore */
+    }
+    if (d && d.id === shapeId && !d.moved) {
+      setSelected([`${SHAPE_SEL_PREFIX}${shapeId}`]);
+    }
   };
 
   const bg = alpha(theme.palette.primary.main, 0.06);
@@ -555,20 +675,37 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
         Chemistry mechanisms, <strong>physics storyboards</strong> (cars, apples, arrows, ground), or diagrams: scrub the
-        timeline when animating, press play, and edit each frame (drag nodes, attach/detach bonds). Vector scenery comes
-        from the model under <code style={{ fontSize: '0.85em' }}>shapes</code>. Uncheck step-by-step for one static frame.
+        timeline when animating, press play, and edit each frame. Drag <strong>nodes and shapes</strong>; selected items
+        render on top. Pick two nodes to connect bonds; click empty canvas to clear selection. Uncheck step-by-step for one
+        static frame.
       </Typography>
 
-      <TextField
-        label="What should we draw?"
-        placeholder="e.g. Hydrogenation… / Show a car crash with momentum arrows / Apple falling under gravity with Fg."
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        multiline
-        minRows={3}
-        fullWidth
-        sx={{ mb: 1.5 }}
-      />
+      <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', mb: 1.5 }}>
+        <TextField
+          label="What should we draw?"
+          placeholder="e.g. Hydrogenation… / Show a car crash with momentum arrows / Apple falling under gravity with Fg."
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          multiline
+          minRows={3}
+          fullWidth
+          sx={{ flex: 1, minWidth: 0 }}
+        />
+        <FormControlLabel
+          control={
+            <Checkbox checked={realism} onChange={(_, c) => setRealism(c)} color="primary" />
+          }
+          label="Realism"
+          title="Use encyclopedia image thumbnails only (no vector drawing)"
+          sx={{
+            flexShrink: 0,
+            mt: 1,
+            mr: 0,
+            alignItems: 'flex-start',
+            '& .MuiFormControlLabel-label': { fontSize: '0.875rem' },
+          }}
+        />
+      </Box>
       <TextField
         label="Domain hint (optional)"
         placeholder="Organic chemistry, mechanics, kinematics…"
@@ -604,6 +741,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
             applyFramesToReactState(
               SAMPLE_GRAVITY_FRAMES,
               {
+                setPlan,
                 setTitle,
                 setCaption,
                 setFrames,
@@ -611,6 +749,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
                 setSelected,
                 layoutSnapshots,
               },
+              null,
               'Sample: gravity (offline)',
               'Tree + apple + weight arrow. Generate replaces this.',
             );
@@ -626,6 +765,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
             applyFramesToReactState(
               SAMPLE_CRASH_FRAMES,
               {
+                setPlan,
                 setTitle,
                 setCaption,
                 setFrames,
@@ -633,6 +773,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
                 setSelected,
                 layoutSnapshots,
               },
+              null,
               'Sample: collision / momentum (offline)',
               'Two cars, velocity arrows, impact burst. Generate replaces this.',
             );
@@ -647,11 +788,18 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
         <Button variant="outlined" onClick={clearSelection} disabled={!selected.length}>
           Clear selection
         </Button>
-        <Button variant="outlined" onClick={connectSelection} disabled={selected.length !== 2}>
+        <Button variant="outlined" onClick={connectSelection} disabled={selectedNodes.length !== 2}>
           Attach selection
         </Button>
         {selected.length > 0 ? (
-          <Chip size="small" label={`Selected: ${selected.join(', ')}`} variant="outlined" color="primary" />
+          <Chip
+            size="small"
+            label={`Selected: ${selected
+              .map((s) => (s.startsWith(SHAPE_SEL_PREFIX) ? `shape:${s.slice(SHAPE_SEL_PREFIX.length)}` : s))
+              .join(', ')}`}
+            variant="outlined"
+            color="primary"
+          />
         ) : null}
       </Box>
 
@@ -669,8 +817,21 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
           bgcolor: alpha(theme.palette.background.paper, 0.75),
         }}
       >
-        {(title || caption) && (
+        {(plan || title || caption) && (
           <Box sx={{ px: 2, pt: 2, pb: hasDrawable ? 1 : 2 }}>
+            {plan ? (
+              <Typography
+                variant="caption"
+                component="div"
+                color="text.secondary"
+                sx={{ whiteSpace: 'pre-wrap', mb: title || caption ? 1 : 0 }}
+              >
+                <Typography component="span" variant="caption" fontWeight={700} color="text.primary">
+                  Plan —{' '}
+                </Typography>
+                {plan}
+              </Typography>
+            ) : null}
             {title ? (
               <Typography variant="subtitle1" fontWeight={700}>
                 {title}
@@ -685,7 +846,7 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
         )}
 
         {multiFrame && current ? (
-          <Box sx={{ px: 2, pb: 1, pt: title || caption ? 0 : 2 }}>
+          <Box sx={{ px: 2, pb: 1, pt: plan || title || caption ? 0 : 2 }}>
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
               <IconButton
                 aria-label="Previous frame"
@@ -722,8 +883,10 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
                 size="small"
                 value={playMs}
                 onChange={(e) => setPlayMs(Number(e.target.value))}
-                sx={{ minWidth: 120, ml: 'auto' }}
+                sx={{ minWidth: 148, ml: 'auto' }}
               >
+                <MenuItem value={200}>Fastest (0.2s)</MenuItem>
+                <MenuItem value={500}>Faster (0.5s)</MenuItem>
                 <MenuItem value={1200}>Fast (1.2s)</MenuItem>
                 <MenuItem value={2000}>Normal (2s)</MenuItem>
                 <MenuItem value={3200}>Slow (3.2s)</MenuItem>
@@ -759,7 +922,10 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
             aspectRatio: `${VIEW_W} / ${VIEW_H}`,
             maxHeight: { xs: '55vh', sm: 'min(72vh, 780px)' },
             bgcolor: bg,
-            borderTop: title || caption || multiFrame ? `1px solid ${alpha(theme.palette.divider, 0.5)}` : undefined,
+            borderTop:
+              plan || title || caption || multiFrame
+                ? `1px solid ${alpha(theme.palette.divider, 0.5)}`
+                : undefined,
             position: 'relative',
           }}
         >
@@ -832,7 +998,16 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
                 </marker>
               </defs>
 
-              <VisualizeShapesLayer shapes={shapes} theme={theme} />
+              <VisualizeShapesLayer
+                shapes={shapesBack}
+                theme={theme}
+                shapeOffsets={shapeOffsets}
+                interactive
+                selectedShapeId={null}
+                onShapePointerDown={onShapePointerDown}
+                onShapePointerMove={onShapePointerMove}
+                onShapePointerUp={onShapePointerUp}
+              />
 
               {edges.map((edge) => {
                 const p1 = positions[edge.from_id];
@@ -883,10 +1058,74 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
                 );
               })}
 
-              {nodeList.map((n) => {
+              {nodesBack.map((n) => {
                 const p = positions[n.id];
                 if (!p) return null;
-                const sel = selected.includes(n.id);
+                const sel = selectedNodes.includes(n.id);
+                return (
+                  <g
+                    key={n.id}
+                    transform={`translate(${p.x}, ${p.y})`}
+                    onPointerDown={(e) => onNodePointerDown(e, n.id)}
+                    onPointerMove={(e) => onNodePointerMove(e, n.id)}
+                    onPointerUp={(e) => onNodePointerUp(e, n.id)}
+                    style={{
+                      cursor: 'grab',
+                      transition: transitionStyle,
+                    }}
+                  >
+                    <circle
+                      r={NODE_R + (sel ? 5 : 0)}
+                      fill={alpha(theme.palette.background.paper, 0.25)}
+                      stroke={sel ? theme.palette.secondary.main : alpha(theme.palette.primary.main, 0.35)}
+                      strokeWidth={sel ? 3 : 1.5}
+                    />
+                    <circle
+                      r={NODE_R}
+                      fill={alpha(theme.palette.background.default, 0.92)}
+                      stroke={alpha(theme.palette.primary.main, 0.85)}
+                      strokeWidth={2}
+                    />
+                    <text
+                      textAnchor="middle"
+                      y={6}
+                      fill={theme.palette.text.primary}
+                      fontSize={15}
+                      fontWeight={700}
+                      style={{ pointerEvents: 'none', userSelect: 'none' }}
+                    >
+                      {n.label.length > 14 ? `${n.label.slice(0, 12)}…` : n.label}
+                    </text>
+                    {n.sublabel ? (
+                      <text
+                        textAnchor="middle"
+                        y={22}
+                        fill={theme.palette.text.secondary}
+                        fontSize={11}
+                        style={{ pointerEvents: 'none', userSelect: 'none' }}
+                      >
+                        {n.sublabel.length > 18 ? `${n.sublabel.slice(0, 16)}…` : n.sublabel}
+                      </text>
+                    ) : null}
+                  </g>
+                );
+              })}
+
+              <VisualizeShapesLayer
+                shapes={shapesFront}
+                theme={theme}
+                shapeOffsets={shapeOffsets}
+                interactive
+                selectedShapeId={selectedShapeId}
+                onShapePointerDown={onShapePointerDown}
+                onShapePointerMove={onShapePointerMove}
+                onShapePointerUp={onShapePointerUp}
+              />
+
+              {nodesFront.map((n) => {
+                const p = positions[n.id];
+                if (!p) return null;
+                const sel = selectedNodes.includes(n.id);
                 return (
                   <g
                     key={n.id}
@@ -941,10 +1180,9 @@ export function VisualizePanel({ theme }: VisualizePanelProps) {
       </Paper>
 
       <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 1.5 }}>
-        Multi-frame mode: edits apply to the <strong>current frame</strong>; Reset restores that frame’s layout from the
-        last Generate/sample load. Vector <strong>shapes</strong> (cars, apples, ground, arrows) render under draggable
-        nodes; bonds stay interactive. API needs{' '}
-        <code style={{ fontSize: '0.85em' }}>ANTHROPIC_API_KEY</code>.
+        Multi-frame mode: edits apply to the <strong>current frame</strong>; Reset restores positions, bonds, shapes, and
+        shape moves from the last Generate/sample load. Selected nodes or shapes render <strong>above</strong> everything
+        else. API needs <code style={{ fontSize: '0.85em' }}>ANTHROPIC_API_KEY</code>.
       </Typography>
     </Box>
   );
