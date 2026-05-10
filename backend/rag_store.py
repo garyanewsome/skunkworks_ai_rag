@@ -177,6 +177,32 @@ def init_schema(conn: psycopg.Connection, embedding_dim: int) -> None:
             ON office_hours_turns (session_key, id)
             """
         )
+        cur.execute(
+            """
+            CREATE TABLE IF NOT EXISTS saved_clips (
+                id BIGSERIAL PRIMARY KEY,
+                video_id TEXT NOT NULL,
+                chunk_index INT NOT NULL,
+                start_ms INT,
+                end_ms INT,
+                transcript_excerpt TEXT NOT NULL,
+                group_key TEXT NOT NULL,
+                topic_label TEXT NOT NULL,
+                video_title TEXT NOT NULL,
+                student_note TEXT NOT NULL DEFAULT '',
+                ai_note TEXT,
+                created_at TIMESTAMPTZ DEFAULT now(),
+                updated_at TIMESTAMPTZ DEFAULT now(),
+                CONSTRAINT uq_saved_clip_video_chunk UNIQUE (video_id, chunk_index)
+            )
+            """
+        )
+        cur.execute(
+            """
+            CREATE INDEX IF NOT EXISTS saved_clips_topic_video_created_idx
+            ON saved_clips (topic_label, video_title, created_at DESC)
+            """
+        )
 
 
 def append_office_hours_turn(conn: psycopg.Connection, session_key: str, role: str, content: str) -> None:
@@ -221,6 +247,141 @@ def delete_office_hours_session(conn: psycopg.Connection, session_key: str) -> i
         return 0
     with conn.cursor() as cur:
         cur.execute("DELETE FROM office_hours_turns WHERE session_key = %s", (sk,))
+        return cur.rowcount
+
+
+def list_saved_clips(conn: psycopg.Connection) -> list[dict[str, Any]]:
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT
+                id,
+                video_id,
+                chunk_index,
+                start_ms,
+                end_ms,
+                transcript_excerpt,
+                group_key,
+                topic_label,
+                video_title,
+                student_note,
+                ai_note,
+                created_at,
+                updated_at
+            FROM saved_clips
+            ORDER BY topic_label ASC, video_title ASC, created_at DESC
+            """
+        )
+        return [dict(r) for r in cur.fetchall()]
+
+
+def get_saved_clip(conn: psycopg.Connection, clip_id: int) -> dict[str, Any] | None:
+    with conn.cursor(row_factory=dict_row) as cur:
+        cur.execute(
+            """
+            SELECT
+                id,
+                video_id,
+                chunk_index,
+                start_ms,
+                end_ms,
+                transcript_excerpt,
+                group_key,
+                topic_label,
+                video_title,
+                student_note,
+                ai_note,
+                created_at,
+                updated_at
+            FROM saved_clips
+            WHERE id = %s
+            """,
+            (int(clip_id),),
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+
+def upsert_saved_clip(
+    conn: psycopg.Connection,
+    *,
+    video_id: str,
+    chunk_index: int,
+    start_ms: int | None,
+    end_ms: int | None,
+    transcript_excerpt: str,
+    group_key: str,
+    topic_label: str,
+    video_title: str,
+) -> int:
+    """Insert or update clip metadata by (video_id, chunk_index). Preserves student_note and ai_note on conflict."""
+    vid = video_id.strip()
+    if not vid:
+        raise ValueError("video_id is empty")
+    excerpt = (transcript_excerpt or "").strip()
+    if not excerpt:
+        raise ValueError("transcript_excerpt is empty")
+    gk = (group_key or "").strip()
+    tl = (topic_label or "").strip()
+    vt = (video_title or "").strip()
+    if not gk or not tl or not vt:
+        raise ValueError("group_key, topic_label, and video_title are required")
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO saved_clips (
+                video_id, chunk_index, start_ms, end_ms,
+                transcript_excerpt, group_key, topic_label, video_title
+            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (video_id, chunk_index) DO UPDATE SET
+                start_ms = EXCLUDED.start_ms,
+                end_ms = EXCLUDED.end_ms,
+                transcript_excerpt = EXCLUDED.transcript_excerpt,
+                group_key = EXCLUDED.group_key,
+                topic_label = EXCLUDED.topic_label,
+                video_title = EXCLUDED.video_title,
+                updated_at = now()
+            RETURNING id
+            """,
+            (vid, int(chunk_index), start_ms, end_ms, excerpt, gk, tl, vt),
+        )
+        row = cur.fetchone()
+        if not row:
+            raise RuntimeError("upsert_saved_clip: no id returned")
+        return int(row[0])
+
+
+def delete_saved_clip(conn: psycopg.Connection, clip_id: int) -> int:
+    with conn.cursor() as cur:
+        cur.execute("DELETE FROM saved_clips WHERE id = %s", (int(clip_id),))
+        return cur.rowcount
+
+
+def update_saved_clip_student_note(conn: psycopg.Connection, clip_id: int, student_note: str) -> int:
+    note = student_note if student_note is not None else ""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE saved_clips
+            SET student_note = %s, updated_at = now()
+            WHERE id = %s
+            """,
+            (note, int(clip_id)),
+        )
+        return cur.rowcount
+
+
+def update_saved_clip_ai_note(conn: psycopg.Connection, clip_id: int, ai_note: str | None) -> int:
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            UPDATE saved_clips
+            SET ai_note = %s, updated_at = now()
+            WHERE id = %s
+            """,
+            (ai_note, int(clip_id)),
+        )
         return cur.rowcount
 
 
@@ -576,7 +737,7 @@ def search_similar_books(
 
 
 PROMPT_TRACE_KINDS = frozenset(
-    {"lecture_rag", "book_rag", "visualize", "grader", "rag_query", "office_hours"}
+    {"lecture_rag", "book_rag", "visualize", "grader", "rag_query", "office_hours", "show_work"}
 )
 
 

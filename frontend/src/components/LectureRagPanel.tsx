@@ -1,4 +1,11 @@
 import { fetchHistoryMatch } from '../historyPreflight';
+import {
+  type LectureGroup,
+  type VideoItem,
+  buildLectureGroups,
+  headerLabelForGroup,
+  lectureGroupKey,
+} from '../lectureGroups';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Theme } from '@mui/material/styles';
 import {
@@ -20,6 +27,7 @@ import {
   RadioGroup,
   Select,
   type SelectChangeEvent,
+  Snackbar,
   TextField,
   Typography,
   alpha,
@@ -27,6 +35,7 @@ import {
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import PlayCircleOutlineIcon from '@mui/icons-material/PlayCircleOutline';
+import BookmarkAddOutlinedIcon from '@mui/icons-material/BookmarkAddOutlined';
 
 export type RagHit = {
   video_id: string;
@@ -46,12 +55,6 @@ type RagAnswerResponse = {
   used_llm: boolean;
 };
 
-type VideoItem = {
-  video_id: string;
-  chunk_count: number;
-  title?: string | null;
-};
-
 function msToClock(ms: number | null): string {
   if (ms == null) return '—';
   const totalSec = Math.floor(ms / 1000);
@@ -67,6 +70,9 @@ function youtubeEmbedSrc(videoId: string, startMs: number | null): string {
   return `https://www.youtube.com/embed/${videoId}?start=${startSec}&rel=0`;
 }
 
+/** Matches Show Work notebook notes (Google fonts loaded in index.html). */
+const HAND_NOTEBOOK = '"Caveat", "Kalam", "Segoe Script", cursive';
+
 type LectureRagPanelProps = {
   theme: Theme;
   /** Hydrate from History: fills fields and applies saved response (no API / LLM). */
@@ -81,71 +87,6 @@ type LectureRagPanelProps = {
 };
 
 type SearchScope = 'all' | 'single';
-
-/** Split YouTube title on first "|" (course-style titles often use "Course | Part"). */
-function parseTitleSides(title: string | null | undefined): { left: string; right: string } {
-  const t = (title || '').trim();
-  const i = t.indexOf('|');
-  if (i < 0) return { left: t, right: '' };
-  return { left: t.slice(0, i).trim(), right: t.slice(i + 1).trim() };
-}
-
-/** Right-hand side after "|", for display and topic-only grouping. */
-function topicSuffix(title: string | null | undefined): string {
-  return parseTitleSides(title).right;
-}
-
-/** Titles like "Advanced Quantum Mechanics Lecture 3" (no "|") → course prefix before numbered segment. */
-function coursePrefixBeforeNumberedLecture(title: string | null | undefined): string | null {
-  const t = (title || '').trim();
-  if (!t) return null;
-  const m = t.match(
-    /^(.+)\s+(?:lecture|lectures|part|parts|week|weeks|class|classes|episode|episodes)\s*\d+\s*$/i,
-  );
-  const prefix = m?.[1]?.trim();
-  return prefix || null;
-}
-
-/**
- * Group key for one video:
- * - If "|" exists and the right side looks like "lecture 1", "part 2", … → group by **left** course name
- *   (so "Cosmology | lecture 1" and "Cosmology | lecture 2" merge).
- * - Else if "|" exists → group by **right** topic text (so "Lecture 8 | String Theory" and "Lecture 9 | String Theory" merge).
- * - Else if the whole title ends with "… Lecture N" / "… Part N" (no "|") → group by that prefix (same course).
- * - Else → one group per video id.
- */
-function lectureGroupKey(v: VideoItem): string {
-  const { left, right } = parseTitleSides(v.title);
-  if (right) {
-    const numberedPart = /^(lecture|lectures|part|parts|week|weeks|class|classes|episode|episodes)\s*\d+/i.test(
-      right.trim(),
-    );
-    if (numberedPart && left) return `p:${left.toLowerCase()}`;
-    return `t:${right.toLowerCase()}`;
-  }
-  const noPipePrefix = coursePrefixBeforeNumberedLecture(v.title);
-  if (noPipePrefix) return `p:${noPipePrefix.toLowerCase()}`;
-  return `v:${v.video_id}`;
-}
-
-function headerLabelForGroup(groupKey: string, items: VideoItem[]): string {
-  const first = items[0];
-  if (groupKey.startsWith('p:')) {
-    const piped = parseTitleSides(first.title);
-    if (piped.right) return piped.left || first.title || first.video_id;
-    return coursePrefixBeforeNumberedLecture(first.title) || first.title || first.video_id;
-  }
-  if (groupKey.startsWith('t:')) {
-    return topicSuffix(first.title) || first.title || first.video_id;
-  }
-  return first.title || first.video_id;
-}
-
-type LectureGroup = {
-  groupKey: string;
-  topicLabel: string;
-  videos: VideoItem[];
-};
 
 /** Restore lecture scope from a saved `/api/rag/*` request body. */
 function resolveScopeFromStoredRequest(
@@ -245,6 +186,24 @@ function parseRagQueryFromHistory(raw: unknown): RagQueryResponse | null {
   };
 }
 
+/** Metadata for persisting a RAG hit as a saved clip (API body). */
+export function organizerMetaForHit(
+  hit: RagHit,
+  videos: VideoItem[],
+  groupByKey: Record<string, LectureGroup>,
+): { group_key: string; topic_label: string; video_title: string } {
+  const v = videos.find((x) => x.video_id === hit.video_id);
+  if (!v) {
+    const gk = `v:${hit.video_id}`;
+    return { group_key: gk, topic_label: hit.video_id, video_title: hit.video_id };
+  }
+  const groupKey = lectureGroupKey(v);
+  const g = groupByKey[groupKey];
+  const topicLabel = g?.topicLabel ?? headerLabelForGroup(groupKey, [v]);
+  const videoTitle = (v.title ?? '').trim() || hit.video_id;
+  return { group_key: groupKey, topic_label: topicLabel, video_title: videoTitle };
+}
+
 export function LectureRagPanel({ theme, historyReplay, onHistoryReplayDone }: LectureRagPanelProps) {
   const [prompt, setPrompt] = useState('');
   const [searchScope, setSearchScope] = useState<SearchScope>('all');
@@ -266,6 +225,12 @@ export function LectureRagPanel({ theme, historyReplay, onHistoryReplayDone }: L
   /** Human label for scope chip when multi-part topic */
   const [scopeLabel, setScopeLabel] = useState<string | null>(null);
   const [slideIdx, setSlideIdx] = useState(0);
+  const [clipSnack, setClipSnack] = useState<{ open: boolean; message: string; ok: boolean }>({
+    open: false,
+    message: '',
+    ok: true,
+  });
+  const [savingClipKey, setSavingClipKey] = useState<string | null>(null);
 
   const deckRef = useRef<HTMLDivElement>(null);
 
@@ -303,26 +268,7 @@ export function LectureRagPanel({ theme, historyReplay, onHistoryReplayDone }: L
     };
   }, []);
 
-  const { lectureGroups, groupByKey } = useMemo(() => {
-    const m = new Map<string, VideoItem[]>();
-    for (const v of videos) {
-      const key = lectureGroupKey(v);
-      const arr = m.get(key) ?? [];
-      arr.push(v);
-      m.set(key, arr);
-    }
-    const groupByKey: Record<string, LectureGroup> = {};
-    const lectureGroups: LectureGroup[] = [];
-    for (const [groupKey, items] of m.entries()) {
-      items.sort((a, b) => (a.title || a.video_id).localeCompare(b.title || b.video_id));
-      const topicLabel = headerLabelForGroup(groupKey, items);
-      const lg: LectureGroup = { groupKey, topicLabel, videos: items };
-      lectureGroups.push(lg);
-      groupByKey[groupKey] = lg;
-    }
-    lectureGroups.sort((a, b) => a.topicLabel.localeCompare(b.topicLabel));
-    return { lectureGroups, groupByKey };
-  }, [videos]);
+  const { lectureGroups, groupByKey } = useMemo(() => buildLectureGroups(videos), [videos]);
 
   useEffect(() => {
     if (!lectureGroups.length) {
@@ -806,14 +752,33 @@ export function LectureRagPanel({ theme, historyReplay, onHistoryReplayDone }: L
             <Paper
               elevation={0}
               sx={{
-                p: 3,
+                p: { xs: 2.5, sm: 3.25 },
                 mb: 3,
-                bgcolor: alpha(theme.palette.background.paper, 0.85),
+                borderRadius: 2,
                 border: `1px solid ${alpha(theme.palette.primary.main, 0.15)}`,
+                borderLeft: `5px solid ${alpha('#f48fb1', 0.55)}`,
+                backgroundImage: `repeating-linear-gradient(
+                  0deg,
+                  transparent,
+                  transparent 26px,
+                  ${alpha(theme.palette.primary.main, 0.06)} 26px,
+                  ${alpha(theme.palette.primary.main, 0.06)} 27px
+                )`,
+                bgcolor: alpha('#1a1528', 0.92),
+                boxShadow: `inset 0 0 80px ${alpha(theme.palette.primary.dark, 0.08)}`,
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2, flexWrap: 'wrap' }}>
-                <Typography variant="subtitle1" fontWeight={700}>
+                <Typography
+                  variant="subtitle1"
+                  sx={{
+                    fontFamily: HAND_NOTEBOOK,
+                    fontWeight: 700,
+                    fontSize: '1.5rem',
+                    color: alpha(theme.palette.secondary.light, 0.95),
+                    transform: 'rotate(-0.35deg)',
+                  }}
+                >
                   Answer
                 </Typography>
                 {usedLlm !== null && (
@@ -844,9 +809,14 @@ export function LectureRagPanel({ theme, historyReplay, onHistoryReplayDone }: L
                 component="div"
                 variant="body1"
                 sx={{
+                  fontFamily: HAND_NOTEBOOK,
+                  fontSize: '1.32rem',
+                  fontWeight: 500,
                   whiteSpace: 'pre-wrap',
-                  lineHeight: 1.7,
-                  color: 'text.primary',
+                  lineHeight: 1.48,
+                  letterSpacing: '0.01em',
+                  color: alpha(theme.palette.grey[300], 0.94),
+                  pl: 0.25,
                 }}
               >
                 {summary}
@@ -965,12 +935,76 @@ export function LectureRagPanel({ theme, historyReplay, onHistoryReplayDone }: L
                   <Typography variant="body2" color="text.secondary" sx={{ display: '-webkit-box', WebkitLineClamp: 5, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                     {hit.content}
                   </Typography>
+                  <Button
+                    size="small"
+                    variant="outlined"
+                    startIcon={<BookmarkAddOutlinedIcon />}
+                    disabled={savingClipKey === `${hit.video_id}-${hit.chunk_index}`}
+                    sx={{ mt: 1.5 }}
+                    onClick={async () => {
+                      const key = `${hit.video_id}-${hit.chunk_index}`;
+                      setSavingClipKey(key);
+                      try {
+                        const meta = organizerMetaForHit(hit, videos, groupByKey);
+                        const res = await fetch('/api/clips', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            video_id: hit.video_id,
+                            chunk_index: hit.chunk_index,
+                            start_ms: hit.start_ms,
+                            end_ms: hit.end_ms,
+                            transcript_excerpt: hit.content,
+                            group_key: meta.group_key,
+                            topic_label: meta.topic_label,
+                            video_title: meta.video_title,
+                          }),
+                        });
+                        const data = (await res.json()) as { detail?: unknown };
+                        if (!res.ok) {
+                          const d = data.detail;
+                          const msg =
+                            typeof d === 'string'
+                              ? d
+                              : Array.isArray(d)
+                                ? d.map((x: { msg?: string }) => x.msg ?? '').join(' ')
+                                : `HTTP ${res.status}`;
+                          setClipSnack({ open: true, message: msg || 'Could not save clip', ok: false });
+                        } else {
+                          setClipSnack({ open: true, message: 'Saved to Clips', ok: true });
+                        }
+                      } catch (e: unknown) {
+                        setClipSnack({
+                          open: true,
+                          message: e instanceof Error ? e.message : 'Could not save clip',
+                          ok: false,
+                        });
+                      } finally {
+                        setSavingClipKey(null);
+                      }
+                    }}
+                  >
+                    Save to Clips
+                  </Button>
                 </CardContent>
               </Card>
             ))}
           </Box>
         </Box>
       )}
+      <Snackbar
+        open={clipSnack.open}
+        autoHideDuration={4000}
+        onClose={() => setClipSnack((s) => ({ ...s, open: false }))}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+        message={clipSnack.message}
+        ContentProps={{
+          sx: {
+            bgcolor: clipSnack.ok ? alpha(theme.palette.secondary.main, 0.2) : alpha(theme.palette.error.main, 0.25),
+            border: `1px solid ${alpha(clipSnack.ok ? theme.palette.secondary.main : theme.palette.error.main, 0.5)}`,
+          },
+        }}
+      />
     </Box>
   );
 }

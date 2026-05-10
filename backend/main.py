@@ -17,19 +17,25 @@ from rag_store import (
     PROMPT_TRACE_KINDS,
     append_office_hours_turn,
     delete_office_hours_session,
+    delete_saved_clip,
     get_connection,
     get_prompt_trace,
+    get_saved_clip,
     init_schema,
     insert_prompt_trace,
     list_books,
     list_office_hours_turns,
     list_prompt_traces,
     list_prompt_traces_for_similarity_match,
+    list_saved_clips,
     list_videos,
     search_similar,
     search_similar_books,
     search_similar_global,
     search_similar_multi,
+    update_saved_clip_ai_note,
+    update_saved_clip_student_note,
+    upsert_saved_clip,
     widen_retrieval_query_for_multi_video,
 )
 from video_catalog import load_video_titles
@@ -208,6 +214,8 @@ def _preview_for_trace(kind: str, req: dict[str, Any]) -> str:
                 if isinstance(m, dict) and str(m.get("role")) == "user":
                     q = str(m.get("content") or "")
                     break
+    elif kind == "show_work":
+        q = str(req.get("prompt") or "")
     q = q.replace("\n", " ").strip()
     return q[:400] if len(q) > 400 else q
 
@@ -370,6 +378,78 @@ class OfficeHoursTurnOut(BaseModel):
 
 class OfficeHoursSessionResponse(BaseModel):
     turns: list[OfficeHoursTurnOut]
+
+
+class ShowWorkStepModel(BaseModel):
+    note: str
+    latex: str
+
+
+class ShowWorkResponse(BaseModel):
+    title: str
+    steps: list[ShowWorkStepModel]
+    used_llm: bool = True
+
+
+class ShowWorkBody(BaseModel):
+    prompt: str = Field(..., min_length=1, max_length=8000)
+    explicit_all_steps: bool = Field(
+        default=False,
+        description="When true, show dense paper-style work: micro-steps, crossed-out cancelled terms, etc.",
+    )
+
+
+class SavedClipOut(BaseModel):
+    id: int
+    video_id: str
+    chunk_index: int
+    start_ms: int | None = None
+    end_ms: int | None = None
+    transcript_excerpt: str
+    group_key: str
+    topic_label: str
+    video_title: str
+    student_note: str = ""
+    ai_note: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+
+
+class SavedClipCreateBody(BaseModel):
+    video_id: str = Field(..., min_length=1)
+    chunk_index: int = Field(..., ge=0)
+    start_ms: int | None = None
+    end_ms: int | None = None
+    transcript_excerpt: str = Field(..., min_length=1)
+    group_key: str = Field(..., min_length=1)
+    topic_label: str = Field(..., min_length=1)
+    video_title: str = Field(..., min_length=1)
+
+
+class SavedClipPatchBody(BaseModel):
+    student_note: str = ""
+
+
+class SavedClipsListResponse(BaseModel):
+    clips: list[SavedClipOut]
+
+
+def _saved_clip_row_to_out(row: dict[str, Any]) -> SavedClipOut:
+    return SavedClipOut(
+        id=int(row["id"]),
+        video_id=str(row["video_id"]),
+        chunk_index=int(row["chunk_index"]),
+        start_ms=row.get("start_ms"),
+        end_ms=row.get("end_ms"),
+        transcript_excerpt=str(row["transcript_excerpt"]),
+        group_key=str(row["group_key"]),
+        topic_label=str(row["topic_label"]),
+        video_title=str(row["video_title"]),
+        student_note=str(row.get("student_note") or ""),
+        ai_note=row.get("ai_note"),
+        created_at=row.get("created_at"),
+        updated_at=row.get("updated_at"),
+    )
 
 
 class RagAnswerResponse(BaseModel):
@@ -1127,3 +1207,133 @@ def office_hours_chat(body: OfficeHoursBody):
     except Exception as e:
         _save_prompt_trace("office_hours", req, None, str(e))
         raise HTTPException(status_code=502, detail=f"Office Hours failed: {e!s}") from e
+
+
+@app.post("/api/show-work", response_model=ShowWorkResponse)
+def show_work_math(body: ShowWorkBody):
+    """Generate stepped mathematical work as KaTeX-renderable JSON (human-notebook style in the client)."""
+    req = body.model_dump(mode="json")
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        detail = "Show Work requires ANTHROPIC_API_KEY."
+        _save_prompt_trace("show_work", req, None, detail)
+        raise HTTPException(status_code=503, detail=detail)
+    try:
+        from show_work_agent import run_show_work
+
+        model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+        max_out = 6144 if body.explicit_all_steps else 4096
+        data = run_show_work(
+            body.prompt.strip(),
+            model=model,
+            max_tokens=max_out,
+            explicit_all_steps=body.explicit_all_steps,
+        )
+        steps_raw = data.get("steps")
+        if not isinstance(steps_raw, list):
+            raise ValueError("Invalid steps from model")
+        steps = [
+            ShowWorkStepModel(note=str(s.get("note", "")), latex=str(s.get("latex", "")))
+            for s in steps_raw
+            if isinstance(s, dict) and str(s.get("latex", "")).strip()
+        ]
+        resp = ShowWorkResponse(
+            title=str(data.get("title") or "Problem"),
+            steps=steps,
+            used_llm=bool(data.get("used_llm", True)),
+        )
+        _save_prompt_trace("show_work", req, resp.model_dump(mode="json"), None)
+        return resp
+    except ValueError as e:
+        _save_prompt_trace("show_work", req, None, str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except HTTPException as e:
+        _save_prompt_trace("show_work", req, None, _http_exc_detail(e))
+        raise
+    except Exception as e:
+        _save_prompt_trace("show_work", req, None, str(e))
+        raise HTTPException(status_code=502, detail=f"Show Work failed: {e!s}") from e
+
+
+@app.get("/api/clips", response_model=SavedClipsListResponse)
+def list_saved_clips_route():
+    with get_connection() as conn:
+        rows = list_saved_clips(conn)
+    return SavedClipsListResponse(clips=[_saved_clip_row_to_out(r) for r in rows])
+
+
+@app.post("/api/clips", response_model=SavedClipOut)
+def upsert_saved_clip_route(body: SavedClipCreateBody):
+    try:
+        with get_connection() as conn:
+            cid = upsert_saved_clip(
+                conn,
+                video_id=body.video_id.strip(),
+                chunk_index=body.chunk_index,
+                start_ms=body.start_ms,
+                end_ms=body.end_ms,
+                transcript_excerpt=body.transcript_excerpt.strip(),
+                group_key=body.group_key.strip(),
+                topic_label=body.topic_label.strip(),
+                video_title=body.video_title.strip(),
+            )
+            row = get_saved_clip(conn, cid)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    if not row:
+        raise HTTPException(status_code=500, detail="Clip not found after save")
+    return _saved_clip_row_to_out(row)
+
+
+@app.patch("/api/clips/{clip_id}", response_model=SavedClipOut)
+def patch_saved_clip_route(clip_id: int, body: SavedClipPatchBody):
+    with get_connection() as conn:
+        n = update_saved_clip_student_note(conn, clip_id, body.student_note)
+        if n == 0:
+            raise HTTPException(status_code=404, detail="Clip not found")
+        row = get_saved_clip(conn, clip_id)
+    assert row is not None
+    return _saved_clip_row_to_out(row)
+
+
+@app.delete("/api/clips/{clip_id}")
+def delete_saved_clip_route(clip_id: int):
+    with get_connection() as conn:
+        n = delete_saved_clip(conn, clip_id)
+    if n == 0:
+        raise HTTPException(status_code=404, detail="Clip not found")
+    return {"ok": True}
+
+
+@app.post("/api/clips/{clip_id}/generate-notes", response_model=SavedClipOut)
+def generate_saved_clip_notes_route(clip_id: int):
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        raise HTTPException(
+            status_code=503,
+            detail="Study notes generation requires ANTHROPIC_API_KEY.",
+        )
+    with get_connection() as conn:
+        row = get_saved_clip(conn, clip_id)
+    if not row:
+        raise HTTPException(status_code=404, detail="Clip not found")
+    model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+    try:
+        from clips_notes_agent import generate_clip_study_notes
+
+        notes = generate_clip_study_notes(
+            str(row["transcript_excerpt"]),
+            str(row["video_title"]),
+            row.get("start_ms"),
+            row.get("end_ms"),
+            model=model,
+            max_tokens=2048,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Study notes failed: {e!s}") from e
+    with get_connection() as conn:
+        update_saved_clip_ai_note(conn, clip_id, notes)
+        updated = get_saved_clip(conn, clip_id)
+    if not updated:
+        raise HTTPException(status_code=500, detail="Clip not found after update")
+    return _saved_clip_row_to_out(updated)

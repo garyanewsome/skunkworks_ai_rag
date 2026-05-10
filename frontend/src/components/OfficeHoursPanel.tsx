@@ -8,10 +8,14 @@ import {
   CircularProgress,
   FormControl,
   FormControlLabel,
-  InputLabel,
+  FormHelperText,
+  FormLabel,
   MenuItem,
   Paper,
+  Radio,
+  RadioGroup,
   Select,
+  type SelectChangeEvent,
   TextField,
   Typography,
   alpha,
@@ -19,11 +23,12 @@ import {
 import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
+import { buildLectureGroups, type VideoItem } from '../lectureGroups';
 import { ensureSpeechVoicesLoaded, speakProfessorReply, stopProfessorSpeech } from '../professorSpeech';
 
-type VideoItem = { video_id: string; chunk_count: number; title: string | null };
-
 type Turn = { role: 'user' | 'assistant'; content: string };
+
+type SearchScope = 'all' | 'single';
 
 type LegacySpeechRecognition = {
   lang: string;
@@ -73,7 +78,9 @@ function getSpeechRecognitionCtor(): (new () => LegacySpeechRecognition) | null 
 export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
-  const [lectureKey, setLectureKey] = useState<string>('__all__');
+  const [searchScope, setSearchScope] = useState<SearchScope>('all');
+  const [selectedGroupKey, setSelectedGroupKey] = useState('');
+  const [selectedPart, setSelectedPart] = useState<'all' | string>('all');
   const [includeBooks, setIncludeBooks] = useState(true);
   const [sessionKey, setSessionKey] = useState<string>(() => getOrCreateOfficeHoursSessionId());
   const [sessionHistoryReady, setSessionHistoryReady] = useState(false);
@@ -104,6 +111,38 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
       cancelled = true;
     };
   }, []);
+
+  const { lectureGroups, groupByKey } = useMemo(() => buildLectureGroups(videos), [videos]);
+
+  useEffect(() => {
+    if (!lectureGroups.length) {
+      setSelectedGroupKey('');
+      setSelectedPart('all');
+      return;
+    }
+    setSelectedGroupKey((prev) => {
+      if (prev && lectureGroups.some((g) => g.groupKey === prev)) return prev;
+      return lectureGroups[0].groupKey;
+    });
+  }, [lectureGroups]);
+
+  useEffect(() => {
+    const g = selectedGroupKey ? groupByKey[selectedGroupKey] : undefined;
+    if (!g?.videos.length) {
+      setSelectedPart('all');
+      return;
+    }
+    if (g.videos.length === 1) {
+      setSelectedPart(g.videos[0].video_id);
+      return;
+    }
+    setSelectedPart((prev) => {
+      if (prev === 'all') return 'all';
+      return g.videos.some((v) => v.video_id === prev) ? prev : 'all';
+    });
+  }, [selectedGroupKey, groupByKey]);
+
+  const currentGroup = selectedGroupKey ? groupByKey[selectedGroupKey] : undefined;
 
   useEffect(() => {
     if (!sessionKey) {
@@ -159,9 +198,6 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
         .join('\n\n'),
     [turns],
   );
-
-  const video_id = lectureKey === '__all__' ? null : lectureKey;
-  const video_ids = null as string[] | null;
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();
@@ -223,12 +259,42 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
   const sendMessage = async () => {
     const text = draft.trim();
     if (!text || loading) return;
+    if (searchScope === 'single' && (!selectedGroupKey || !currentGroup?.videos.length)) {
+      setError('Pick a lecture group or switch to “All lectures”.');
+      return;
+    }
     stopProfessorSpeech();
     setDraft('');
     setError(null);
 
     const prior = turns.map((t) => ({ role: t.role, content: t.content }));
     const payloadMessages = [...prior, { role: 'user' as const, content: text }];
+
+    let video_id: string | null = null;
+    let video_ids: string[] | null = null;
+    let lecture_top_k = 10;
+    if (searchScope === 'single') {
+      const g = groupByKey[selectedGroupKey];
+      if (!g?.videos.length) {
+        setError('Invalid lecture group.');
+        setDraft(text);
+        return;
+      }
+      if (g.videos.length > 1 && selectedPart === 'all') {
+        video_ids = g.videos.map((v) => v.video_id);
+        video_id = null;
+        lecture_top_k = Math.min(50, Math.max(28, 4 * g.videos.length));
+      } else {
+        const vid = g.videos.length === 1 ? g.videos[0].video_id : selectedPart;
+        if (!vid || vid === 'all') {
+          setError('Pick one part.');
+          setDraft(text);
+          return;
+        }
+        video_id = vid;
+        video_ids = null;
+      }
+    }
 
     setLoading(true);
     try {
@@ -241,7 +307,7 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
           video_id,
           video_ids,
           include_books: includeBooks,
-          lecture_top_k: 10,
+          lecture_top_k,
           book_top_k: includeBooks ? 8 : 0,
         }),
       });
@@ -279,6 +345,16 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
     bgcolor: alpha(theme.palette.background.paper, 0.65),
   };
 
+  const onScopeChange = (_: React.ChangeEvent<HTMLInputElement>, value: string) => {
+    if (value === 'all' || value === 'single') setSearchScope(value);
+  };
+
+  const sendDisabled =
+    loading ||
+    !draft.trim() ||
+    (searchScope === 'single' &&
+      (videosLoading || !selectedGroupKey || !currentGroup?.videos.length));
+
   return (
     <Box sx={{ width: '100%', maxWidth: 720, mx: 'auto' }}>
       <Typography variant="overline" color="text.secondary" sx={{ letterSpacing: '0.12em' }}>
@@ -304,23 +380,157 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
       ) : null}
 
       <Paper elevation={0} sx={{ ...paperSx, mb: 2 }}>
-        <FormControl fullWidth size="small" sx={{ mb: 2 }} disabled={videosLoading}>
-          <InputLabel id="oh-lecture-label">Lecture scope</InputLabel>
-          <Select
-            labelId="oh-lecture-label"
-            label="Lecture scope"
-            value={lectureKey}
-            onChange={(e) => setLectureKey(String(e.target.value))}
-          >
-            <MenuItem value="__all__">All lectures</MenuItem>
-            {videos.map((v) => (
-              <MenuItem key={v.video_id} value={v.video_id}>
-                {(v.title || v.video_id).slice(0, 80)}
-                {v.title && v.title.length > 80 ? '…' : ''}
-              </MenuItem>
-            ))}
-          </Select>
+        <FormControl component="fieldset" sx={{ mb: 2, width: '100%' }}>
+          <FormLabel component="legend" sx={{ color: 'text.secondary', mb: 1 }}>
+            Lecture scope
+          </FormLabel>
+          <RadioGroup row value={searchScope} onChange={onScopeChange}>
+            <FormControlLabel value="all" control={<Radio color="primary" />} label="All ingested lectures" />
+            <FormControlLabel value="single" control={<Radio color="primary" />} label="This lecture group" />
+          </RadioGroup>
+          <FormHelperText sx={{ mx: 0 }}>
+            {videosLoading
+              ? 'Loading lecture list…'
+              : videos.length > 0
+                ? `${videos.length} lecture(s) — same grouping as the Prompt tab (titles after “|”, course prefixes, …).`
+                : 'No lectures in the database yet — ingest transcripts first.'}
+          </FormHelperText>
         </FormControl>
+
+        {searchScope === 'single' ? (
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              gap: 2,
+              mb: 2,
+              width: '100%',
+            }}
+          >
+            <FormControl fullWidth size="small" sx={{ flex: 1 }} disabled={videosLoading}>
+              <FormLabel id="oh-lecture-group-label" sx={{ mb: 0.5 }}>
+                Lecture group
+              </FormLabel>
+              <Select<string>
+                labelId="oh-lecture-group-label"
+                value={selectedGroupKey}
+                onChange={(e: SelectChangeEvent<string>) => setSelectedGroupKey(e.target.value)}
+                displayEmpty
+                renderValue={(key) => {
+                  if (videosLoading) return 'Loading…';
+                  if (!key) return '';
+                  const g = groupByKey[key];
+                  if (!g) return key;
+                  const n = g.videos.length;
+                  return n > 1 ? `${g.topicLabel} (${n} videos)` : g.topicLabel;
+                }}
+              >
+                {lectureGroups.map((g) => (
+                  <MenuItem key={g.groupKey} value={g.groupKey}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        gap: 2,
+                        width: '100%',
+                        alignItems: 'baseline',
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: 600 }}>
+                        {g.topicLabel}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                        {g.videos.length} video{g.videos.length === 1 ? '' : 's'}
+                      </Typography>
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>Course / topic bucket (grouped from titles).</FormHelperText>
+            </FormControl>
+
+            <FormControl
+              fullWidth
+              size="small"
+              sx={{ flex: 1 }}
+              disabled={videosLoading || !currentGroup || currentGroup.videos.length <= 1}
+            >
+              <FormLabel id="oh-lecture-part-label" sx={{ mb: 0.5 }}>
+                Part
+              </FormLabel>
+              <Select<string>
+                labelId="oh-lecture-part-label"
+                value={
+                  currentGroup && currentGroup.videos.length > 1
+                    ? selectedPart
+                    : currentGroup?.videos[0]?.video_id ?? ''
+                }
+                onChange={(e: SelectChangeEvent<string>) =>
+                  setSelectedPart(e.target.value === 'all' ? 'all' : e.target.value)
+                }
+                displayEmpty
+                renderValue={(val) => {
+                  if (!currentGroup?.videos.length) return '';
+                  if (currentGroup.videos.length === 1) {
+                    const v = currentGroup.videos[0];
+                    return v.title || v.video_id;
+                  }
+                  if (val === 'all') return `All parts (${currentGroup.videos.length} videos)`;
+                  const v = videos.find((x) => x.video_id === val);
+                  return v?.title || val;
+                }}
+              >
+                {currentGroup && currentGroup.videos.length > 1 ? (
+                  <MenuItem value="all">
+                    <Typography variant="body2" fontWeight={600}>
+                      All parts — combined ({currentGroup.videos.length} videos)
+                    </Typography>
+                  </MenuItem>
+                ) : null}
+                {currentGroup?.videos.map((v) => (
+                  <MenuItem key={v.video_id} value={v.video_id}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'stretch',
+                        gap: 0.25,
+                        width: '100%',
+                        minWidth: 0,
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', gap: 2, alignItems: 'baseline' }}>
+                        <Typography variant="body2" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          {v.title || v.video_id}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary" sx={{ flexShrink: 0 }}>
+                          {v.chunk_count} chunks
+                        </Typography>
+                      </Box>
+                      {v.title ? (
+                        <Typography
+                          variant="caption"
+                          color="text.secondary"
+                          sx={{ fontFamily: 'monospace', fontSize: '0.65rem' }}
+                        >
+                          {v.video_id}
+                        </Typography>
+                      ) : null}
+                    </Box>
+                  </MenuItem>
+                ))}
+              </Select>
+              <FormHelperText>
+                {!currentGroup
+                  ? ''
+                  : currentGroup.videos.length <= 1
+                    ? 'Only one video in this group.'
+                    : 'One video or all parts in this group.'}
+              </FormHelperText>
+            </FormControl>
+          </Box>
+        ) : null}
+
         <FormControlLabel
           control={
             <Checkbox
@@ -389,7 +599,7 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
         <Button
           variant="contained"
           onClick={() => void sendMessage()}
-          disabled={loading || !draft.trim()}
+          disabled={sendDisabled}
         >
           {loading ? <CircularProgress size={22} color="inherit" /> : 'Send'}
         </Button>

@@ -31,6 +31,7 @@ type TraceKind =
   | 'grader'
   | 'rag_query'
   | 'office_hours'
+  | 'show_work'
   | '';
 
 type TraceListItem = {
@@ -54,6 +55,7 @@ const KIND_LABELS: Record<Exclude<TraceKind, ''>, string> = {
   grader: 'Grader',
   rag_query: 'Chunk search',
   office_hours: 'Office Hours',
+  show_work: 'Show Work',
 };
 
 const RESTORABLE_KINDS = new Set<string>([
@@ -62,6 +64,7 @@ const RESTORABLE_KINDS = new Set<string>([
   'visualize',
   'book_rag',
   'grader',
+  'show_work',
 ]);
 
 function jsonBlock(value: unknown): string {
@@ -163,9 +166,9 @@ export function HistoryPanel({ theme, onRestoreFromHistory }: HistoryPanelProps)
         Prompt & response log
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Each lecture answer, book answer, visualize run, grader submission, Office Hours turn, and transcript chunk search is stored in
+        Each lecture answer, book answer, visualize run, grader submission, Office Hours turn, transcript chunk search, and Show Work run is stored in
         Postgres when the API runs. Open a row for JSON, or use <strong>Restore</strong> to open the matching tab with
-        the saved request and response (no new model call).
+        the saved request and response (no new model call). Show Work traces restore the prompt, explicit-work option, and steps.
       </Typography>
 
       <Paper elevation={0} sx={{ ...paperSx, mb: 2, display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center' }}>

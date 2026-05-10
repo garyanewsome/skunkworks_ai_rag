@@ -27,7 +27,10 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import MenuIcon from '@mui/icons-material/Menu';
 import QuizIcon from '@mui/icons-material/Quiz';
 import HistoryIcon from '@mui/icons-material/History';
+import BookmarksOutlinedIcon from '@mui/icons-material/BookmarksOutlined';
+import Diversity3OutlinedIcon from '@mui/icons-material/Diversity3Outlined';
 import HeadsetMicIcon from '@mui/icons-material/HeadsetMic';
+import FunctionsIcon from '@mui/icons-material/Functions';
 import { LectureRagPanel } from './components/LectureRagPanel';
 import { OfficeHoursPanel } from './components/OfficeHoursPanel';
 import { GraderPanel } from './components/GraderPanel';
@@ -35,6 +38,9 @@ import { VisualizePanel } from './components/VisualizePanel';
 import { SourceOfTruthPanel } from './components/SourceOfTruthPanel';
 import { QuizzPanel } from './components/QuizzPanel';
 import { HistoryPanel } from './components/HistoryPanel';
+import { ShowWorkPanel } from './components/ShowWorkPanel';
+import { ClipsPanel } from './components/ClipsPanel';
+import { StudyGroupPanel } from './components/StudyGroupPanel';
 
 const drawerWidth = 260;
 
@@ -89,7 +95,17 @@ const theme = createTheme({
   },
 });
 
-type AppView = 'prompt' | 'office' | 'grader' | 'visualize' | 'source' | 'quizz' | 'history';
+type AppView =
+  | 'prompt'
+  | 'clips'
+  | 'office'
+  | 'grader'
+  | 'visualize'
+  | 'showwork'
+  | 'source'
+  | 'quizz'
+  | 'studygroup'
+  | 'history';
 
 type HistoryReplayState = {
   key: number;
@@ -106,6 +122,7 @@ const VIEW_BY_TRACE_KIND: Record<string, AppView> = {
   visualize: 'visualize',
   book_rag: 'source',
   grader: 'grader',
+  show_work: 'showwork',
 };
 
 function App() {
@@ -212,6 +229,19 @@ function App() {
           <ListItemText primary="Prompt" secondary="Lecture transcripts" />
         </ListItemButton>
         <ListItemButton
+          selected={view === 'clips'}
+          onClick={() => {
+            setView('clips');
+            setMobileNavOpen(false);
+          }}
+          sx={{ borderRadius: 2, mb: 0.5 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <BookmarksOutlinedIcon color={view === 'clips' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="Clips" secondary="Saved moments & notes" />
+        </ListItemButton>
+        <ListItemButton
           selected={view === 'office'}
           onClick={() => {
             setView('office');
@@ -251,6 +281,19 @@ function App() {
           <ListItemText primary="Visualize" secondary="Interactive canvas" />
         </ListItemButton>
         <ListItemButton
+          selected={view === 'showwork'}
+          onClick={() => {
+            setView('showwork');
+            setMobileNavOpen(false);
+          }}
+          sx={{ borderRadius: 2, mb: 0.5 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <FunctionsIcon color={view === 'showwork' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="Show Work" secondary="Math steps canvas" />
+        </ListItemButton>
+        <ListItemButton
           selected={view === 'source'}
           onClick={() => {
             setView('source');
@@ -275,6 +318,19 @@ function App() {
             <QuizIcon color={view === 'quizz' ? 'primary' : 'inherit'} />
           </ListItemIcon>
           <ListItemText primary="Quizz" secondary="Recall & spaced review" />
+        </ListItemButton>
+        <ListItemButton
+          selected={view === 'studygroup'}
+          onClick={() => {
+            setView('studygroup');
+            setMobileNavOpen(false);
+          }}
+          sx={{ borderRadius: 2, mb: 0.5 }}
+        >
+          <ListItemIcon sx={{ minWidth: 40 }}>
+            <Diversity3OutlinedIcon color={view === 'studygroup' ? 'primary' : 'inherit'} />
+          </ListItemIcon>
+          <ListItemText primary="Study group" secondary="Learn together (preview)" />
         </ListItemButton>
         <ListItemButton
           selected={view === 'history'}
@@ -414,11 +470,17 @@ function App() {
           }}
         >
           <Container
-            maxWidth={view === 'visualize' || view === 'quizz' ? false : 'lg'}
+            maxWidth={view === 'visualize' || view === 'quizz' || view === 'showwork' ? false : 'lg'}
             sx={{
-              py: view === 'visualize' || view === 'quizz' ? { xs: 2, md: 3 } : { xs: 3, md: 5 },
+              py:
+                view === 'visualize' || view === 'quizz' || view === 'showwork'
+                  ? { xs: 2, md: 3 }
+                  : { xs: 3, md: 5 },
               flex: 1,
-              px: view === 'visualize' || view === 'quizz' ? { xs: 1.5, sm: 2, md: 3 } : undefined,
+              px:
+                view === 'visualize' || view === 'quizz' || view === 'showwork'
+                  ? { xs: 1.5, sm: 2, md: 3 }
+                  : undefined,
             }}
           >
             {isMdUp ? (
@@ -449,17 +511,23 @@ function App() {
                     <Typography variant="body2" color="text.secondary">
                       {view === 'prompt'
                         ? 'Ask ingested lecture transcripts; browse matching clips.'
-                        : view === 'office'
+                        : view === 'clips'
+                          ? 'Review bookmarked transcript moments by lecture group; add notes or generate study helpers.'
+                          : view === 'office'
                           ? 'Chat or speak with a professor persona grounded in lectures and textbooks.'
                           : view === 'grader'
                             ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
                             : view === 'visualize'
                               ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
-                              : view === 'source'
+                              : view === 'showwork'
+                                ? 'Step-by-step math with a notebook look: handwriting-style notes and handwritten-style equations (Kalam/Caveat via KaTeX).'
+                                : view === 'source'
                                 ? 'Search OCR-backed PDF chunks with page citations.'
                                 : view === 'quizz'
                                   ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
-                                  : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
+                                  : view === 'studygroup'
+                                    ? 'Preview of a shared study room: presence, shared focus, and activity—multiplayer sync not wired yet.'
+                                    : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
                     </Typography>
                   </Box>
                 </Box>
@@ -480,23 +548,32 @@ function App() {
               <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
                 {view === 'prompt'
                   ? 'Ask ingested lecture transcripts; browse matching clips.'
-                  : view === 'office'
+                  : view === 'clips'
+                    ? 'Review bookmarked transcript moments by lecture group; add notes or generate study helpers.'
+                    : view === 'office'
                     ? 'Chat or speak with a professor persona grounded in lectures and textbooks.'
                     : view === 'grader'
                       ? 'Paste or upload homework; get professor-style feedback and a letter grade.'
                       : view === 'visualize'
                         ? 'Prompt-driven canvas: drag objects, attach and detach bonds or links.'
-                        : view === 'source'
+                        : view === 'showwork'
+                          ? 'Step-by-step math with a notebook look: handwriting-style notes and handwritten-style equations (Kalam/Caveat via KaTeX).'
+                          : view === 'source'
                           ? 'Search OCR-backed PDF chunks with page citations.'
                           : view === 'quizz'
                             ? 'Build a deck, practice recall, spaced repetition, timed challenges, and sandbox experiments.'
-                            : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
+                            : view === 'studygroup'
+                              ? 'Preview of a shared study room: presence, shared focus, and activity—multiplayer sync not wired yet.'
+                              : 'Browse stored prompts and full JSON responses from the API (Postgres).'}
               </Typography>
             )}
 
             {/* Keep all panels mounted so local state (queries, canvas, uploads) survives sidebar switches */}
             <Box sx={{ display: view === 'office' ? 'block' : 'none' }} aria-hidden={view !== 'office'}>
               <OfficeHoursPanel theme={theme} />
+            </Box>
+            <Box sx={{ display: view === 'clips' ? 'block' : 'none' }} aria-hidden={view !== 'clips'}>
+              <ClipsPanel theme={theme} />
             </Box>
             <Box sx={{ display: view === 'prompt' ? 'block' : 'none' }} aria-hidden={view !== 'prompt'}>
               <LectureRagPanel
@@ -524,6 +601,24 @@ function App() {
                   view === 'grader' &&
                   historyReplay?.targetView === 'grader' &&
                   historyReplay.kind === 'grader'
+                    ? {
+                        key: historyReplay.key,
+                        request: historyReplay.request,
+                        response: historyReplay.response,
+                        error: historyReplay.error,
+                      }
+                    : null
+                }
+                onHistoryReplayDone={clearHistoryReplay}
+              />
+            </Box>
+            <Box sx={{ display: view === 'showwork' ? 'block' : 'none' }} aria-hidden={view !== 'showwork'}>
+              <ShowWorkPanel
+                theme={theme}
+                historyReplay={
+                  view === 'showwork' &&
+                  historyReplay?.targetView === 'showwork' &&
+                  historyReplay.kind === 'show_work'
                     ? {
                         key: historyReplay.key,
                         request: historyReplay.request,
@@ -573,6 +668,9 @@ function App() {
             </Box>
             <Box sx={{ display: view === 'quizz' ? 'block' : 'none' }} aria-hidden={view !== 'quizz'}>
               <QuizzPanel theme={theme} />
+            </Box>
+            <Box sx={{ display: view === 'studygroup' ? 'block' : 'none' }} aria-hidden={view !== 'studygroup'}>
+              <StudyGroupPanel theme={theme} />
             </Box>
             <Box sx={{ display: view === 'history' ? 'block' : 'none' }} aria-hidden={view !== 'history'}>
               <HistoryPanel theme={theme} onRestoreFromHistory={handleRestoreFromHistory} />
