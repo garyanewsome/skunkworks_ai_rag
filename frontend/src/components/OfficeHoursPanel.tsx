@@ -24,9 +24,66 @@ import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import StopCircleOutlinedIcon from '@mui/icons-material/StopCircleOutlined';
 import { buildLectureGroups, type VideoItem } from '../lectureGroups';
-import { ensureSpeechVoicesLoaded, speakProfessorReply, stopProfessorSpeech } from '../professorSpeech';
+import {
+  createProfessorSpeechStream,
+  ensureSpeechVoicesLoaded,
+  isProfessorSpeechSynthBusy,
+  stopProfessorSpeech,
+} from '../professorSpeech';
+import { StudentVoiceMonitor, loadVoiceProfileFromStorage } from '../studentVoiceMonitor';
 
 type Turn = { role: 'user' | 'assistant'; content: string };
+
+function isAbortError(e: unknown): boolean {
+  if (e instanceof DOMException && e.name === 'AbortError') return true;
+  if (typeof e === 'object' && e !== null && 'name' in e) {
+    return (e as { name: string }).name === 'AbortError';
+  }
+  return false;
+}
+
+async function consumeOfficeHoursEventStream(
+  res: Response,
+  handlers: {
+    onDelta: (t: string) => void;
+    onDone: () => void;
+    onError: (m: string) => void;
+  },
+): Promise<void> {
+  const reader = res.body?.getReader();
+  if (!reader) {
+    handlers.onError('No response body');
+    return;
+  }
+  const dec = new TextDecoder();
+  let carry = '';
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      carry += dec.decode(value ?? new Uint8Array(), { stream: !done });
+      const blocks = carry.split('\n\n');
+      carry = blocks.pop() ?? '';
+      for (const block of blocks) {
+        for (const line of block.split('\n')) {
+          const trimmed = line.trim();
+          if (!trimmed.startsWith('data:')) continue;
+          const jsonStr = trimmed.slice(5).trimStart();
+          try {
+            const j = JSON.parse(jsonStr) as { text?: string; done?: boolean; error?: string };
+            if (typeof j.error === 'string' && j.error) handlers.onError(j.error);
+            if (typeof j.text === 'string' && j.text) handlers.onDelta(j.text);
+            if (j.done) handlers.onDone();
+          } catch {
+            /* ignore partial JSON */
+          }
+        }
+      }
+      if (done) break;
+    }
+  } finally {
+    reader.releaseLock();
+  }
+}
 
 type SearchScope = 'all' | 'single';
 
@@ -47,7 +104,7 @@ type LegacySpeechRecognitionEvent = {
   resultIndex: number;
   results: {
     length: number;
-    [i: number]: { [j: number]: { transcript: string } };
+    [i: number]: { isFinal?: boolean; [j: number]: { transcript: string } };
   };
 };
 
@@ -75,6 +132,9 @@ function getSpeechRecognitionCtor(): (new () => LegacySpeechRecognition) | null 
   return w.SpeechRecognition ?? w.webkitSpeechRecognition ?? null;
 }
 
+/** After a final speech-to-text chunk, wait this long with no new finals before sending hands-free. */
+const FOLLOW_UP_FINAL_DEBOUNCE_MS = 1100;
+
 export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
   const [videos, setVideos] = useState<VideoItem[]>([]);
   const [videosLoading, setVideosLoading] = useState(true);
@@ -87,12 +147,104 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
   const [turns, setTurns] = useState<Turn[]>([]);
   const [draft, setDraft] = useState('');
   const [loading, setLoading] = useState(false);
+  const [streamingAssistant, setStreamingAssistant] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [listening, setListening] = useState(false);
   const recognitionRef = useRef<LegacySpeechRecognition | null>(null);
   const transcriptEndRef = useRef<HTMLDivElement>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const speechStreamRef = useRef<ReturnType<typeof createProfessorSpeechStream> | null>(null);
+  const loadingRef = useRef(false);
+  const voiceMonitorRef = useRef<StudentVoiceMonitor | null>(null);
+  const draftRef = useRef('');
+  const sendMessageRef = useRef<(text?: string) => Promise<void>>(async () => {});
+  const followUpRecRef = useRef<LegacySpeechRecognition | null>(null);
+  const followUpAutoSendTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const listeningRef = useRef(false);
+  /** After "Stop speech", hands-free STT stays off until Send, Speak, interrupt, new session, or toggling voice mode. */
+  const handsFreeMutedAfterStopRef = useRef(false);
+
+  const [voiceGateEnabled, setVoiceGateEnabled] = useState(false);
+  const [voiceProfileReady, setVoiceProfileReady] = useState(() => loadVoiceProfileFromStorage() != null);
+  const [voiceEnrolling, setVoiceEnrolling] = useState(false);
+  const [voiceMicStarting, setVoiceMicStarting] = useState(false);
+  const [voiceMicReady, setVoiceMicReady] = useState(false);
+  const [voiceMicError, setVoiceMicError] = useState<string | null>(null);
+  const [handsFreeMicHushed, setHandsFreeMicHushed] = useState(false);
 
   const voiceSupported = typeof window !== 'undefined' && Boolean(getSpeechRecognitionCtor());
+
+  useEffect(() => {
+    loadingRef.current = loading;
+  }, [loading]);
+
+  useEffect(() => {
+    listeningRef.current = listening;
+  }, [listening]);
+
+  useEffect(() => {
+    draftRef.current = draft;
+  }, [draft]);
+
+  useEffect(() => {
+    if (!voiceGateEnabled) {
+      voiceMonitorRef.current?.stop();
+      voiceMonitorRef.current = null;
+      setVoiceMicStarting(false);
+      setVoiceMicReady(false);
+      setVoiceMicError(null);
+      handsFreeMutedAfterStopRef.current = false;
+      setHandsFreeMicHushed(false);
+      return;
+    }
+    let cancelled = false;
+    setVoiceMicStarting(true);
+    setVoiceMicReady(false);
+    const mon = new StudentVoiceMonitor({
+      assistantActive: () => loadingRef.current || isProfessorSpeechSynthBusy(),
+      onStudentSpeech: () => {
+        stopProfessorSpeech();
+        speechStreamRef.current?.cancel();
+        speechStreamRef.current = null;
+        abortControllerRef.current?.abort();
+        abortControllerRef.current = null;
+        setStreamingAssistant('');
+        setLoading(false);
+        handsFreeMutedAfterStopRef.current = false;
+        setHandsFreeMicHushed(false);
+        if (followUpAutoSendTimerRef.current) {
+          window.clearTimeout(followUpAutoSendTimerRef.current);
+          followUpAutoSendTimerRef.current = null;
+        }
+        setDraft('');
+        draftRef.current = '';
+      },
+    });
+    void (async () => {
+      const ok = await mon.start();
+      if (cancelled) {
+        mon.stop();
+        return;
+      }
+      setVoiceMicStarting(false);
+      if (ok) {
+        voiceMonitorRef.current = mon;
+        setVoiceMicReady(true);
+        setVoiceMicError(null);
+      } else {
+        voiceMonitorRef.current = null;
+        setVoiceMicReady(false);
+        setVoiceMicError('Microphone unavailable or permission denied.');
+      }
+    })();
+    return () => {
+      cancelled = true;
+      mon.stop();
+      if (voiceMonitorRef.current === mon) voiceMonitorRef.current = null;
+      setVoiceMicStarting(false);
+      setVoiceMicReady(false);
+    };
+  }, [voiceGateEnabled]);
 
   useEffect(() => {
     let cancelled = false;
@@ -176,7 +328,7 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
 
   useEffect(() => {
     transcriptEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [turns]);
+  }, [turns, streamingAssistant]);
 
   useEffect(() => {
     void ensureSpeechVoicesLoaded();
@@ -186,18 +338,29 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
     window.speechSynthesis?.addEventListener('voiceschanged', onVoices);
     return () => {
       window.speechSynthesis?.removeEventListener('voiceschanged', onVoices);
+      abortControllerRef.current?.abort();
+      speechStreamRef.current?.cancel();
+      speechStreamRef.current = null;
       recognitionRef.current?.abort();
+      followUpRecRef.current?.abort();
+      followUpRecRef.current = null;
+      if (followUpAutoSendTimerRef.current) {
+        window.clearTimeout(followUpAutoSendTimerRef.current);
+        followUpAutoSendTimerRef.current = null;
+      }
+      voiceMonitorRef.current?.stop();
+      voiceMonitorRef.current = null;
       stopProfessorSpeech();
     };
   }, []);
 
-  const transcriptText = useMemo(
-    () =>
-      turns
-        .map((t) => (t.role === 'user' ? `You: ${t.content}` : `Professor: ${t.content}`))
-        .join('\n\n'),
-    [turns],
-  );
+  const transcriptText = useMemo(() => {
+    const base = turns
+      .map((t) => (t.role === 'user' ? `You: ${t.content}` : `Professor: ${t.content}`))
+      .join('\n\n');
+    if (!streamingAssistant.trim()) return base;
+    return base ? `${base}\n\nProfessor: ${streamingAssistant}` : `Professor: ${streamingAssistant}`;
+  }, [turns, streamingAssistant]);
 
   const stopListening = useCallback(() => {
     recognitionRef.current?.stop();
@@ -208,6 +371,10 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
   const startListening = useCallback(() => {
     const Ctor = getSpeechRecognitionCtor();
     if (!Ctor || listening || loading) return;
+    handsFreeMutedAfterStopRef.current = false;
+    setHandsFreeMicHushed(false);
+    followUpRecRef.current?.abort();
+    followUpRecRef.current = null;
     const rec = new Ctor();
     recognitionRef.current = rec;
     rec.lang = 'en-US';
@@ -228,7 +395,12 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
         said += ev.results[i][0].transcript;
       }
       said = said.trim();
-      if (said) setDraft((d) => (d.trim() ? `${d.trim()} ${said}` : said));
+      if (said)
+        setDraft((d) => {
+          const next = d.trim() ? `${d.trim()} ${said}` : said;
+          draftRef.current = next;
+          return next;
+        });
     };
     try {
       rec.start();
@@ -238,8 +410,54 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
     }
   }, [listening, loading]);
 
+  const runVoiceEnroll = useCallback(async () => {
+    const mon = voiceMonitorRef.current;
+    if (!mon) {
+      setVoiceMicError('Turn on hands-free voice and wait until the mic finishes starting.');
+      return;
+    }
+    const deadline = Date.now() + 5000;
+    while (!mon.isAudioReady() && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+    if (!mon.isAudioReady()) {
+      setVoiceMicError('Microphone is not ready. Toggle hands-free voice off and on, then try again.');
+      return;
+    }
+    followUpRecRef.current?.abort();
+    followUpRecRef.current = null;
+    if (followUpAutoSendTimerRef.current) {
+      window.clearTimeout(followUpAutoSendTimerRef.current);
+      followUpAutoSendTimerRef.current = null;
+    }
+    setVoiceEnrolling(true);
+    setVoiceMicError(null);
+    const ok = await mon.enroll(3200);
+    setVoiceEnrolling(false);
+    if (ok) {
+      setVoiceProfileReady(true);
+      mon.reloadProfileFromStorage();
+    } else {
+      setVoiceMicError(
+        'Could not capture enough speech — speak toward the mic for the full ~3 seconds (mic permission must be allowed).',
+      );
+    }
+    // Re-sync after React effects in this tick (mic `useEffect` can run after microtasks).
+    window.setTimeout(() => {
+      if (voiceMonitorRef.current === mon && mon.isAudioReady()) {
+        setVoiceMicStarting(false);
+        setVoiceMicReady(true);
+      }
+    }, 0);
+  }, []);
+
   const startNewSession = useCallback(async () => {
     stopProfessorSpeech();
+    speechStreamRef.current?.cancel();
+    speechStreamRef.current = null;
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setStreamingAssistant('');
     const old = sessionKey;
     if (old) {
       try {
@@ -253,18 +471,37 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
     setSessionKey(sk);
     setTurns([]);
     setDraft('');
+    draftRef.current = '';
     setError(null);
+    handsFreeMutedAfterStopRef.current = false;
+    setHandsFreeMicHushed(false);
+    if (followUpAutoSendTimerRef.current) {
+      window.clearTimeout(followUpAutoSendTimerRef.current);
+      followUpAutoSendTimerRef.current = null;
+    }
+    followUpRecRef.current?.abort();
+    followUpRecRef.current = null;
   }, [sessionKey]);
 
-  const sendMessage = async () => {
-    const text = draft.trim();
+  const sendMessage = useCallback(async (textArg?: string) => {
+    const text = (textArg ?? draftRef.current).trim();
     if (!text || loading) return;
+    handsFreeMutedAfterStopRef.current = false;
+    setHandsFreeMicHushed(false);
+    if (followUpAutoSendTimerRef.current) {
+      window.clearTimeout(followUpAutoSendTimerRef.current);
+      followUpAutoSendTimerRef.current = null;
+    }
     if (searchScope === 'single' && (!selectedGroupKey || !currentGroup?.videos.length)) {
       setError('Pick a lecture group or switch to “All lectures”.');
       return;
     }
     stopProfessorSpeech();
+    speechStreamRef.current?.cancel();
+    speechStreamRef.current = null;
     setDraft('');
+    draftRef.current = '';
+    setStreamingAssistant('');
     setError(null);
 
     const prior = turns.map((t) => ({ role: t.role, content: t.content }));
@@ -278,6 +515,7 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
       if (!g?.videos.length) {
         setError('Invalid lecture group.');
         setDraft(text);
+        draftRef.current = text;
         return;
       }
       if (g.videos.length > 1 && selectedPart === 'all') {
@@ -289,6 +527,7 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
         if (!vid || vid === 'all') {
           setError('Pick one part.');
           setDraft(text);
+          draftRef.current = text;
           return;
         }
         video_id = vid;
@@ -297,10 +536,17 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
     }
 
     setLoading(true);
+    abortControllerRef.current?.abort();
+    const ac = new AbortController();
+    abortControllerRef.current = ac;
+    let speechStream: ReturnType<typeof createProfessorSpeechStream> | null = null;
     try {
-      const res = await fetch('/api/office-hours/chat', {
+      speechStream = createProfessorSpeechStream();
+      speechStreamRef.current = speechStream;
+      const res = await fetch('/api/office-hours/chat/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: ac.signal,
         body: JSON.stringify({
           messages: payloadMessages,
           session_key: sessionKey || undefined,
@@ -311,8 +557,8 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
           book_top_k: includeBooks ? 8 : 0,
         }),
       });
-      const data = (await res.json()) as { reply?: string; detail?: unknown };
       if (!res.ok) {
+        const data = (await res.json().catch(() => ({}))) as { detail?: unknown };
         const d = data.detail;
         const msg =
           typeof d === 'string'
@@ -322,21 +568,170 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
               : `HTTP ${res.status}`;
         throw new Error(msg || 'Request failed');
       }
-      const reply = typeof data.reply === 'string' ? data.reply : '';
-      if (!reply.trim()) throw new Error('Empty reply from professor.');
+      let fullReply = '';
+      let streamError: string | null = null;
+      await consumeOfficeHoursEventStream(res, {
+        onDelta: (t) => {
+          fullReply += t;
+          setStreamingAssistant((prev) => prev + t);
+          speechStreamRef.current?.appendDelta(t);
+        },
+        onDone: () => {},
+        onError: (m) => {
+          streamError = m;
+        },
+      });
+      if (streamError) throw new Error(streamError);
+      await speechStream.finalize();
+      speechStreamRef.current = null;
+      const trimmed = fullReply.trim();
+      if (!trimmed) throw new Error('Empty reply from professor.');
       setTurns((prev) => [
         ...prev,
         { role: 'user', content: text },
-        { role: 'assistant', content: reply.trim() },
+        { role: 'assistant', content: trimmed },
       ]);
-      void speakProfessorReply(reply.trim());
+      setStreamingAssistant('');
     } catch (e) {
+      if (isAbortError(e)) {
+        speechStream?.cancel();
+        speechStreamRef.current = null;
+        setStreamingAssistant('');
+        setError(null);
+        return;
+      }
       setError(e instanceof Error ? e.message : 'Something went wrong.');
       setDraft(text);
+      draftRef.current = text;
+      speechStream?.cancel();
+      speechStreamRef.current = null;
+      setStreamingAssistant('');
     } finally {
+      abortControllerRef.current = null;
       setLoading(false);
     }
-  };
+  }, [
+    loading,
+    searchScope,
+    selectedGroupKey,
+    currentGroup?.videos.length,
+    groupByKey,
+    selectedPart,
+    sessionKey,
+    includeBooks,
+    turns,
+  ]);
+
+  useEffect(() => {
+    sendMessageRef.current = sendMessage;
+  }, [sendMessage]);
+
+  useEffect(() => {
+    if (!voiceGateEnabled || !voiceSupported) {
+      followUpRecRef.current?.abort();
+      followUpRecRef.current = null;
+      if (followUpAutoSendTimerRef.current) {
+        window.clearTimeout(followUpAutoSendTimerRef.current);
+        followUpAutoSendTimerRef.current = null;
+      }
+      return undefined;
+    }
+
+    let cancelled = false;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
+
+    const assistantBusy = (): boolean => loadingRef.current || isProfessorSpeechSynthBusy();
+
+    const scheduleAutoSend = (): void => {
+      if (followUpAutoSendTimerRef.current) {
+        window.clearTimeout(followUpAutoSendTimerRef.current);
+        followUpAutoSendTimerRef.current = null;
+      }
+      followUpAutoSendTimerRef.current = window.setTimeout(() => {
+        followUpAutoSendTimerRef.current = null;
+        if (cancelled || assistantBusy()) return;
+        if (handsFreeMutedAfterStopRef.current) return;
+        const q = draftRef.current.trim();
+        if (!q || loadingRef.current) return;
+        void sendMessageRef.current(q);
+      }, FOLLOW_UP_FINAL_DEBOUNCE_MS);
+    };
+
+    const stopFollowUpRec = (): void => {
+      followUpRecRef.current?.abort();
+      followUpRecRef.current = null;
+      if (followUpAutoSendTimerRef.current) {
+        window.clearTimeout(followUpAutoSendTimerRef.current);
+        followUpAutoSendTimerRef.current = null;
+      }
+    };
+
+    const boot = (): void => {
+      if (cancelled || assistantBusy() || listeningRef.current || handsFreeMutedAfterStopRef.current) return;
+      const Ctor = getSpeechRecognitionCtor();
+      if (!Ctor) return;
+      const rec = new Ctor();
+      followUpRecRef.current = rec;
+      rec.lang = 'en-US';
+      rec.continuous = true;
+      rec.interimResults = true;
+      rec.onresult = (ev: LegacySpeechRecognitionEvent) => {
+        if (assistantBusy() || listeningRef.current || handsFreeMutedAfterStopRef.current) return;
+        let finals = '';
+        for (let i = ev.resultIndex; i < ev.results.length; i++) {
+          const r = ev.results[i];
+          const tr = r[0]?.transcript ?? '';
+          if (r.isFinal) finals += tr;
+        }
+        const fin = finals.trim();
+        if (!fin) return;
+        setDraft((d) => {
+          const next = d.trim() ? `${d.trim()} ${fin}` : fin;
+          draftRef.current = next;
+          return next;
+        });
+        scheduleAutoSend();
+      };
+      rec.onerror = () => {
+        followUpRecRef.current = null;
+      };
+      rec.onend = () => {
+        followUpRecRef.current = null;
+        if (!cancelled && !assistantBusy() && !listeningRef.current && !handsFreeMutedAfterStopRef.current) {
+          window.setTimeout(boot, 320);
+        }
+      };
+      try {
+        rec.start();
+      } catch {
+        window.setTimeout(boot, 450);
+      }
+    };
+
+    const sync = (): void => {
+      if (cancelled) return;
+      if (handsFreeMutedAfterStopRef.current) {
+        stopFollowUpRec();
+        return;
+      }
+      if (assistantBusy() || listeningRef.current) {
+        stopFollowUpRec();
+        return;
+      }
+      if (!followUpRecRef.current) {
+        boot();
+      }
+    };
+
+    pollTimer = window.setInterval(sync, 260);
+    sync();
+
+    return () => {
+      cancelled = true;
+      if (pollTimer != null) window.clearInterval(pollTimer);
+      stopFollowUpRec();
+    };
+  }, [voiceGateEnabled, voiceSupported]);
 
   const paperSx = {
     p: 2,
@@ -541,6 +936,49 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
           }
           label="Include textbook excerpts when relevant"
         />
+
+        <Box sx={{ mt: 2, pt: 2, borderTop: `1px solid ${alpha(theme.palette.divider, 0.12)}` }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={voiceGateEnabled}
+                onChange={(e) => setVoiceGateEnabled(e.target.checked)}
+                color="primary"
+              />
+            }
+            label="Hands-free voice — interrupt professor and auto-send questions"
+          />
+          <FormHelperText sx={{ mx: 0, mt: -0.5, mb: 1 }}>
+            While the professor is silent, the mic stays open: speak your question, pause about a second, and it sends
+            automatically—no keyboard or Send. During playback, enroll your voice once so only you can interrupt (not
+            speaker echo).
+          </FormHelperText>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1, alignItems: 'center' }}>
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={() => void runVoiceEnroll()}
+              disabled={!voiceGateEnabled || voiceMicStarting || !voiceMicReady || voiceEnrolling}
+              startIcon={
+                voiceMicStarting || voiceEnrolling ? <CircularProgress size={16} color="inherit" /> : undefined
+              }
+            >
+              {voiceMicStarting
+                ? 'Starting mic…'
+                : voiceEnrolling
+                  ? 'Listening…'
+                  : 'Enroll my voice (~3s)'}
+            </Button>
+            <Typography variant="caption" color={voiceProfileReady ? 'success.main' : 'text.secondary'}>
+              {voiceProfileReady ? 'Voice profile saved for this tab' : 'Required before interrupts while audio plays'}
+            </Typography>
+          </Box>
+          {voiceMicError ? (
+            <Typography variant="caption" color="error" sx={{ display: 'block', mt: 1 }}>
+              {voiceMicError}
+            </Typography>
+          ) : null}
+        </Box>
       </Paper>
 
       <Typography variant="subtitle2" color="text.secondary" sx={{ mb: 0.75 }}>
@@ -629,6 +1067,23 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
           startIcon={<StopCircleOutlinedIcon />}
           onClick={() => {
             stopProfessorSpeech();
+            speechStreamRef.current?.cancel();
+            speechStreamRef.current = null;
+            abortControllerRef.current?.abort();
+            abortControllerRef.current = null;
+            setStreamingAssistant('');
+            setLoading(false);
+            setError(null);
+            handsFreeMutedAfterStopRef.current = true;
+            setHandsFreeMicHushed(true);
+            if (followUpAutoSendTimerRef.current) {
+              window.clearTimeout(followUpAutoSendTimerRef.current);
+              followUpAutoSendTimerRef.current = null;
+            }
+            followUpRecRef.current?.abort();
+            followUpRecRef.current = null;
+            setDraft('');
+            draftRef.current = '';
           }}
         >
           Stop speech
@@ -643,12 +1098,37 @@ export function OfficeHoursPanel({ theme }: OfficeHoursPanelProps) {
         </Button>
       </Box>
 
+      {voiceGateEnabled && handsFreeMicHushed ? (
+        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 1 }}>
+          Hands-free mic is off after Stop speech. Press Send or Speak to listen again, or turn voice mode off and on.
+        </Typography>
+      ) : null}
+
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1.5 }}>
-        Spoken replies use short phrases and pauses, picking the most natural English voice available (on macOS:
-        System Settings → Accessibility → Spoken Content → download enhanced or premium voices).
-        {voiceSupported
-          ? ' The mic sends your question as text via speech-to-text.'
-          : ' For voice questions, try Chrome or Edge where speech recognition is supported.'}
+        Replies stream from Claude; speech starts as phrases complete while tokens arrive. Voices: macOS System Settings →
+        Accessibility → Spoken Content → enhanced or premium voices.
+        {voiceGateEnabled && voiceSupported ? (
+          <>
+            {' '}
+            With voice mode on, the browser listens whenever the professor isn&apos;t speaking; pause ~{Math.round(
+              FOLLOW_UP_FINAL_DEBOUNCE_MS / 100,
+            ) / 10}s after your last words to send hands-free.
+          </>
+        ) : null}
+        {voiceGateEnabled && voiceProfileReady ? (
+          <>
+            {' '}
+            Voice interrupt during playback uses your enrolled profile so speaker bleed doesn&apos;t cut off the
+            professor.
+          </>
+        ) : voiceGateEnabled ? (
+          <> Enroll your voice so interrupts ignore professor audio picked up by the mic.</>
+        ) : null}
+        {voiceSupported ? (
+          <> The Speak button is optional push-to-talk if you prefer one-shot capture.</>
+        ) : (
+          ' For voice questions, try Chrome or Edge where speech recognition is supported.'
+        )}
       </Typography>
     </Box>
   );

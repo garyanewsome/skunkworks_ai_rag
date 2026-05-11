@@ -1,3 +1,4 @@
+import json
 import os
 from difflib import SequenceMatcher
 from contextlib import asynccontextmanager
@@ -8,6 +9,7 @@ from uuid import UUID
 
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.encoders import jsonable_encoder
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, field_validator
@@ -1198,6 +1200,89 @@ def office_hours_chat(body: OfficeHoursBody):
                 append_office_hours_turn(conn, sk, "user", msgs[-1]["content"])
                 append_office_hours_turn(conn, sk, "assistant", reply)
         return resp
+    except ValueError as e:
+        _save_prompt_trace("office_hours", req, None, str(e))
+        raise HTTPException(status_code=400, detail=str(e)) from e
+    except HTTPException as e:
+        _save_prompt_trace("office_hours", req, None, _http_exc_detail(e))
+        raise
+    except Exception as e:
+        _save_prompt_trace("office_hours", req, None, str(e))
+        raise HTTPException(status_code=502, detail=f"Office Hours failed: {e!s}") from e
+
+
+@app.post("/api/office-hours/chat/stream")
+def office_hours_chat_stream(body: OfficeHoursBody):
+    """Stream assistant tokens as SSE: `data: {"text":"..."}` then `{"done": true}`. Same RAG and DB writes as `/chat` when `session_key` is set."""
+    req = body.model_dump(mode="json")
+    if not os.environ.get("ANTHROPIC_API_KEY"):
+        detail = "Office Hours requires ANTHROPIC_API_KEY."
+        _save_prompt_trace("office_hours", req, None, detail)
+        raise HTTPException(status_code=503, detail=detail)
+    try:
+        msgs = [{"role": m.role, "content": m.content.strip()} for m in body.messages]
+        if not msgs:
+            raise HTTPException(status_code=400, detail="messages is empty")
+        if msgs[0]["role"] != "user":
+            raise HTTPException(
+                status_code=400,
+                detail="Conversation must start with a user message.",
+            )
+        for i, m in enumerate(msgs):
+            expected: Literal["user", "assistant"] = "user" if i % 2 == 0 else "assistant"
+            if m["role"] != expected:
+                raise HTTPException(
+                    status_code=400,
+                    detail="messages must strictly alternate user and assistant.",
+                )
+        ids = _normalize_video_ids(body.video_ids)
+        vid = (body.video_id or "").strip() or None
+        if ids:
+            vid = None
+        model = os.environ.get("ANTHROPIC_MODEL", "claude-sonnet-4-6")
+        from office_hours_agent import iter_office_hours_turn_text_stream, prepare_office_hours_turn
+
+        session_recap: str | None = None
+        sk: str | None = body.session_key
+        if sk:
+            with get_connection() as conn:
+                db_turns = list_office_hours_turns(conn, sk)
+            session_recap = _office_hours_recap_if_needed(db_turns, msgs)
+
+        prepared = prepare_office_hours_turn(
+            msgs,
+            video_id=vid,
+            video_ids=ids,
+            include_books=body.include_books,
+            lecture_top_k=body.lecture_top_k,
+            book_top_k=body.book_top_k,
+            model=model,
+            max_tokens=4096,
+            session_recap=session_recap,
+        )
+
+        def event_gen():
+            parts: list[str] = []
+            try:
+                for delta in iter_office_hours_turn_text_stream(prepared):
+                    parts.append(delta)
+                    yield f"data: {json.dumps({'text': delta})}\n\n"
+                reply = "".join(parts).strip()
+                if not reply:
+                    yield f"data: {json.dumps({'error': 'Empty reply from professor.'})}\n\n"
+                    return
+                if sk:
+                    with get_connection() as conn:
+                        append_office_hours_turn(conn, sk, "user", msgs[-1]["content"])
+                        append_office_hours_turn(conn, sk, "assistant", reply)
+                resp = OfficeHoursResponse(reply=reply)
+                _save_prompt_trace("office_hours", req, resp.model_dump(mode="json"), None)
+                yield f"data: {json.dumps({'done': True})}\n\n"
+            except Exception as e:
+                _save_prompt_trace("office_hours", req, None, str(e))
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+        return StreamingResponse(event_gen(), media_type="text/event-stream")
     except ValueError as e:
         _save_prompt_trace("office_hours", req, None, str(e))
         raise HTTPException(status_code=400, detail=str(e)) from e

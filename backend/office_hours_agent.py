@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import os
+from collections.abc import Iterator
+from dataclasses import dataclass
 from textwrap import dedent
 
 import anthropic
@@ -20,7 +22,16 @@ from rag_store import (
 )
 
 
-def run_office_hours_turn(
+@dataclass(frozen=True)
+class OfficeHoursTurnParams:
+    client: anthropic.Anthropic
+    model: str
+    max_tokens: int
+    system: str
+    api_messages: list[dict[str, str]]
+
+
+def prepare_office_hours_turn(
     messages: list[dict[str, str]],
     *,
     video_id: str | None,
@@ -31,7 +42,7 @@ def run_office_hours_turn(
     model: str,
     max_tokens: int,
     session_recap: str | None = None,
-) -> str:
+) -> OfficeHoursTurnParams:
     if not messages:
         raise ValueError("messages is empty")
     if messages[-1].get("role") != "user":
@@ -112,13 +123,50 @@ def run_office_hours_turn(
         )
 
     client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-    with client.messages.stream(
+    return OfficeHoursTurnParams(
+        client=client,
         model=model,
         max_tokens=max_tokens,
         system=system,
-        messages=api_messages,
+        api_messages=api_messages,
+    )
+
+
+def iter_office_hours_turn_text_stream(prepared: OfficeHoursTurnParams) -> Iterator[str]:
+    """Yield assistant text deltas from Claude (same request as run_office_hours_turn)."""
+    with prepared.client.messages.stream(
+        model=prepared.model,
+        max_tokens=prepared.max_tokens,
+        system=prepared.system,
+        messages=prepared.api_messages,
     ) as stream:
-        parts: list[str] = []
-        for text in stream.text_stream:
-            parts.append(text)
-        return "".join(parts).strip()
+        yield from stream.text_stream
+
+
+def run_office_hours_turn(
+    messages: list[dict[str, str]],
+    *,
+    video_id: str | None,
+    video_ids: list[str] | None,
+    include_books: bool,
+    lecture_top_k: int,
+    book_top_k: int,
+    model: str,
+    max_tokens: int,
+    session_recap: str | None = None,
+) -> str:
+    prepared = prepare_office_hours_turn(
+        messages,
+        video_id=video_id,
+        video_ids=video_ids,
+        include_books=include_books,
+        lecture_top_k=lecture_top_k,
+        book_top_k=book_top_k,
+        model=model,
+        max_tokens=max_tokens,
+        session_recap=session_recap,
+    )
+    parts: list[str] = []
+    for text in iter_office_hours_turn_text_stream(prepared):
+        parts.append(text)
+    return "".join(parts).strip()
